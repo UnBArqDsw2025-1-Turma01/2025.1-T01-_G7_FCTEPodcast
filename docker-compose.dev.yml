@@ -1,0 +1,46 @@
+services:
+  fctepocast-frontend:
+    container_name: fctepocast-frontend
+    build:
+      context: ./fctepodcast-frontend
+      dockerfile: Dockerfile.dev
+    image: fctepocast-front:dev
+    ports:
+      - "5173:5173"
+    volumes:
+      - ./fctepodcast-frontend:/app
+    env_file:
+      - .env.dev
+    restart: always
+
+  fctepodcast-backend:
+    container_name: fctepodcast-backend
+    build:
+      context: ./fctepodcast-backend
+      dockerfile: Dockerfile.dev
+    image: fctepodcast-backend:dev
+    ports:
+      - "${API_PORT}:${API_PORT}"
+    volumes:
+      - ./fctepodcast-backend:/app
+    env_file:
+      - .env.dev
+    restart: always
+    depends_on:
+      - fctepocast-db
+  
+  fctepocast-db:
+    container_name: fctepocast-db
+    image: mongo:latest
+    ports:
+      - "27017:27017"
+    volumes:
+      - db_data:/data/db
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME=${MONGO_INITDB_ROOT_USERNAME}
+      - MONGO_INITDB_ROOT_PASSWORD=${MONGO_INITDB_ROOT_PASSWORD}
+      - MONGO_INITDB_DATABASE=fctepodcast
+    
+volumes:
+  db_data:
+    

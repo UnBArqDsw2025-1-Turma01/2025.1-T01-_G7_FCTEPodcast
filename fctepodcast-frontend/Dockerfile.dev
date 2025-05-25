@@ -1,0 +1,22 @@
+FROM node:alpine
+
+# Define o diretório de trabalho dentro do container
+WORKDIR /app
+
+# Copia os arquivos de dependência primeiro (isso ajuda com cache)
+COPY package*.json ./
+COPY entrypoint.sh ./
+
+# Dá permissão de execução ao script
+RUN chmod +x entrypoint.sh && npm install
+
+# Copia o restante do código
+COPY . .
+
+# Expõe a porta padrão do Vite ou Express, se quiser
+EXPOSE 5173
+
+ENTRYPOINT ["sh", "./entrypoint.sh"]
+
+# Comando para iniciar o servidor em modo dev
+CMD ["npm", "run", "dev"]

@@ -1,0 +1,17 @@
+FROM node:18-alpine
+
+WORKDIR /app
+
+COPY package*.json ./
+COPY entrypoint.sh ./
+
+# Dá permissão de execução ao script
+RUN chmod +x entrypoint.sh && npm install
+
+COPY . .
+
+# Usa o entrypoint customizado
+ENTRYPOINT ["sh", "./entrypoint.sh"]
+
+# Comando padrão (pode ser sobrescrito no compose)
+CMD ["npm", "run", "dev"]
