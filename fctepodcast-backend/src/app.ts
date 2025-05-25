@@ -2,6 +2,8 @@ import express from "express";
 import { configDotenv } from "dotenv";
 import helmet from "helmet";
 import cors from "cors";
+import connect_db from "./config/connect_db";
+import router from "./routes/router";
 configDotenv();
 
 const app = express();
@@ -27,14 +29,9 @@ app.use(
     credentials: true,
   })
 );
+connect_db();
 
-// rota de statys
-app.get("/status", (req, res) => {
-  res.status(200).json({
-    status: "ok",
-    message: "Server is running",
-  });
-});
+app.use("/api", router);
 
 // isntanciacao do servidor
 app.listen(API_PORT, () => {
