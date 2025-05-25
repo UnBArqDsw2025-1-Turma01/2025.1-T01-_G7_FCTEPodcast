@@ -4,6 +4,7 @@ import helmet from "helmet";
 import cors from "cors";
 import connect_db from "./config/connect_db";
 import router from "./routes/router";
+import cookieParser from "cookie-parser";
 configDotenv();
 
 const app = express();
@@ -29,6 +30,7 @@ app.use(
     credentials: true,
   })
 );
+app.use(cookieParser());
 connect_db();
 
 app.use("/api", router);
