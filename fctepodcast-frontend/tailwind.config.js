@@ -10,7 +10,16 @@ export default {
     extend: {
       fontFamily: {
         sans: ['Roboto', 'sans-serif'],
-      }
+      },
+      keyframes: {
+        bounceDot: {
+          "0%, 80%, 100%": { transform: "translateY(0)" },
+          "40%": { transform: "translateY(-0.5rem)" },
+        },
+      },
+      animation: {
+        "bounce-dot": "bounceDot 1.4s infinite",
+      },
     },
   },
   darkMode: "class",

@@ -79,4 +79,4 @@ const Professor = Usuario.discriminator(
   })
 );
 
-export { Aluno, Professor };
+export { Aluno, Professor, Usuario };
