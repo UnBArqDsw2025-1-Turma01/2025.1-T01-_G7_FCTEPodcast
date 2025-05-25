@@ -43,11 +43,12 @@ const ProfessorForm = () => {
     try {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const response: any = await axios.post(
-        `${BASE_API_URL}/usuario/professor/registrar`,
+        `${BASE_API_URL}/usuario/registrar`,
         {
           nome,
           email,
           senha,
+          role: "PROFESSOR",
         }
       );
 
@@ -62,7 +63,9 @@ const ProfessorForm = () => {
       console.log(error);
       addToast({
         title: error.response.data.title,
-        description: error.response.data.message,
+        description:
+          error.response.data.message ||
+          error.response.data.errors.join(";\n "),
         color: "danger",
       });
     } finally {

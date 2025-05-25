@@ -43,11 +43,12 @@ const AlunoForm = () => {
     try {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const response: any = await axios.post(
-        `${BASE_API_URL}/usuario/aluno/registrar`,
+        `${BASE_API_URL}/usuario/registrar`,
         {
           nome,
           email,
           senha,
+          role: "ALUNO",
         }
       );
 

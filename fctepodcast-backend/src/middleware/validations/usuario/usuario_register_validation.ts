@@ -1,6 +1,6 @@
 import { body } from "express-validator";
 
-const aluno_register_validation = () => {
+const validacao_registro_usuario = () => {
   return [
     body("nome")
       .notEmpty()
@@ -21,7 +21,12 @@ const aluno_register_validation = () => {
       .withMessage("O campo senha é obrigatório")
       .isLength({ min: 4 })
       .withMessage("O campo senha deve ter pelo menos 4 caracteres"),
+    body("role")
+      .notEmpty()
+      .withMessage("O campo role é obrigatório")
+      .isIn(["ALUNO", "PROFESSOR"])
+      .withMessage("O campo role deve ser 'ALUNO' ou 'PROFESSOR'"),
   ];
 };
 
-export { aluno_register_validation };
+export { validacao_registro_usuario };

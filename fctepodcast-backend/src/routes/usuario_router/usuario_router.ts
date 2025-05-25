@@ -1,28 +1,34 @@
 import express from "express";
-import { registrar_professor } from "../../services/usuario/auth/registrar_professor";
-import { professor_register_validation } from "../../middleware/validations/usuario/professor_register_validation";
 import { validate } from "../../middleware/validations/handle_validations";
-import { aluno_register_validation } from "../../middleware/validations/usuario/aluno_register_validation";
-import { registrar_aluno } from "../../services/usuario/auth/registrar_aluno";
 import { login } from "../../services/usuario/auth/login";
 import { logout } from "../../services/usuario/auth/logout";
 import { refresh_session } from "../../services/usuario/auth/refresh_session";
+import { registrar_usuario } from "../../services/usuario/auth/usuario_factory/registrar_usuario";
+import { validacao_registro_usuario } from "../../middleware/validations/usuario/usuario_register_validation";
 
 const usuario_router = express.Router();
 
 // autenticacao
+
 usuario_router.post(
-  "/professor/registrar",
-  professor_register_validation(),
+  "/registrar",
+  validacao_registro_usuario(),
   validate,
-  registrar_professor
+  registrar_usuario
 );
-usuario_router.post(
-  "/aluno/registrar",
-  aluno_register_validation(),
-  validate,
-  registrar_aluno
-);
+
+// usuario_router.post(
+//   "/professor/registrar",
+//   professor_register_validation(),
+//   validate,
+//   registrar_professor
+// );
+// usuario_router.post(
+//   "/aluno/registrar",
+//   aluno_register_validation(),
+//   validate,
+//   registrar_aluno
+// );
 
 // login e logout
 usuario_router.post("/login", login);
