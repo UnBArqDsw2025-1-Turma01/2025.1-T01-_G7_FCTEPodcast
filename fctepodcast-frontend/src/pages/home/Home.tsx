@@ -1,14 +1,5 @@
-import { useAuth } from "../../context/auth/AuthContext";
-import { Button } from "@heroui/react";
-
 const Home = () => {
-  const { user, logout } = useAuth();
-  return (
-    <div>
-      {user?.nome}
-      <Button onPress={logout}>LOGOUT</Button>
-    </div>
-  );
+  return <h1 className="text-3xl font-semibold">Página Inicial</h1>;
 };
 
 export default Home;

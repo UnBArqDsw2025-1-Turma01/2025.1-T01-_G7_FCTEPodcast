@@ -93,7 +93,7 @@ const Registro = () => {
           }}
           color="primary"
         >
-          Criar Conta
+          Logar
         </Button>
       </motion.div>
     </motion.div>
