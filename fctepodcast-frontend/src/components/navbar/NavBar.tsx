@@ -34,7 +34,10 @@ const NavBar = () => {
               <Avatar />
             </button>
           </DropdownTrigger>
-          <DropdownMenu disabledKeys={["profile_info"]}>
+          <DropdownMenu
+            disabledKeys={["profile_info"]}
+            className="cursor-default"
+          >
             <DropdownItem key="profile_info">
               <p className="font-bold">Logado(a) como: {user?.nome}</p>
             </DropdownItem>
