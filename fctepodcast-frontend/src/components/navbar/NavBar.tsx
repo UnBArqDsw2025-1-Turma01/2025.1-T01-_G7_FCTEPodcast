@@ -14,13 +14,17 @@ import logo from "../../assets/logo.png";
 import { FaSearch } from "react-icons/fa";
 import { MdLogout } from "react-icons/md";
 import { useAuth } from "../../context/auth/AuthContext";
+import { useNavigate } from "react-router";
 
 const NavBar = () => {
   const { user, logout } = useAuth();
+  const navigate = useNavigate();
   return (
     <Navbar className="bg-primary-50">
       <NavbarBrand>
-        <Image src={logo} className="h-12" />
+        <button onClick={() => navigate("/home")}>
+          <Image src={logo} className="h-12" />
+        </button>
       </NavbarBrand>
 
       <NavbarContent justify="center" className="">
