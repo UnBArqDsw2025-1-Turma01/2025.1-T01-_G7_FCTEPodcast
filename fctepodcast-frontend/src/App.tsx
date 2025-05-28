@@ -6,6 +6,7 @@ import Unauthorized from "./pages/unauthorized/Unauthorized";
 import Home from "./pages/home/Home";
 import ProtectedRoute from "./components/protecated-route/ProtectedRoute";
 import Loader from "./pages/loader/Loader";
+import Studio from "./pages/studio/Studio";
 
 function App() {
   return (
@@ -20,6 +21,7 @@ function App() {
         {/* rotas protegidas */}
         <Route element={<ProtectedRoute roles={["PROFESSOR", "ALUNO"]} />}>
           <Route path="/home" element={<Home />} />
+          <Route path="/studio" element={<Studio />} />
         </Route>
 
         {/* rotas especiais */}

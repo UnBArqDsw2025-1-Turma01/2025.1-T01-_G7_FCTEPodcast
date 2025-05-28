@@ -5,26 +5,31 @@ import {
 } from "react-icons/ri";
 import { motion } from "framer-motion";
 import { useAuth } from "../../context/auth/AuthContext";
+import { useNavigate } from "react-router";
 
 const SideBar = () => {
   const { user } = useAuth();
+  const navigate = useNavigate();
 
   const buttons = [
     {
       title: "Sua Biblioteca",
       description: "Organize, descubra e aproveite",
       icon: <RiFolderMusicFill className="text-xl" />,
+      redirect: "/home",
     },
     {
       title: "Criar Playlist",
       description: "Organize conversas que te inspiram",
       icon: <RiPlayListFill className="text-xl" />,
+      redirect: "/home",
     },
     {
       title: "Studio",
       description: "O backstage do seu conteúdo em áudio",
       icon: <RiClapperboardFill className="text-xl" />,
       role_access: "PROFESSOR",
+      redirect: "/studio",
     },
   ];
 
@@ -49,6 +54,7 @@ const SideBar = () => {
           .map((btn, i) => (
             <motion.button
               key={btn.title}
+              onClick={() => navigate(btn.redirect)}
               className="bg-primary-100 p-5 w-full rounded-xl text-left flex flex-col gap-4"
               variants={variants}
               initial="hidden"
