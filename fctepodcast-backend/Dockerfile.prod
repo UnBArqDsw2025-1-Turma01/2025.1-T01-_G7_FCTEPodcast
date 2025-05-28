@@ -1,25 +1,23 @@
-FROM node:alpine AS builder
-
-WORKDIR /app
-
-COPY package*.json /app/
-
-RUN npm install
-
-COPY . /app/
-
-RUN npm run build
-
-FROM node:alpine AS production
+FROM node:alpine
 
 ENV NODE_ENV=production
 
 WORKDIR /app
 
-RUN npm install
+# Copia os arquivos necessários
+COPY package*.json ./
 
-COPY --from=builder /app/dist ./dist
+# Instala apenas as dependências de produção
+RUN npm install --only=production
 
+# Copia o restante dos arquivos (inclui src, etc.)
+COPY . .
+
+# Compila a aplicação
+RUN npm run build
+
+# Expõe a porta usada pela aplicação
 EXPOSE 3008
 
+# Comando para iniciar a aplicação
 CMD ["node", "dist/app.js"]
