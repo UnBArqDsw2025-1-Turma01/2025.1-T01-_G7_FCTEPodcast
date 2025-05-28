@@ -5,12 +5,15 @@ import { UsuarioController } from "../../controller/UsuarioController";
 import { AuthProxy } from "../../proxy/AuthProxy";
 import { PodcastController } from "../../controller/PodcastController";
 import { upload } from "../../middleware/multer/multer";
+import { ImageAdapter, ImageFileSystem } from "../../adapter/ImageAdapter";
 
 const usuario_router = express.Router();
 
 // controllers
 const usuario_controller = new UsuarioController();
 const podcast_controller = new PodcastController();
+const imageFileSystem = new ImageFileSystem("/app/uploads");
+const imageProvider = new ImageAdapter(imageFileSystem);
 
 // autenticacao
 usuario_router.post(
@@ -38,5 +41,16 @@ usuario_router.get(
     podcast_controller.listarPodcastsUsuario
   ).handleRequest
 );
+
+usuario_router.get("/image/", async (req, res) => {
+  const { path: imagePath } = req.query;
+
+  if (!imagePath) {
+    res.status(400).json({ error: "Parâmetro 'path' é obrigatório" });
+    return;
+  }
+
+  await imageProvider.getImage(imagePath as string, res);
+});
 
 export default usuario_router;
