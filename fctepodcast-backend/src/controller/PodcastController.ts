@@ -4,13 +4,14 @@ import { ConcretePodcastBuilder } from "../builder/Podcast/PodcastBuilder";
 
 export class PodcastController {
   async criarPodcast(req: Request, res: Response): Promise<void> {
-    const { titulo, descricao, autor, co_autores } = req.body;
+    const { titulo, descricao, autor, co_autores, tags } = req.body;
     const image_file = req.file;
 
     const builder = new ConcretePodcastBuilder();
 
     try {
       await builder.adicionarCamposTextuais(titulo, descricao, autor);
+      await builder.registrarTags(tags);
       builder.adicionarImagem(image_file?.path);
       if (co_autores) {
         builder.adicionarCoAutores(co_autores);
@@ -47,5 +48,44 @@ export class PodcastController {
       });
       return;
     }
+  }
+
+  async listarPodcastsUsuario(req: Request, res: Response): Promise<void> {
+    const usuario_id = req.params.usuario_id;
+    if (!usuario_id) {
+      res.status(400).json({
+        status: "error",
+        title: "ID de usuário ausente",
+        message: "O ID do usuário é obrigatório.",
+      });
+      return;
+    }
+
+    const podcasts = await Podcast.find({
+      autor: usuario_id,
+    })
+      .populate({
+        path: "co_autores",
+        select: "nome email", // Seleciona apenas os campos necessários dos co-autores
+      })
+      .populate({
+        path: "autor",
+        select: "nome email", // Seleciona apenas os campos necessários do autor
+      });
+    if (!podcasts || podcasts.length === 0) {
+      res.status(404).json({
+        status: "error",
+        title: "Nenhum podcast encontrado",
+        message: "Nenhum podcast encontrado para este usuário.",
+      });
+      return;
+    }
+
+    res.status(200).json({
+      status: "success",
+      title: "Podcasts encontrados",
+      message: "Podcasts encontrados com sucesso!",
+      podcasts: podcasts,
+    });
   }
 }

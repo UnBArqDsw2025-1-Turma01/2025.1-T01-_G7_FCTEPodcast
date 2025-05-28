@@ -37,9 +37,9 @@ const PodcastSchema = new Schema(
     ],
     tags: [
       {
-        type: mongoose.Types.ObjectId,
-        ref: "Tag",
-        // required: true,
+        type: String,
+        trim: true,
+        required: true,
       },
     ],
   },

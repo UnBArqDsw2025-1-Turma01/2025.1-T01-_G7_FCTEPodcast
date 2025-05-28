@@ -18,14 +18,17 @@ import { BASE_API_URL } from "../../../utils/constants";
 const CriarPodcastModal = ({
   isOpen,
   onOpenChange,
+  refresh,
 }: {
   isOpen: boolean;
   onOpenChange: (isOpen: boolean) => void;
+  refresh: () => void;
 }) => {
   const { user } = useAuth();
   const [titulo, setTitulo] = useState<string>("");
   const [descricao, setDescricao] = useState<string>("");
   const [image, setImage] = useState<File | null>(null);
+  const [tags, setTags] = useState<string>("");
 
   const handleCreatePodcast = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -40,6 +43,7 @@ const CriarPodcastModal = ({
       formData.append("image", image);
     }
     formData.append("autor", user?.id);
+    formData.append("tags", tags);
 
     try {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -62,7 +66,9 @@ const CriarPodcastModal = ({
       setTitulo("");
       setDescricao("");
       setImage(null);
+      setTags("");
 
+      refresh(); // Refresh the podcast list after creation
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (error: any) {
       addToast({
@@ -74,7 +80,7 @@ const CriarPodcastModal = ({
   };
 
   return (
-    <Modal isOpen={isOpen} onOpenChange={onOpenChange}>
+    <Modal isOpen={isOpen} onOpenChange={onOpenChange} backdrop="blur">
       <ModalContent>
         {() => (
           <>
@@ -120,6 +126,13 @@ const CriarPodcastModal = ({
                   label="Descrição"
                   value={descricao}
                   onChange={(e) => setDescricao(e.target.value)}
+                />
+
+                <Input
+                  label="Tags"
+                  placeholder="Separe as tags com uma vírgula (,)"
+                  onChange={(e) => setTags(e.target.value)}
+                  value={tags}
                 />
 
                 <Input label="Autor" readOnly disabled value={user?.nome} />

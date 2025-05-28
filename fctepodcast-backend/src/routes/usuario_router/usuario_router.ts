@@ -30,4 +30,13 @@ usuario_router.post(
   new AuthProxy(["PROFESSOR"], podcast_controller.criarPodcast).handleRequest
 );
 
+// podcasts
+usuario_router.get(
+  "/podcasts/:usuario_id",
+  new AuthProxy(
+    ["PROFESSOR", "ALUNO"],
+    podcast_controller.listarPodcastsUsuario
+  ).handleRequest
+);
+
 export default usuario_router;

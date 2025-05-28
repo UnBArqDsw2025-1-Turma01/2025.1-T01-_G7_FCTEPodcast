@@ -8,6 +8,7 @@ interface PodcastBuilder {
     autor: string
   ): Promise<void>;
   adicionarCoAutores(co_autores: string[]): void;
+  registrarTags(tags: string): void;
   build(): PodcastDTO;
 }
 
@@ -17,6 +18,7 @@ type PodcastDTO = {
   imagem_path: string;
   co_autores: string[];
   autor: string;
+  tags?: string[];
 };
 
 export class ConcretePodcastBuilder implements PodcastBuilder {
@@ -29,16 +31,17 @@ export class ConcretePodcastBuilder implements PodcastBuilder {
       imagem_path: "",
       co_autores: [],
       autor: "",
+      tags: [],
     };
   }
 
   public adicionarImagem(imagem_path: string | undefined): void {
-    if (imagem_path === undefined || imagem_path === null) {
-      throw new Error(
-        "Erro interno: Caminho da imagem não pode ser nulo ou indefinido."
-      );
-    }
-    this.podcast!.imagem_path = imagem_path;
+    // if (imagem_path === undefined || imagem_path === null) {
+    //   throw new Error(
+    //     "Erro interno: Caminho da imagem não pode ser nulo ou indefinido."
+    //   );
+    // }
+    this.podcast!.imagem_path = imagem_path || "default_image";
   }
 
   public async adicionarCamposTextuais(
@@ -72,6 +75,20 @@ export class ConcretePodcastBuilder implements PodcastBuilder {
       throw new Error("Co-autores deve ser um array não vazio.");
     }
     this.podcast!.co_autores = co_autores;
+  }
+
+  public registrarTags(tags: string) {
+    if (!tags || typeof tags !== "string") {
+      throw new Error("Tags devem ser uma string não vazia.");
+    }
+
+    // Transforma a string em array, remove espaços em branco e ignora tags vazias
+    const tagArray = tags
+      .split(",")
+      .map((tag) => tag.trim())
+      .filter((tag) => tag.length > 0);
+
+    this.podcast!.tags = tagArray;
   }
 
   public build(): PodcastDTO {
