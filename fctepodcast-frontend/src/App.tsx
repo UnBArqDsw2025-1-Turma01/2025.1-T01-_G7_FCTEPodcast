@@ -7,6 +7,8 @@ import Home from "./pages/home/Home";
 import ProtectedRoute from "./components/protecated-route/ProtectedRoute";
 import Loader from "./pages/loader/Loader";
 import Studio from "./pages/studio/Studio";
+import GerenciarPodcasts from "./pages/podcasts/GerenciarPodcasts";
+import GerenciarMonitores from "./pages/podcasts/GerenciarMonitores";
 
 function App() {
   return (
@@ -22,6 +24,18 @@ function App() {
         <Route element={<ProtectedRoute roles={["PROFESSOR", "ALUNO"]} />}>
           <Route path="/home" element={<Home />} />
           <Route path="/studio" element={<Studio />} />
+          <Route
+            path="/studio/podcasts/gerenciar"
+            element={<GerenciarPodcasts />}
+          />
+          <Route
+            path="/studio/monitores/gerenciar"
+            element={<GerenciarMonitores />}
+          />
+          <Route
+            path="/studio/notificacoes"
+            element={<div>Notificações</div>}
+          />
         </Route>
 
         {/* rotas especiais */}
