@@ -13,11 +13,51 @@ import { IoMdAdd } from "react-icons/io";
 import { MdAudiotrack } from "react-icons/md";
 import { FaPencil } from "react-icons/fa6";
 import { FaTrash } from "react-icons/fa";
+import { BASE_API_URL } from "../../utils/constants";
+import { useEffect, useState } from "react";
+import axios from "axios";
 
 const PodcastStudioCard = ({ podcast }: { podcast: PodcastType }) => {
+  const imageSrc = podcast.imagem_path
+    ? `${BASE_API_URL}/usuario/image?path=${encodeURIComponent(
+        podcast.imagem_path
+      )}`
+    : "no_image";
+
+  const [imageBlobUrl, setImageBlobUrl] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (!podcast.imagem_path) return;
+
+    axios
+      .get(
+        `${BASE_API_URL}/usuario/image?path=${encodeURIComponent(
+          podcast.imagem_path
+        )}`,
+        {
+          responseType: "blob",
+        }
+      )
+      .then((response) => {
+        const url = URL.createObjectURL(response.data);
+        setImageBlobUrl(url);
+      })
+      .catch((error) => {
+        console.error("Error fetching image:", error);
+        setImageBlobUrl(null);
+      });
+
+    // Cleanup ao desmontar o componente
+    return () => {
+      if (imageBlobUrl) URL.revokeObjectURL(imageBlobUrl);
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [podcast.imagem_path]);
+
+  console.log("Base URL for image:", imageSrc);
   return (
     <motion.div
-      className="bg-primary-50 p-4 rounded-xl flex items-center justify-evenly gap-6 shadow-sm"
+      className="bg-primary-50 p-4 rounded-xl flex items-center justify-evenly gap-6 shadow-sm h-20"
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       //whileHover={{ scale: 1.02 }}
@@ -30,7 +70,7 @@ const PodcastStudioCard = ({ podcast }: { podcast: PodcastType }) => {
           transition={{ delay: 0.1 }}
         >
           <Image
-            src={no_image}
+            src={imageBlobUrl || no_image}
             alt="Capa do Podcast"
             className="w-16 rounded-md"
           />
