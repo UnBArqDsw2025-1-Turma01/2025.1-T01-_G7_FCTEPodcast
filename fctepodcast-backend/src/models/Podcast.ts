@@ -9,25 +9,37 @@ const PodcastSchema = new Schema(
     },
     imagem_path: {
       type: String,
-      required: true,
+      default: "no_image_path",
     },
     descricao: {
       type: String,
       required: true,
       trim: true,
     },
-    autores: [
+    co_autores: [
       {
         type: mongoose.Types.ObjectId,
         ref: "Professor",
-        required: true,
+        default: [],
       },
     ],
+    autor: {
+      type: mongoose.Types.ObjectId,
+      ref: "Professor",
+      required: true,
+    },
     episodios: [
       {
         type: mongoose.Types.ObjectId,
         ref: "Episodio",
         default: [],
+      },
+    ],
+    tags: [
+      {
+        type: mongoose.Types.ObjectId,
+        ref: "Tag",
+        // required: true,
       },
     ],
   },
