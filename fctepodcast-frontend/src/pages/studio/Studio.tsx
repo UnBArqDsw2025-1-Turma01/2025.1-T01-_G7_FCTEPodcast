@@ -1,5 +1,4 @@
 import { Avatar, Button, useDisclosure } from "@heroui/react";
-import React from "react";
 import { useAuth } from "../../context/auth/AuthContext";
 import CriarPodcastModal from "../../components/modals/podcast/CriarPodcastModal";
 
@@ -19,7 +18,11 @@ const Studio = () => {
         <Button onPress={onOpen}>Criar Podcast</Button>
       </div>
 
-      <CriarPodcastModal isOpen={isOpen} onOpenChange={onOpenChange} />
+      <CriarPodcastModal
+        isOpen={isOpen}
+        onOpenChange={onOpenChange}
+        refresh={() => {}}
+      />
     </div>
   );
 };
