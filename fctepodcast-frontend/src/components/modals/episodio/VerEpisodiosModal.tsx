@@ -54,7 +54,7 @@ const VerEpisodiosModal = ({
 
   console.log("VerEpisodiosModal", podcast_reference);
   return (
-    <Modal isOpen={isOpen} onOpenChange={onOpenChange}>
+    <Modal isOpen={isOpen} onOpenChange={onOpenChange} backdrop="blur">
       <ModalContent>
         {() => (
           <>
