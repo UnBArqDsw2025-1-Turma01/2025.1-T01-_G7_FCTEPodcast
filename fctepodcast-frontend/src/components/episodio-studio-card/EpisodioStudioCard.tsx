@@ -1,4 +1,3 @@
-import React from "react";
 import type { EpisodioType } from "../../utils/types/EpisodioType";
 import { Image } from "@heroui/react";
 
