@@ -1,17 +1,42 @@
-import { BiSolidSpeaker } from "react-icons/bi";
+// import { BiSolidSpeaker } from "react-icons/bi";
 import { FaPause, FaPlay } from "react-icons/fa";
-import { FaShuffle, FaRepeat, FaVolumeLow } from "react-icons/fa6";
+import { FaVolumeLow } from "react-icons/fa6";
 import { IoMdSkipBackward, IoMdSkipForward } from "react-icons/io";
-import { LuListMusic } from "react-icons/lu";
+// import { LuListMusic } from "react-icons/lu";
 import { motion, AnimatePresence } from "framer-motion";
 import { usePlayer } from "../../context/player/PlayerContext";
 import { PlayCommand } from "../../context/player/commands/PlayerCommands";
 import { PauseCommand } from "../../context/player/commands/PauseCommand";
 import { NextCommand } from "../../context/player/commands/NextCommand";
 import { PreviousCommand } from "../../context/player/commands/PreviousCommand";
+import { Slider } from "@heroui/react";
 
 const PlayBar = () => {
-  const { dispatchCommand, isPlaying, player } = usePlayer();
+  const {
+    dispatchCommand,
+    isPlaying,
+    player,
+    currentTime,
+    duration,
+    seek,
+    episode_data,
+    volume,
+    changeVolume,
+  } = usePlayer();
+
+  const formatTime = (seconds: number) => {
+    const m = Math.floor(seconds / 60);
+    const s = Math.floor(seconds % 60);
+    return `${m}:${s < 10 ? "0" : ""}${s}`;
+  };
+
+  console.log("Dados do episódio:", episode_data?.titulo);
+
+  const handleSliderChange = (value: number | number[]) => {
+    if (typeof value === "number") {
+      seek(value);
+    }
+  };
 
   const handlePlay = () => {
     dispatchCommand(new PlayCommand(player));
@@ -46,8 +71,10 @@ const PlayBar = () => {
       >
         <div className="w-14 h-14 bg-neutral-700 rounded-md" />
         <div className="text-sm">
-          <p className="font-semibold">Nome do Podcast</p>
-          <p className="text-xs text-gray-400">Professor</p>
+          <p className="font-semibold">
+            {episode_data?.titulo || "Nenhum Episódio Selecionado"}
+          </p>
+          <p className="text-xs text-gray-400"></p>
           <p className="text-xs text-gray-400">Assunto</p>
         </div>
       </motion.div>
@@ -60,10 +87,6 @@ const PlayBar = () => {
         transition={{ delay: 0.3, duration: 0.4 }}
       >
         <div className="flex items-center space-x-4 mb-1">
-          <FaShuffle
-            size={18}
-            className="text-gray-400 hover:text-white cursor-pointer"
-          />
           <motion.button
             onClick={handlePrevious}
             whileHover={{ scale: 1.15 }}
@@ -104,17 +127,26 @@ const PlayBar = () => {
               className="hover:text-white cursor-pointer"
             />
           </motion.button>
-          <FaRepeat
-            size={18}
-            className="text-gray-400 hover:text-white cursor-pointer"
-          />
         </div>
         <div className="flex items-center space-x-2 w-full">
-          <span className="text-xs text-gray-400">0:00</span>
-          <div className="h-1 bg-gray-600 rounded-full w-full relative">
-            <div className="absolute h-1 bg-white rounded-full w-1/3" />
-          </div>
-          <span className="text-xs text-gray-400">3:45</span>
+          <span className="text-xs text-gray-400">
+            {formatTime(currentTime)}
+          </span>
+          <Slider
+            className="cursor-pointer"
+            defaultValue={[0]}
+            value={[currentTime]}
+            minValue={0}
+            maxValue={duration}
+            step={0.1}
+            onChange={(value: number | number[]) =>
+              Array.isArray(value)
+                ? handleSliderChange(value[0])
+                : handleSliderChange(value)
+            }
+            size="sm"
+          />
+          <span className="text-xs text-gray-400">{formatTime(duration)}</span>
         </div>
       </motion.div>
 
@@ -125,22 +157,35 @@ const PlayBar = () => {
         animate={{ x: 0, opacity: 1 }}
         transition={{ delay: 0.4, duration: 0.4 }}
       >
-        <LuListMusic
+        {/* <LuListMusic
           size={18}
           className="text-gray-400 hover:text-white cursor-pointer"
         />
         <BiSolidSpeaker
           size={18}
           className="text-gray-400 hover:text-white cursor-pointer"
-        />
+        /> */}
         <div className="flex items-center space-x-2">
           <FaVolumeLow
             size={18}
             className="text-gray-400 hover:text-white cursor-pointer"
           />
-          <div className="w-20 h-1 bg-gray-600 rounded-full relative">
+          {/* <div className="w-20 h-1 bg-gray-600 rounded-full relative">
             <div className="absolute h-1 bg-white rounded-full w-1/2" />
-          </div>
+          </div> */}
+          <Slider
+            minValue={0}
+            maxValue={1}
+            step={0.01}
+            value={volume}
+            onChange={(value) => {
+              if (typeof value === "number") {
+                changeVolume(value);
+              }
+            }}
+            className="w-24 cursor-pointer"
+            size="sm"
+          />
         </div>
       </motion.div>
     </motion.div>

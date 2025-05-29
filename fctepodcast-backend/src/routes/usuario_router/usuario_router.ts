@@ -46,6 +46,9 @@ usuario_router.get(
   ).handleRequest
 );
 
+// rota publica para obter todos os podcasts TEMPORARIA
+usuario_router.get("/tmp/podcasts", podcast_controller.listarTodosPodcasts);
+
 // episodios
 usuario_router.post(
   "/episodio/criar",

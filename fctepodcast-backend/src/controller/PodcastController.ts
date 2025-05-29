@@ -90,4 +90,28 @@ export class PodcastController {
       podcasts: podcasts,
     });
   }
+
+  async listarTodosPodcasts(req: Request, res: Response): Promise<void> {
+    const podcasts = await Podcast.find()
+      .populate({
+        path: "autor",
+        select: "nome email", // Seleciona apenas os campos necessários do autor
+      })
+      .populate("episodios");
+    if (!podcasts || podcasts.length === 0) {
+      res.status(404).json({
+        status: "error",
+        title: "Nenhum podcast encontrado",
+        message: "Nenhum podcast encontrado.",
+      });
+      return;
+    }
+
+    res.status(200).json({
+      status: "success",
+      title: "Podcasts encontrados",
+      message: "Podcasts encontrados com sucesso!",
+      podcasts: podcasts,
+    });
+  }
 }
