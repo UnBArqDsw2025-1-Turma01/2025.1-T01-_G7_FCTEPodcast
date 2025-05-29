@@ -6,12 +6,16 @@ import { AuthProxy } from "../../proxy/AuthProxy";
 import { PodcastController } from "../../controller/PodcastController";
 import { upload } from "../../middleware/multer/multer";
 import { ImageAdapter, ImageFileSystem } from "../../adapter/ImageAdapter";
+import { EpisodioController } from "../../controller/EpisodioController";
 
 const usuario_router = express.Router();
 
 // controllers
 const usuario_controller = new UsuarioController();
 const podcast_controller = new PodcastController();
+const episodio_controller = new EpisodioController();
+
+// adapters
 const imageFileSystem = new ImageFileSystem("/app/uploads");
 const imageProvider = new ImageAdapter(imageFileSystem);
 
@@ -40,6 +44,13 @@ usuario_router.get(
     ["PROFESSOR", "ALUNO"],
     podcast_controller.listarPodcastsUsuario
   ).handleRequest
+);
+
+// episodios
+usuario_router.post(
+  "/episodio/criar",
+  upload.single("audio"),
+  new AuthProxy(["PROFESSOR"], episodio_controller.criarEpisodio).handleRequest
 );
 
 usuario_router.get("/image/", async (req, res) => {

@@ -1,3 +1,5 @@
+import type { EpisodioType } from "./EpisodioType";
+
 export interface PodcastType {
   _id: string;
   titulo: string;
@@ -8,7 +10,7 @@ export interface PodcastType {
     nome: string;
     email: string;
   };
-  episodios: string[];
+  episodios: EpisodioType[];
   tags: string[];
   createdAt: string;
 }
