@@ -56,7 +56,7 @@ const PodcastCard = ({
             alt={`${title} cover`}
             className="object-cover rounded-xl"
             src={imageUrl}
-            width={250}
+            width={200}
           />
         </CardBody>
       </Card>
