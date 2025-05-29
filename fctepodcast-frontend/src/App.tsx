@@ -9,6 +9,7 @@ import Loader from "./pages/loader/Loader";
 import Studio from "./pages/studio/Studio";
 import GerenciarPodcasts from "./pages/podcasts/GerenciarPodcasts";
 import GerenciarMonitores from "./pages/podcasts/GerenciarMonitores";
+import PodcastView from "./pages/tmp/PodcastView";
 
 function App() {
   return (
@@ -36,6 +37,8 @@ function App() {
             path="/studio/notificacoes"
             element={<div>Notificações</div>}
           />
+
+          <Route path="/tmp" element={<PodcastView />} />
         </Route>
 
         {/* rotas especiais */}
