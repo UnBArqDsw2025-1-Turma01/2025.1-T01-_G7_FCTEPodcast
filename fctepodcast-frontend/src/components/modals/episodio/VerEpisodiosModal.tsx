@@ -52,7 +52,6 @@ const VerEpisodiosModal = ({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [podcast_reference.imagem_path]);
 
-  console.log("VerEpisodiosModal", podcast_reference);
   return (
     <Modal isOpen={isOpen} onOpenChange={onOpenChange} backdrop="blur">
       <ModalContent>
