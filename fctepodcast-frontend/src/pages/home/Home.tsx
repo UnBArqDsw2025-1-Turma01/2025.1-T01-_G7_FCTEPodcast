@@ -12,7 +12,7 @@ const Home = () => {
     <div className="min-h-screen flex flex-col gap-12">
       <section>
         <h1 className="text-3xl font-semibold mb-4">Podcasts em Alta</h1>
-        <div className="flex gap-6 overflow-x-auto scrollbar-hide pb-2">
+        <div className="flex gap-6 overflow-x-auto scrollbar-hide h-[21em] p-2">
           {loading && (
             <div className="flex items-center justify-center w-full">
               <Spinner size="lg" />
