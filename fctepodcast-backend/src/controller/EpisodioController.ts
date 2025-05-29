@@ -2,7 +2,8 @@ import { Request, Response } from "express";
 import { ConcreteEpisodioBuilder } from "../builder/Episodio/EpisodioBuilder";
 import Episodio from "../models/Episodio";
 import Podcast from "../models/Podcast";
-
+import path from "path";
+import fs from "fs";
 export class EpisodioController {
   async criarEpisodio(req: Request, res: Response): Promise<void> {
     const { titulo, descricao, podcast_reference } = req.body;
@@ -61,6 +62,123 @@ export class EpisodioController {
             : "Erro desconhecido ao criar o episódio.",
       });
       return;
+    }
+  }
+
+  async getReferenceData(req: Request, res: Response): Promise<void> {
+    const { episodio_id } = req.params;
+
+    const episodio = await Episodio.findById(episodio_id);
+    if (!episodio) {
+      res.status(404).json({
+        status: "error",
+        title: "Episódio não encontrado",
+        message: "O episódio referenciado não foi encontrado.",
+      });
+      return;
+    }
+
+    const podcast = await Podcast.findById(episodio.podcast_reference)
+      .populate({
+        path: "co_autores",
+        select: "nome email",
+      })
+      .populate({
+        path: "autor",
+        select: "nome email",
+      });
+    if (!podcast) {
+      res.status(404).json({
+        status: "error",
+        title: "Podcast não encontrado",
+        message: "O podcast referenciado não foi encontrado.",
+      });
+      return;
+    }
+
+    res.status(200).json({
+      imagem_path: podcast.imagem_path,
+      reference_data: {
+        autor: podcast.autor,
+        titulo: podcast.titulo,
+        descricao: podcast.descricao,
+        tags: podcast.tags,
+        autores: podcast.co_autores,
+      },
+    });
+  }
+
+  async getImage(req: Request, res: Response): Promise<void> {
+    const { episodio_id } = req.params;
+
+    const episodio = await Episodio.findById(episodio_id);
+    if (!episodio) {
+      res.status(404).json({
+        status: "error",
+        title: "Episódio não encontrado",
+        message: "O episódio referenciado não foi encontrado.",
+      });
+      return;
+    }
+
+    const podcast = await Podcast.findById(episodio.podcast_reference);
+    if (!podcast) {
+      res.status(404).json({
+        status: "error",
+        title: "Podcast não encontrado",
+        message: "O podcast referenciado não foi encontrado.",
+      });
+      return;
+    }
+
+    if (!podcast.imagem_path) {
+      res.status(404).json({
+        status: "error",
+        title: "Imagem não encontrada",
+        message: "O podcast não possui uma imagem associada.",
+      });
+      return;
+    }
+
+    // Corrigir o caminho da imagem
+    const imagemPathStr =
+      typeof podcast.imagem_path === "string" ? podcast.imagem_path : "";
+    const absoluteImagePath = path.resolve(imagemPathStr);
+
+    // Verificar se a imagem realmente existe
+    if (!fs.existsSync(absoluteImagePath)) {
+      res.status(404).json({
+        status: "error",
+        title: "Imagem não encontrada",
+        message: "O caminho da imagem não é válido ou o arquivo não existe.",
+      });
+      return;
+    }
+
+    // Tentar enviar a imagem
+    try {
+      res.setHeader("Content-Type", "image/jpeg"); // ou ajuste conforme o tipo real da imagem
+      res.sendFile(absoluteImagePath, (err) => {
+        if (err) {
+          console.error("Erro ao enviar imagem:", err);
+          if (!res.headersSent) {
+            res.status(500).json({
+              status: "error",
+              title: "Erro ao enviar imagem",
+              message: "Erro desconhecido ao enviar a imagem do podcast.",
+            });
+          }
+        }
+      });
+    } catch (error) {
+      console.error("Erro ao enviar imagem:", error);
+      if (!res.headersSent) {
+        res.status(500).json({
+          status: "error",
+          title: "Erro ao enviar imagem",
+          message: "Erro desconhecido ao enviar a imagem do podcast.",
+        });
+      }
     }
   }
 }

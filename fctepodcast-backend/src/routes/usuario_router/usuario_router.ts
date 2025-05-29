@@ -47,13 +47,23 @@ usuario_router.get(
 );
 
 // rota publica para obter todos os podcasts TEMPORARIA
-usuario_router.get("/tmp/podcasts", podcast_controller.listarTodosPodcasts);
+usuario_router.get("/podcasts", podcast_controller.listarTodosPodcasts);
 
 // episodios
 usuario_router.post(
   "/episodio/criar",
   upload.single("audio"),
   new AuthProxy(["PROFESSOR"], episodio_controller.criarEpisodio).handleRequest
+);
+usuario_router.get(
+  "/episodios/:episodio_id/reference",
+  new AuthProxy(["PROFESSOR", "ALUNO"], episodio_controller.getReferenceData)
+    .handleRequest
+);
+usuario_router.get(
+  "/episodio/:episodio_id/image",
+  new AuthProxy(["PROFESSOR", "ALUNO"], episodio_controller.getImage)
+    .handleRequest
 );
 
 usuario_router.get("/image/", async (req, res) => {

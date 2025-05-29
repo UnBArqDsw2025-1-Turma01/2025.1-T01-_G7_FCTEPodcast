@@ -9,7 +9,11 @@ import { PlayCommand } from "../../context/player/commands/PlayerCommands";
 import { PauseCommand } from "../../context/player/commands/PauseCommand";
 import { NextCommand } from "../../context/player/commands/NextCommand";
 import { PreviousCommand } from "../../context/player/commands/PreviousCommand";
-import { Slider } from "@heroui/react";
+import { addToast, Image, Slider } from "@heroui/react";
+import { AxiosInstace } from "../../utils/axios/AxiosInstance";
+import type { ReferenceDataType } from "../../utils/types/ReferenceDataType";
+import { useEffect, useState } from "react";
+import { BASE_API_URL } from "../../utils/constants";
 
 const PlayBar = () => {
   const {
@@ -23,6 +27,10 @@ const PlayBar = () => {
     volume,
     changeVolume,
   } = usePlayer();
+  const [referenceData, setReferenceData] = useState<ReferenceDataType | null>(
+    null
+  );
+  const [imageBlobUrl, setImageBlobUrl] = useState<string | null>(null);
 
   const formatTime = (seconds: number) => {
     const m = Math.floor(seconds / 60);
@@ -30,7 +38,61 @@ const PlayBar = () => {
     return `${m}:${s < 10 ? "0" : ""}${s}`;
   };
 
-  console.log("Dados do episódio:", episode_data?.titulo);
+  const get_reference_data = async () => {
+    try {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const response: any = await AxiosInstace.get(
+        `/usuario/episodios/${episode_data?._id}/reference`
+      );
+
+      setReferenceData(response.data);
+    } catch (error) {
+      console.error("Erro ao obter dados de referência:", error);
+      addToast({
+        title: "Erro ao obter dados de referência",
+        description:
+          "Não foi possível carregar os dados de referência do episódio.",
+        color: "danger",
+      });
+    }
+  };
+
+  const image_request_url = `${BASE_API_URL}/usuario/episodio/${episode_data?._id}/image`;
+
+  useEffect(() => {
+    if (!episode_data?._id) return;
+
+    const fetchImage = async () => {
+      try {
+        const response = await AxiosInstace.get(image_request_url, {
+          responseType: "blob",
+        });
+        const url = URL.createObjectURL(response.data);
+        setImageBlobUrl(url);
+      } catch (error) {
+        console.error("Erro ao buscar imagem:", error);
+        addToast({
+          title: "Erro ao carregar imagem",
+          description: "Não foi possível carregar a imagem do episódio.",
+          color: "danger",
+        });
+      }
+    };
+
+    fetchImage();
+
+    // Cleanup ao desmontar o componente
+    return () => {
+      if (image_request_url) URL.revokeObjectURL(image_request_url);
+    };
+  }, [image_request_url]);
+
+  useEffect(() => {
+    if (episode_data?._id) {
+      get_reference_data();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [episode_data]);
 
   const handleSliderChange = (value: number | number[]) => {
     if (typeof value === "number") {
@@ -54,7 +116,6 @@ const PlayBar = () => {
     dispatchCommand(new PreviousCommand(player));
   };
 
-  console.log(isPlaying);
   return (
     <motion.div
       className="fixed bottom-0 left-0 w-full h-24 bg-primary-100 text-white flex items-center justify-between px-6 z-50"
@@ -69,13 +130,26 @@ const PlayBar = () => {
         animate={{ x: 0, opacity: 1 }}
         transition={{ delay: 0.2, duration: 0.4 }}
       >
-        <div className="w-14 h-14 bg-neutral-700 rounded-md" />
+        {/* <div className="w-14 h-14 bg-neutral-700 rounded-md" /> */}
+        {!episode_data ? (
+          <div className="w-14 h-14 bg-neutral-700 rounded-md" />
+        ) : (
+          <Image
+            className="w-14 h-14 rounded-md object-cover"
+            src={imageBlobUrl || "/no_image.png"}
+            alt={episode_data?.titulo || "Imagem do episódio"}
+          />
+        )}
         <div className="text-sm">
           <p className="font-semibold">
             {episode_data?.titulo || "Nenhum Episódio Selecionado"}
           </p>
-          <p className="text-xs text-gray-400"></p>
-          <p className="text-xs text-gray-400">Assunto</p>
+          <p className="text-xs text-gray-400">
+            {referenceData?.reference_data.autor.nome || "Autor Desconhecido"}
+          </p>
+          <p className="text-xs text-gray-400 italic">
+            {referenceData?.reference_data.tags.join(", ")}
+          </p>
         </div>
       </motion.div>
 

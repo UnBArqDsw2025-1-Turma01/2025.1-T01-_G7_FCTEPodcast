@@ -1,55 +1,39 @@
 import PodcastCard from "../../components/home/cards/CriarCardsPodcast";
 import AuthorCard from "../../components/home/cards/AutorCard";
+import { useGetTodosPodcasts } from "../../hooks/podcasts/useGetTodosPodcasts";
+import { usePlayer } from "../../context/player/PlayerContext";
+import { Spinner } from "@heroui/react";
 
 const Home = () => {
+  const { podcasts, loading } = useGetTodosPodcasts();
+  const { setPlaylist } = usePlayer();
+
   return (
-  <div className="min-h-screen overflow-y-auto p-6">
-      <h1 className="text-3xl font-semibold mb-6">Podcasts em Alta</h1>
+    <div className="min-h-screen flex flex-col gap-12">
+      <section>
+        <h1 className="text-3xl font-semibold mb-4">Podcasts em Alta</h1>
+        <div className="flex gap-6 overflow-x-auto scrollbar-hide pb-2">
+          {loading && (
+            <div className="flex items-center justify-center w-full">
+              <Spinner size="lg" />
+            </div>
+          )}
+          {podcasts.length > 0 &&
+            podcasts.map((podcast, index) => (
+              <PodcastCard
+                podcast={podcast}
+                index={index}
+                onPress={() => setPlaylist(podcast.episodios)}
+                key={podcast._id}
+              />
+            ))}
+        </div>
+      </section>
 
-      <div className="flex gap-6">
-        <PodcastCard
-          title="Calculo 01 - Introdução"
-          subtitle="Novo Episódio"
-          description="1 Episódio"
-          imageUrl="https://heroui.com/images/hero-card-complete.jpeg"
-          onPress={() => alert("Você clicou em: Calculo 01 - Introdução")}
-          index={0}
-        />
-        <PodcastCard
-          title="Arquitetura de Software"
-          subtitle="Recomendado"
-          description="5 Episódios"
-          imageUrl="https://heroui.com/images/hero-card-complete.jpeg"
-          index={1}
-        />
-        <PodcastCard
-          title="Arquitetura de Software"
-          subtitle="Recomendado"
-          description="5 Episódios"
-          imageUrl="https://heroui.com/images/hero-card-complete.jpeg"
-          index={1}
-        />
-        <PodcastCard
-          title="Arquitetura de Software"
-          subtitle="Recomendado"
-          description="5 Episódios"
-          imageUrl="https://heroui.com/images/hero-card-complete.jpeg"
-          index={1}
-        />
-        <PodcastCard
-          title="Arquitetura de Software"
-          subtitle="Recomendado"
-          description="5 Episódios"
-          imageUrl="https://heroui.com/images/hero-card-complete.jpeg"
-          index={1}
-        />
-      </div>
-
-    <div className="p-6">
-      <h1 className="text-3xl font-semibold mb-6">Criadores</h1>
-
-      <div className="flex gap-6">
-        <AuthorCard
+      <section>
+        <h1 className="text-3xl font-semibold mb-4">Criadores</h1>
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+          <AuthorCard
             name="Prof. João Silva"
             imageUrl="https://heroui.com/images/hero-card-complete.jpeg"
             description="5 Podcasts"
@@ -70,55 +54,14 @@ const Home = () => {
             description="4 Podcasts"
           />
         </div>
-      </div>
+      </section>
 
-      <div className="p-6">
-        <h1 className="text-3xl font-semibold mb-6">Recomendações</h1>
-
-        <div className="flex gap-6">
-        <PodcastCard
-          title="Calculo 01 - Introdução"
-          subtitle="Novo Episódio"
-          description="1 Episódio"
-          imageUrl="https://heroui.com/images/hero-card-complete.jpeg"
-          onPress={() => alert("Você clicou em: Calculo 01 - Introdução")}
-          index={0}
-        />
-        <PodcastCard
-          title="Arquitetura de Software"
-          subtitle="Recomendado"
-          description="5 Episódios"
-          imageUrl="https://heroui.com/images/hero-card-complete.jpeg"
-          index={1}
-        />
-        <PodcastCard
-          title="Arquitetura de Software"
-          subtitle="Recomendado"
-          description="5 Episódios"
-          imageUrl="https://heroui.com/images/hero-card-complete.jpeg"
-          index={1}
-        />
-        <PodcastCard
-          title="Arquitetura de Software"
-          subtitle="Recomendado"
-          description="5 Episódios"
-          imageUrl="https://heroui.com/images/hero-card-complete.jpeg"
-          index={1}
-        />
-        <PodcastCard
-          title="Arquitetura de Software"
-          subtitle="Recomendado"
-          description="5 Episódios"
-          imageUrl="https://heroui.com/images/hero-card-complete.jpeg"
-          index={1}
-        />
-      </div>
-
-      </div>
+      <section>
+        <h1 className="text-3xl font-semibold mb-4">Recomendações</h1>
+        <div className="flex gap-6">{/* Recomendações futuras aqui */}</div>
+      </section>
     </div>
   );
 };
 
 export default Home;
-
-

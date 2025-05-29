@@ -1,14 +1,9 @@
-import { Card, CardHeader, CardBody, Image } from "@heroui/react";
+import { Card, CardBody, Image } from "@heroui/react";
 import { motion } from "framer-motion";
-
-interface PodcastCardProps {
-  title: string;
-  subtitle: string;
-  description: string;
-  imageUrl: string;
-  onPress?: () => void;
-  index?: number;
-}
+import { useEffect, useState } from "react";
+import type { PodcastType } from "../../../utils/types/PodcastType";
+import { BASE_API_URL } from "../../../utils/constants";
+import axios from "axios";
 
 const variants = {
   hidden: { opacity: 0, y: 20 },
@@ -24,13 +19,42 @@ const variants = {
 };
 
 const PodcastCard = ({
-  title,
-  subtitle,
-  description,
-  imageUrl,
+  podcast,
   onPress,
-  index = 0,
-}: PodcastCardProps) => {
+  index,
+}: {
+  podcast: PodcastType;
+  onPress?: () => void;
+  index: number;
+}) => {
+  const [imageBlobUrl, setImageBlobUrl] = useState<string | null>(null);
+  useEffect(() => {
+    if (!podcast || !podcast.imagem_path) return;
+
+    axios
+      .get(
+        `${BASE_API_URL}/usuario/image?path=${encodeURIComponent(
+          podcast.imagem_path || ""
+        )}`,
+        {
+          responseType: "blob",
+        }
+      )
+      .then((response) => {
+        const url = URL.createObjectURL(response.data);
+        setImageBlobUrl(url);
+      })
+      .catch((error) => {
+        console.error("Error fetching image:", error);
+        setImageBlobUrl(null);
+      });
+
+    // Cleanup ao desmontar o componente
+    return () => {
+      if (imageBlobUrl) URL.revokeObjectURL(imageBlobUrl);
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [podcast?.imagem_path]);
   return (
     <motion.div
       variants={variants}
@@ -38,26 +62,38 @@ const PodcastCard = ({
       animate="visible"
       whileHover="hover"
       custom={index}
-      className="min-w-[100px]"
     >
       <Card
         isPressable
         shadow="sm"
-        onPress={onPress || (() => console.log(`${title} card pressed`))}
-        className="py-4"
+        onPress={onPress}
+        className="w-56 h-80 overflow-hidden"
       >
-        <CardHeader className="pb-0 pt-2 px-4 flex-col items-start">
-          <p className="text-roboto uppercase font-bold">{subtitle}</p>
-          <small className="text-default-500">{description}</small>
-          <h4 className="font-bold text-large">{title}</h4>
-        </CardHeader>
-        <CardBody className="overflow-visible py-2">
+        <CardBody className="flex flex-col gap-4 items-center justify-center">
           <Image
-            alt={`${title} cover`}
+            alt={`cover`}
             className="object-cover rounded-xl"
-            src={imageUrl}
+            src={
+              imageBlobUrl ||
+              "https://heroui.com/images/hero-card-complete.jpeg"
+            }
             width={200}
+            height={200}
           />
+          <div className="flex flex-col items-start text-start justify-start w-full overflow-hidden">
+            <h2
+              className="font-bold text-sm truncate w-full"
+              title={podcast.titulo}
+            >
+              {podcast.titulo}
+            </h2>
+            <p className="text-sm truncate w-full" title={podcast.autor.nome}>
+              {podcast.autor.nome}
+            </p>
+            <p className="text-xs italic break-words w-full max-h-10 overflow-hidden">
+              {podcast.tags.join(", ")}
+            </p>
+          </div>
         </CardBody>
       </Card>
     </motion.div>

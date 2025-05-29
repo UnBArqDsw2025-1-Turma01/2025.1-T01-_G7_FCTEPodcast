@@ -2,10 +2,11 @@ import { Button, Divider, useDisclosure } from "@heroui/react";
 import { FaPlus } from "react-icons/fa";
 import CriarPodcastModal from "../../components/modals/podcast/CriarPodcastModal";
 import PodcastStudioCard from "../../components/podcast-studio-card/PodcastStudioCard";
-import { useGetPodcastsUsuario } from "../../hooks/useGetPodcastsUsurio";
+
 import { useAuth } from "../../context/auth/AuthContext";
 import { motion } from "framer-motion";
 import LoaderMini from "../loader/LoaderMini";
+import { useGetPodcastsUsuario } from "../../hooks/podcasts/useGetPodcastsUsurio";
 
 const GerenciarPodcasts = () => {
   const { user } = useAuth();
