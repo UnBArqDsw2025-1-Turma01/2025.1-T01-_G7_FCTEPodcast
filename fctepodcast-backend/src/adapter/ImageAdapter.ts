@@ -2,11 +2,11 @@ import path from "path";
 import fs from "fs";
 import { Response } from "express";
 
-interface ImageProvider {
+interface ArchiveProvider {
   getImage(image_path: string, res: Response): Promise<void>;
 }
 
-export class ImageFileSystem {
+export class ArchiveFileSystem {
   baseDir: string;
   constructor(baseDir: string) {
     this.baseDir = baseDir;
@@ -34,8 +34,8 @@ export class ImageFileSystem {
   }
 }
 
-export class ImageAdapter implements ImageProvider {
-  constructor(private imageFileSystem: ImageFileSystem) {
+export class ArchiveAdapter implements ArchiveProvider {
+  constructor(private imageFileSystem: ArchiveFileSystem) {
     this.imageFileSystem = imageFileSystem;
   }
 
