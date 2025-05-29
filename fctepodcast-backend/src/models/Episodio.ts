@@ -38,6 +38,11 @@ const EpisodioSchema = new Schema(
       type: Number,
       default: 0,
     },
+    podcast_reference: {
+      type: Schema.Types.ObjectId,
+      ref: "Podcast",
+      required: true,
+    },
   },
   {
     collection: "episodios",
