@@ -1,6 +1,7 @@
 import { Request, Response } from "express";
 import Podcast from "../models/Podcast";
 import { ConcretePodcastBuilder } from "../builder/Podcast/PodcastBuilder";
+import path from "path";
 
 export class PodcastController {
   async criarPodcast(req: Request, res: Response): Promise<void> {
@@ -71,7 +72,8 @@ export class PodcastController {
       .populate({
         path: "autor",
         select: "nome email", // Seleciona apenas os campos necessários do autor
-      });
+      })
+      .populate("episodios");
     if (!podcasts || podcasts.length === 0) {
       res.status(404).json({
         status: "error",
