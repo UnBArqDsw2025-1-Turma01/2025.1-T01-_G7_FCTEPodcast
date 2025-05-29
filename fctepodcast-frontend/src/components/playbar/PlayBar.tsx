@@ -85,6 +85,7 @@ const PlayBar = () => {
     return () => {
       if (image_request_url) URL.revokeObjectURL(image_request_url);
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [image_request_url]);
 
   useEffect(() => {
