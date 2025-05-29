@@ -5,8 +5,8 @@ import { UsuarioController } from "../../controller/UsuarioController";
 import { AuthProxy } from "../../proxy/AuthProxy";
 import { PodcastController } from "../../controller/PodcastController";
 import { upload } from "../../middleware/multer/multer";
-import { ImageAdapter, ImageFileSystem } from "../../adapter/ImageAdapter";
 import { EpisodioController } from "../../controller/EpisodioController";
+import { ArchiveAdapter, ArchiveFileSystem } from "../../adapter/ImageAdapter";
 
 const usuario_router = express.Router();
 
@@ -16,8 +16,8 @@ const podcast_controller = new PodcastController();
 const episodio_controller = new EpisodioController();
 
 // adapters
-const imageFileSystem = new ImageFileSystem("/app/uploads");
-const imageProvider = new ImageAdapter(imageFileSystem);
+const acrhiveFileSystem = new ArchiveFileSystem("/app/uploads");
+const archiveProvider = new ArchiveAdapter(acrhiveFileSystem);
 
 // autenticacao
 usuario_router.post(
@@ -46,11 +46,24 @@ usuario_router.get(
   ).handleRequest
 );
 
+// rota publica para obter todos os podcasts TEMPORARIA
+usuario_router.get("/podcasts", podcast_controller.listarTodosPodcasts);
+
 // episodios
 usuario_router.post(
   "/episodio/criar",
   upload.single("audio"),
   new AuthProxy(["PROFESSOR"], episodio_controller.criarEpisodio).handleRequest
+);
+usuario_router.get(
+  "/episodios/:episodio_id/reference",
+  new AuthProxy(["PROFESSOR", "ALUNO"], episodio_controller.getReferenceData)
+    .handleRequest
+);
+usuario_router.get(
+  "/episodio/:episodio_id/image",
+  new AuthProxy(["PROFESSOR", "ALUNO"], episodio_controller.getImage)
+    .handleRequest
 );
 
 usuario_router.get("/image/", async (req, res) => {
@@ -61,7 +74,7 @@ usuario_router.get("/image/", async (req, res) => {
     return;
   }
 
-  await imageProvider.getImage(imagePath as string, res);
+  await archiveProvider.getImage(imagePath as string, res);
 });
 
 export default usuario_router;

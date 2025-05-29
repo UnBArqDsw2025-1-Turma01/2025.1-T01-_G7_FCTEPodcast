@@ -22,7 +22,7 @@ const HomeButtonLayout = () => {
       title: "Criar Playlist",
       description: "Organize conversas que te inspiram",
       icon: <RiPlayListFill className="text-xl" />,
-      redirect: "/home",
+      redirect: "/tmp",
     },
     {
       title: "Studio",

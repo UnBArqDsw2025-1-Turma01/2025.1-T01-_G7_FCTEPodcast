@@ -1,11 +1,122 @@
-import { BiSolidSpeaker } from "react-icons/bi";
-import { FaPlay } from "react-icons/fa";
-import { FaShuffle, FaRepeat, FaVolumeLow } from "react-icons/fa6";
+// import { BiSolidSpeaker } from "react-icons/bi";
+import { FaPause, FaPlay } from "react-icons/fa";
+import { FaVolumeLow } from "react-icons/fa6";
 import { IoMdSkipBackward, IoMdSkipForward } from "react-icons/io";
-import { LuListMusic } from "react-icons/lu";
-import { motion } from "framer-motion";
+// import { LuListMusic } from "react-icons/lu";
+import { motion, AnimatePresence } from "framer-motion";
+import { usePlayer } from "../../context/player/PlayerContext";
+import { PlayCommand } from "../../context/player/commands/PlayerCommands";
+import { PauseCommand } from "../../context/player/commands/PauseCommand";
+import { NextCommand } from "../../context/player/commands/NextCommand";
+import { PreviousCommand } from "../../context/player/commands/PreviousCommand";
+import { addToast, Image, Slider } from "@heroui/react";
+import { AxiosInstace } from "../../utils/axios/AxiosInstance";
+import type { ReferenceDataType } from "../../utils/types/ReferenceDataType";
+import { useEffect, useState } from "react";
+import { BASE_API_URL } from "../../utils/constants";
 
 const PlayBar = () => {
+  const {
+    dispatchCommand,
+    isPlaying,
+    player,
+    currentTime,
+    duration,
+    seek,
+    episode_data,
+    volume,
+    changeVolume,
+  } = usePlayer();
+  const [referenceData, setReferenceData] = useState<ReferenceDataType | null>(
+    null
+  );
+  const [imageBlobUrl, setImageBlobUrl] = useState<string | null>(null);
+
+  const formatTime = (seconds: number) => {
+    const m = Math.floor(seconds / 60);
+    const s = Math.floor(seconds % 60);
+    return `${m}:${s < 10 ? "0" : ""}${s}`;
+  };
+
+  const get_reference_data = async () => {
+    try {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const response: any = await AxiosInstace.get(
+        `/usuario/episodios/${episode_data?._id}/reference`
+      );
+
+      setReferenceData(response.data);
+    } catch (error) {
+      console.error("Erro ao obter dados de referência:", error);
+      addToast({
+        title: "Erro ao obter dados de referência",
+        description:
+          "Não foi possível carregar os dados de referência do episódio.",
+        color: "danger",
+      });
+    }
+  };
+
+  const image_request_url = `${BASE_API_URL}/usuario/episodio/${episode_data?._id}/image`;
+
+  useEffect(() => {
+    if (!episode_data?._id) return;
+
+    const fetchImage = async () => {
+      try {
+        const response = await AxiosInstace.get(image_request_url, {
+          responseType: "blob",
+        });
+        const url = URL.createObjectURL(response.data);
+        setImageBlobUrl(url);
+      } catch (error) {
+        console.error("Erro ao buscar imagem:", error);
+        addToast({
+          title: "Erro ao carregar imagem",
+          description: "Não foi possível carregar a imagem do episódio.",
+          color: "danger",
+        });
+      }
+    };
+
+    fetchImage();
+
+    // Cleanup ao desmontar o componente
+    return () => {
+      if (image_request_url) URL.revokeObjectURL(image_request_url);
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [image_request_url]);
+
+  useEffect(() => {
+    if (episode_data?._id) {
+      get_reference_data();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [episode_data]);
+
+  const handleSliderChange = (value: number | number[]) => {
+    if (typeof value === "number") {
+      seek(value);
+    }
+  };
+
+  const handlePlay = () => {
+    dispatchCommand(new PlayCommand(player));
+  };
+
+  const handlePause = () => {
+    dispatchCommand(new PauseCommand(player));
+  };
+
+  const handleNext = () => {
+    dispatchCommand(new NextCommand(player));
+  };
+
+  const handlePrevious = () => {
+    dispatchCommand(new PreviousCommand(player));
+  };
+
   return (
     <motion.div
       className="fixed bottom-0 left-0 w-full h-24 bg-primary-100 text-white flex items-center justify-between px-6 z-50"
@@ -20,11 +131,26 @@ const PlayBar = () => {
         animate={{ x: 0, opacity: 1 }}
         transition={{ delay: 0.2, duration: 0.4 }}
       >
-        <div className="w-14 h-14 bg-neutral-700 rounded-md" />
+        {/* <div className="w-14 h-14 bg-neutral-700 rounded-md" /> */}
+        {!episode_data ? (
+          <div className="w-14 h-14 bg-neutral-700 rounded-md" />
+        ) : (
+          <Image
+            className="w-14 h-14 rounded-md object-cover"
+            src={imageBlobUrl || "/no_image.png"}
+            alt={episode_data?.titulo || "Imagem do episódio"}
+          />
+        )}
         <div className="text-sm">
-          <p className="font-semibold">Nome do Podcast</p>
-          <p className="text-xs text-gray-400">Professor</p>
-          <p className="text-xs text-gray-400">Assunto</p>
+          <p className="font-semibold">
+            {episode_data?.titulo || "Nenhum Episódio Selecionado"}
+          </p>
+          <p className="text-xs text-gray-400">
+            {referenceData?.reference_data.autor.nome || "Autor Desconhecido"}
+          </p>
+          <p className="text-xs text-gray-400 italic">
+            {referenceData?.reference_data.tags.join(", ")}
+          </p>
         </div>
       </motion.div>
 
@@ -36,35 +162,66 @@ const PlayBar = () => {
         transition={{ delay: 0.3, duration: 0.4 }}
       >
         <div className="flex items-center space-x-4 mb-1">
-          <FaShuffle
-            size={18}
-            className="text-gray-400 hover:text-white cursor-pointer"
-          />
-          <IoMdSkipBackward
-            size={20}
-            className="hover:text-white cursor-pointer"
-          />
           <motion.button
-            whileTap={{ scale: 0.9 }}
-            className="w-10 h-10 bg-white text-black rounded-full flex items-center justify-center hover:scale-105 transition"
+            onClick={handlePrevious}
+            whileHover={{ scale: 1.15 }}
+            whileTap={{ scale: 0.95 }}
           >
-            <FaPlay size={20} />
+            <IoMdSkipBackward
+              size={20}
+              className="hover:text-white cursor-pointer"
+            />
           </motion.button>
-          <IoMdSkipForward
-            size={20}
-            className="hover:text-white cursor-pointer"
-          />
-          <FaRepeat
-            size={18}
-            className="text-gray-400 hover:text-white cursor-pointer"
-          />
+
+          <motion.button
+            onClick={isPlaying ? handlePause : handlePlay}
+            whileTap={{ scale: 0.9 }}
+            whileHover={{ scale: 1.15 }}
+            className="w-10 h-10 bg-white text-black rounded-full flex items-center justify-center transition"
+          >
+            <AnimatePresence mode="wait" initial={false}>
+              <motion.div
+                key={isPlaying ? "pause" : "play"}
+                initial={{ opacity: 0, scale: 0.8 }}
+                animate={{ opacity: 1, scale: 1 }}
+                exit={{ opacity: 0, scale: 0.8 }}
+                transition={{ duration: 0.2 }}
+              >
+                {isPlaying ? <FaPause size={20} /> : <FaPlay size={20} />}
+              </motion.div>
+            </AnimatePresence>
+          </motion.button>
+
+          <motion.button
+            onClick={handleNext}
+            whileHover={{ scale: 1.15 }}
+            whileTap={{ scale: 0.95 }}
+          >
+            <IoMdSkipForward
+              size={20}
+              className="hover:text-white cursor-pointer"
+            />
+          </motion.button>
         </div>
         <div className="flex items-center space-x-2 w-full">
-          <span className="text-xs text-gray-400">0:00</span>
-          <div className="h-1 bg-gray-600 rounded-full w-full relative">
-            <div className="absolute h-1 bg-white rounded-full w-1/3" />
-          </div>
-          <span className="text-xs text-gray-400">3:45</span>
+          <span className="text-xs text-gray-400">
+            {formatTime(currentTime)}
+          </span>
+          <Slider
+            className="cursor-pointer"
+            defaultValue={[0]}
+            value={[currentTime]}
+            minValue={0}
+            maxValue={duration}
+            step={0.1}
+            onChange={(value: number | number[]) =>
+              Array.isArray(value)
+                ? handleSliderChange(value[0])
+                : handleSliderChange(value)
+            }
+            size="sm"
+          />
+          <span className="text-xs text-gray-400">{formatTime(duration)}</span>
         </div>
       </motion.div>
 
@@ -75,22 +232,35 @@ const PlayBar = () => {
         animate={{ x: 0, opacity: 1 }}
         transition={{ delay: 0.4, duration: 0.4 }}
       >
-        <LuListMusic
+        {/* <LuListMusic
           size={18}
           className="text-gray-400 hover:text-white cursor-pointer"
         />
         <BiSolidSpeaker
           size={18}
           className="text-gray-400 hover:text-white cursor-pointer"
-        />
+        /> */}
         <div className="flex items-center space-x-2">
           <FaVolumeLow
             size={18}
             className="text-gray-400 hover:text-white cursor-pointer"
           />
-          <div className="w-20 h-1 bg-gray-600 rounded-full relative">
+          {/* <div className="w-20 h-1 bg-gray-600 rounded-full relative">
             <div className="absolute h-1 bg-white rounded-full w-1/2" />
-          </div>
+          </div> */}
+          <Slider
+            minValue={0}
+            maxValue={1}
+            step={0.01}
+            value={volume}
+            onChange={(value) => {
+              if (typeof value === "number") {
+                changeVolume(value);
+              }
+            }}
+            className="w-24 cursor-pointer"
+            size="sm"
+          />
         </div>
       </motion.div>
     </motion.div>

@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
-import type { PodcastType } from "../utils/types/PodcastType";
+import type { PodcastType } from "../../utils/types/PodcastType";
 import { addToast } from "@heroui/react";
-import { AxiosInstace } from "../utils/axios/AxiosInstance";
+import { AxiosInstace } from "../../utils/axios/AxiosInstance";
 
 export function useGetPodcastsUsuario(usuario_id: string) {
   const [podcasts, setPodcasts] = useState<PodcastType[]>([]);
