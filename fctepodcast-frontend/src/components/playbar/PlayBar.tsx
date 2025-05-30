@@ -26,6 +26,7 @@ const PlayBar = () => {
     episode_data,
     volume,
     changeVolume,
+    loading_audio,
   } = usePlayer();
   const [referenceData, setReferenceData] = useState<ReferenceDataType | null>(
     null
@@ -207,20 +208,29 @@ const PlayBar = () => {
           <span className="text-xs text-gray-400">
             {formatTime(currentTime)}
           </span>
-          <Slider
-            className="cursor-pointer"
-            defaultValue={[0]}
-            value={[currentTime]}
-            minValue={0}
-            maxValue={duration}
-            step={0.1}
-            onChange={(value: number | number[]) =>
-              Array.isArray(value)
-                ? handleSliderChange(value[0])
-                : handleSliderChange(value)
-            }
-            size="sm"
-          />
+          {loading_audio && (
+            <div className="flex items-center space-x-2 w-full justify-center">
+              <div className="w-3 h-3 bg-white rounded-full animate-pulse" />
+              <div className="w-3 h-3 bg-white rounded-full animate-pulse" />
+              <div className="w-3 h-3 bg-white rounded-full animate-pulse" />
+            </div>
+          )}
+          {!loading_audio && (
+            <Slider
+              className="cursor-pointer"
+              defaultValue={[0]}
+              value={[currentTime]}
+              minValue={0}
+              maxValue={duration}
+              step={0.1}
+              onChange={(value: number | number[]) =>
+                Array.isArray(value)
+                  ? handleSliderChange(value[0])
+                  : handleSliderChange(value)
+              }
+              size="sm"
+            />
+          )}
           <span className="text-xs text-gray-400">{formatTime(duration)}</span>
         </div>
       </motion.div>
