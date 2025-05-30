@@ -26,6 +26,7 @@ const CriarEpisodioModal = ({
   const [titulo, settitulo] = useState<string>("");
   const [descricao, setDescricao] = useState<string>("");
   const [audio, setAudio] = useState<File | null>(null);
+  const [loading, setLoading] = useState<boolean>(false);
 
   const handleCriarEpisodio = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -39,6 +40,7 @@ const CriarEpisodioModal = ({
       return;
     }
 
+    setLoading(true);
     try {
       const formData = new FormData();
       formData.append("titulo", titulo);
@@ -77,6 +79,8 @@ const CriarEpisodioModal = ({
         color: "danger",
       });
       return;
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -135,7 +139,7 @@ const CriarEpisodioModal = ({
                     </audio>
                   </div>
                 )}
-                <Button type="submit" color="primary">
+                <Button isLoading={loading} type="submit" color="primary">
                   Adicionar Episódio
                 </Button>
               </form>

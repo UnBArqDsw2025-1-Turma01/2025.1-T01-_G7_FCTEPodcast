@@ -13,9 +13,10 @@ interface PlayerContextProps {
   currentTime: number;
   duration: number;
   seek: (time: number) => void;
-  episode_data: EpisodioType | null; // Adicione o tipo correto para episode_data se necessário
+  episode_data: EpisodioType | null;
   changeVolume: (value: number) => void;
   volume: number;
+  loading_audio?: boolean;
 }
 
 const PlayerContext = createContext<PlayerContextProps | undefined>(undefined);
@@ -28,6 +29,7 @@ export const PlayerProvider = ({ children }: { children: React.ReactNode }) => {
   const [audioBlobUrl, setAudioBlobUrl] = useState<string | null>(null);
   const [canPlay, setCanPlay] = useState(false);
   const [volume, setVolume] = useState<number>(1);
+  const [loadingAudio, setLoadingAudio] = useState<boolean>(false);
 
   const [currentTime, setCurrentTime] = useState(0);
   const [duration, setDuration] = useState(0);
@@ -44,6 +46,7 @@ export const PlayerProvider = ({ children }: { children: React.ReactNode }) => {
     if (!audioPath) return;
 
     const fetchAudio = async () => {
+      setLoadingAudio(true);
       try {
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const response: any = await AxiosInstace.get(
@@ -58,6 +61,8 @@ export const PlayerProvider = ({ children }: { children: React.ReactNode }) => {
         setCanPlay(false);
       } catch (err) {
         console.error("Erro ao buscar áudio:", err);
+      } finally {
+        setLoadingAudio(false);
       }
     };
     fetchAudio();
@@ -149,6 +154,7 @@ export const PlayerProvider = ({ children }: { children: React.ReactNode }) => {
         episode_data: playerRef.current.getCurrentTrackData(),
         changeVolume,
         volume,
+        loading_audio: loadingAudio,
       }}
     >
       {children}
