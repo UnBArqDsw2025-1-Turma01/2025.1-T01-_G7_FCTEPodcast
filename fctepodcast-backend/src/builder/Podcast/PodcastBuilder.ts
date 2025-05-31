@@ -1,5 +1,8 @@
 import { Professor } from "../../models/Usuario";
 
+// Interface que define os métodos para construir um Podcast
+// O PodcastBuilder é uma interface que define os métodos necessários para construir um Podcast.
+// Ele especifica os métodos que devem ser implementados por qualquer classe que deseje construir um Podcast.
 interface PodcastBuilder {
   adicionarImagem(image_path: string): void;
   adicionarCamposTextuais(
@@ -12,6 +15,12 @@ interface PodcastBuilder {
   build(): PodcastDTO;
 }
 
+// DTO (Data Transfer Object) que representa um Podcast
+// O PodcastDTO é um objeto simples que transporta os dados do podcast.
+// Ele contém os campos necessários para representar um podcast,
+// como título, descrição, caminho da imagem, co-autores, autor e tags.
+// Ele é usado para transferir dados entre diferentes camadas da aplicação,
+// como entre o builder e o serviço ou controlador que manipula os podcasts.
 type PodcastDTO = {
   titulo: string;
   descricao: string;
@@ -21,6 +30,11 @@ type PodcastDTO = {
   tags?: string[];
 };
 
+// Classe concreta que implementa o PodcastBuilder
+// A ConcretePodcastBuilder é uma implementação concreta da interface PodcastBuilder.
+// Ela fornece a lógica específica para construir um podcast, implementando os métodos definidos na interface.
+// Ela encapsula a lógica de validação e construção do podcast, garantindo que todos os campos necessários sejam preenchidos corretamente.
+// Ela também lida com a validação do autor do podcast, garantindo que o autor exista antes de associá-lo ao podcast.
 export class ConcretePodcastBuilder implements PodcastBuilder {
   private podcast: PodcastDTO | null = null;
 
@@ -103,3 +117,13 @@ export class ConcretePodcastBuilder implements PodcastBuilder {
     return this.podcast;
   }
 }
+
+// Adaptações
+// apenas algumas adaptações naturais foram feitas para o contexto do typescript e expressjs
+// * Produto Simples como DTO
+// no padrao original, o produto poder ser um objeto complexo, como uma classe com métodos e propriedades
+// aqui usamos um objetos simples DTO, que é válido em TypeScript e ExpressJS.
+// * Validações
+// as validações foram adaptadas para lançar erros com mensagens mais claras
+// especialmente tratando de apis, onde é importante que os métodos façam seus retornos sejam feitas pelas
+// requisições e respostas HTTP e que essas mensagens sejam acessiveis, por em formato json pelo cliente.

@@ -21,6 +21,14 @@ interface PlayerContextProps {
 
 const PlayerContext = createContext<PlayerContextProps | undefined>(undefined);
 
+// O Gof Command é um padrão de design que encapsula uma solicitação como um objeto,
+// permitindo que você parametrize clientes com filas, solicitações e operações que podem ser executadas ou desfeitas.
+// Ele permite que você desacople o remetente de uma solicitação do receptor da solicitação,
+// Portanto, o remetente não precisa saber nada sobre o receptor,
+// e o receptor não precisa saber nada sobre o remetente.
+// O PlayerContext é um contexto React que fornece funcionalidades de controle de reprodução de áudio,
+// como play, pause, next, previous, e manipulação de playlist.
+// Ele encapsula a lógica de reprodução de áudio, permitindo que os componentes filhos acessem e controlem o estado do player.
 export const PlayerProvider = ({ children }: { children: React.ReactNode }) => {
   const playerRef = useRef(new Player());
   const [isPlaying, setIsPlaying] = useState(false);
@@ -169,6 +177,9 @@ export const PlayerProvider = ({ children }: { children: React.ReactNode }) => {
   );
 };
 
+// O hook usePlayer é um hook personalizado que permite acessar o contexto do PlayerContext.
+// Ele verifica se o contexto está definido e, se não estiver, lança um erro informando que o hook deve ser usado dentro de um PlayerProvider.
+// Isso garante que o hook só seja usado em componentes que estão dentro do PlayerProvider, evitando erros de contexto não definido.
 // eslint-disable-next-line react-refresh/only-export-components
 export const usePlayer = () => {
   const context = useContext(PlayerContext);
@@ -176,3 +187,18 @@ export const usePlayer = () => {
     throw new Error("usePlayer must be used within a PlayerProvider");
   return context;
 };
+
+// Adaptações
+// Como o React é baseado em funções, hooks e estado imutável, algumas adaptações são necessárias
+// * Command como Função com Estado Capturado (Closure)
+// Em vez de guardar um "receiver" (objeto) como atributo, você injeta funções (callbacks) como dependência no construtor.
+// Isso usa o conceito de closure do JavaScript: funções capturam o escopo onde foram criadas.
+// * Invoker como uma função dentro do Contexto
+// O invocador não é mais um objeto com estado, é apenas uma função (executeCommand) fornecida pelo Context.
+// Isso mantém o acoplamento fraco: qualquer componente pode disparar comandos sem conhecer a lógica.
+// * Receiver vira uma função vinda do Context Original (OO):
+// O "receiver" que realmente realiza a ação (como tocar o episódio ou atualizar a fila) é representado por funções como playEpisode, addToQueue, setQueue, passadas como dependências nos comandos.
+// * Uso do React Context como meio de Inversão de Controle
+// No padrão GoF, comandos podem ser injetados em tempo de execução. Em React, você faz isso usando o Context API, que fornece as funções (os "receivers") e o invocador (executeCommand) aos componentes filhos.
+// * Componentes se tornam "Clientes" desacoplados
+// Os componentes React agora agem como o cliente do padrão Command, sem precisar conhecer a lógica interna da ação:
