@@ -11,6 +11,16 @@ import { JWTService } from "../../services/JWTService";
 
 const usuario_router = express.Router();
 
+// Aqui estão as maiores adaptações feitas para o contexto do Express.js e TypeScript:
+// * Uso do Express Router para Organização de Rotas
+// Express Router permite modularizar rotas por domínio (ex.: /usuarios, /podcasts, etc).
+// * Tratamento Assíncrono e Erros com async/await
+// Captura e resposta adequada para erros via middleware ou blocos try/catch.
+// * DTOs e Tipagem Estrita
+// Usar DTOs (objetos simples) para transferência de dados entre camadas.
+// * Chamda de Métodos
+// Geralmente, as rotas são implementadas usando funções simples (handlers), ao contrário de classes complexas.
+
 // controllers
 const usuario_controller = new UsuarioController();
 const podcast_controller = new PodcastController();
@@ -25,16 +35,6 @@ const archiveProvider = new ArchiveAdapter(acrhiveFileSystem);
 
 // facade
 const authFacade = new AuthFacade(jwtService, usuario_controller);
-
-// Aqui estão as maiores adaptações feitas para o contexto do Express.js e TypeScript:
-// * Uso do Express Router para Organização de Rotas
-// Express Router permite modularizar rotas por domínio (ex.: /usuarios, /podcasts, etc).
-// * Tratamento Assíncrono e Erros com async/await
-// Captura e resposta adequada para erros via middleware ou blocos try/catch.
-// * DTOs e Tipagem Estrita
-// Usar DTOs (objetos simples) para transferência de dados entre camadas.
-// * Chamda de Métodos
-// Geralmente, as rotas são implementadas usando funções simples (handlers), ao contrário de classes complexas.
 
 // autenticacao
 usuario_router.post(
