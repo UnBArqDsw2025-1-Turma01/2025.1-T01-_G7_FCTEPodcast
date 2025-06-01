@@ -5,6 +5,19 @@ import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 
 export class UsuarioController {
+  async getUsuarioById_Internal(id: string) {
+    try {
+      return await Usuario.findById(id);
+    } catch (error) {
+      console.error("Erro ao buscar usuário:", error);
+      return null;
+    }
+  }
+
+  public hasPermission(usuario: any, allowedRoles: string[]): boolean {
+    return !!usuario?.role && allowedRoles.includes(usuario.role);
+  }
+
   async registrar(req: Request, res: Response): Promise<void> {
     const { nome, email, senha, role } = req.body;
 

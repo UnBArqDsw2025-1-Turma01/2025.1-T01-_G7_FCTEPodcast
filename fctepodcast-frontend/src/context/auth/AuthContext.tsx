@@ -6,6 +6,7 @@ import { AxiosInstace } from "../../utils/axios/AxiosInstance";
 import Loader from "../../pages/loader/Loader";
 import { useNavigate } from "react-router";
 
+// A ideia de um Singleton é garantir que haja apenas uma instancia de uma classe em toda a aplicação
 interface AuthContextType {
   user: UserType | null;
   loading: boolean;
@@ -13,9 +14,11 @@ interface AuthContextType {
   logout: () => Promise<void>;
 }
 
+// aqui se cria um um contexto usando o createContext do React.
+// e o prove atraves de um unico provider, que envolve toda a aplicação.
+// assim conseguimos acessar o contexto de autenticação em qualquer lugar da aplicação.
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-// singleton do AuthContext
 export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [user, setUser] = useState<UserType | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
@@ -101,6 +104,9 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   );
 };
 
+// No singleton, se define um ponto de acesso global para a instância da classe.
+// O hook useAuth é um custom hook que permite acessar o contexto de autenticação de forma mais fácil.
+// Sendo analogo ao getInstance de um singleton, ele garante que o contexto de autenticação seja acessado corretamente.
 // eslint-disable-next-line react-refresh/only-export-components
 export const useAuth = () => {
   const context = useContext(AuthContext);
