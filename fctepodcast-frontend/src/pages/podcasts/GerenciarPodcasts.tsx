@@ -24,13 +24,18 @@ const GerenciarPodcasts = () => {
         className="flex items-center justify-between"
       >
         <h1 className="font-bold text-2xl">Conteúdo do Perfil</h1>
+       
         <Button onPress={onOpen} color="primary">
-          <FaPlus />
+          <FaPlus aria-hidden="true" />
+          {/* Ícone apenas decorativo, `aria-hidden` evita leitura redundante pelo leitor de tela */}
+
           Adicionar Podcast
+        
         </Button>
       </motion.div>
 
       <Divider />
+      
 
       <motion.div
         initial={{ opacity: 0, y: -5 }}
@@ -41,6 +46,7 @@ const GerenciarPodcasts = () => {
           Aqui você pode gerenciar seus podcasts, adicionar novos episódios e
           muito mais.
         </p>
+       
       </motion.div>
 
       <motion.div
@@ -60,6 +66,7 @@ const GerenciarPodcasts = () => {
 
       <div className="flex flex-col gap-4">
         {loading && <LoaderMini />}
+        
         {!loading && podcasts.length === 0 && (
           <motion.p
             initial={{ opacity: 0 }}
@@ -69,6 +76,7 @@ const GerenciarPodcasts = () => {
           >
             Você ainda não possui nenhum podcast. Clique no botão acima para
             criar um novo podcast.
+            
           </motion.p>
         )}
 
@@ -76,6 +84,7 @@ const GerenciarPodcasts = () => {
           isOpen={isOpen}
           onOpenChange={onOpenChange}
           refresh={fetchPodcasts}
+          
         />
 
         {!loading &&
@@ -89,11 +98,13 @@ const GerenciarPodcasts = () => {
               <PodcastStudioCard
                 podcast={podcast}
                 fetch_function={fetchPodcasts}
+                
               />
             </motion.div>
           ))}
       </div>
 
+      
       <CriarPodcastModal
         isOpen={isOpen}
         onOpenChange={onOpenChange}

@@ -36,6 +36,7 @@ const CriarPodcastModal = ({
       console.error("Usuário não autenticado");
       return;
     }
+
     const formData = new FormData();
     formData.append("titulo", titulo);
     formData.append("descricao", descricao);
@@ -46,7 +47,6 @@ const CriarPodcastModal = ({
     formData.append("tags", tags);
 
     try {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const response: any = await AxiosInstace.post(
         `${BASE_API_URL}/usuario/podcast/criar`,
         formData,
@@ -62,14 +62,13 @@ const CriarPodcastModal = ({
         description: response.data.message,
         color: "success",
       });
+
       onOpenChange(false);
       setTitulo("");
       setDescricao("");
       setImage(null);
       setTags("");
-
-      refresh(); // Refresh the podcast list after creation
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      refresh();
     } catch (error: any) {
       addToast({
         title: "Erro ao criar podcast",
@@ -81,27 +80,36 @@ const CriarPodcastModal = ({
 
   return (
     <Modal isOpen={isOpen} onOpenChange={onOpenChange} backdrop="blur">
+      {/* O componente Modal deve automaticamente aplicar role="dialog" e aria-modal="true" para acessibilidade */}
       <ModalContent>
         {() => (
           <>
             <ModalHeader>
               <h1>Criar Podcast</h1>
+              {/* Título do modal — geralmente é lido por leitores de tela ao abrir */}
             </ModalHeader>
+
             <ModalBody>
               <div className="flex items-center justify-center mb-4">
                 {image ? (
                   <Image
                     src={URL.createObjectURL(image)}
                     className="h-40 w-40"
+                    alt="Pré-visualização da imagem selecionada"
+                    // `alt` torna a imagem compreensível para leitores de tela
                   />
                 ) : (
-                  <div className="flex items-center justify-center h-40 w-40 bg-gray-200 rounded-lg">
+                  <div
+                    className="flex items-center justify-center h-40 w-40 bg-gray-200 rounded-lg"
+                    aria-label="Pré-visualização da imagem"
+                  >
                     <p className="text-center text-foreground-50">
                       Nenhuma imagem selecionada
                     </p>
                   </div>
                 )}
               </div>
+
               <form
                 onSubmit={handleCreatePodcast}
                 className="flex flex-col gap-4"
@@ -113,20 +121,26 @@ const CriarPodcastModal = ({
                       setImage(e.target.files[0]);
                     }
                   }}
+                  aria-label="Imagem do podcast"
+                  // Garante que o input de arquivo tenha um rótulo acessível
                 />
 
                 <Input
                   label="Título"
                   value={titulo}
                   onChange={(e) => setTitulo(e.target.value)}
+                  required
                 />
+                {/* Campo com rótulo visível e legível por leitores de tela */}
 
                 <Textarea
                   type="textarea"
                   label="Descrição"
                   value={descricao}
                   onChange={(e) => setDescricao(e.target.value)}
+                  required
                 />
+                {/* Mesmo que um <textarea> nativo, com rótulo acessível */}
 
                 <Input
                   label="Tags"
@@ -135,14 +149,25 @@ const CriarPodcastModal = ({
                   value={tags}
                 />
 
-                <Input label="Autor" readOnly disabled value={user?.nome} />
+                <Input
+                  label="Autor"
+                  readOnly
+                  disabled
+                  value={user?.nome}
+                  aria-readonly="true"
+                />
+                {/* Campo desabilitado, com `aria-readonly` adicional para reforçar acessibilidade */}
 
                 <Button type="submit" color="primary">
                   Criar Podcast
                 </Button>
+                {/* Botão com rótulo textual claro, acessível por padrão */}
               </form>
             </ModalBody>
-            <ModalFooter></ModalFooter>
+
+            <ModalFooter>
+              {/* Footer vazio, mas mantém estrutura semântica */}
+            </ModalFooter>
           </>
         )}
       </ModalContent>
