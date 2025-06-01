@@ -57,6 +57,7 @@ const Login = () => {
       >
         <Image src={logo} alt="Logo" aria-label="Logo" className="h-20" />
       </motion.div>
+      {/* Logo com alt e aria-label para leitores de tela */}
 
       {/* Card */}
       <motion.div
@@ -64,7 +65,8 @@ const Login = () => {
         animate={{ y: 0, opacity: 1 }}
         transition={{ delay: 0.2, duration: 0.4 }}
       >
-        <Card className="w-96">
+        <Card className="w-96" role="form" aria-label="Formulário de Login">
+          /* role "form" e aria-label "Formulário de Login" para acessibilidade */         
           <CardHeader className="flex flex-col items-center justify-center gap-5">
             <motion.h1
               className="text-2xl font-bold"
@@ -113,9 +115,10 @@ const Login = () => {
                     <Button
                       type="button"
                       isIconOnly
-                      onPress={() => setShowSenha((prev) => !prev)}
+                      onPress={() => setShowSenha ((prev) => !prev)}
                       aria-label={showSenha ? "Ocultar senha" : "Mostrar senha"}
                       className="w-10"
+                      // Acessibilidade: aria-label dinâmico para descrever a ação do botão
                     >
                       {showSenha ? <FaEyeSlash /> : <FaEye />}
                     </Button>
@@ -134,6 +137,7 @@ const Login = () => {
                   className="w-full"
                   color="primary"
                   type="submit"
+                  // O botão padrão <button> já é acessível para teclado e leitores de tela
                 >
                   Login
                 </Button>
