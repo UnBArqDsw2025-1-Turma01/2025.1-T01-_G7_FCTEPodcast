@@ -2,6 +2,12 @@ import { Professor } from "../../models/Usuario";
 import { UsuarioCreator } from "./UsuarioCreator";
 import bcrypt from "bcryptjs";
 
+// Classe concreta que implementa o factoryMethod para criar um Professor
+// faz a criação do Professor com a senha criptografada
+// e define o papel como "PROFESSOR"
+// O ProfessorCreator é uma classe concreta que estende a classe abstrata UsuarioCreator
+// e implementa o método factoryMethod para criar um Professor específico.
+// Ele encapsula a lógica de criação de um Professor, incluindo a criptografia da senha.
 export class ProfessorCreator extends UsuarioCreator {
   async factoryMethod(
     nome: string,
