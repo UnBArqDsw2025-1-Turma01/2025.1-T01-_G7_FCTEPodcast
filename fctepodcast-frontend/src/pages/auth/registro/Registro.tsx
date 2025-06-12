@@ -27,14 +27,7 @@ const Registro = () => {
         animate={{ y: 0, opacity: 1 }}
         transition={{ duration: 0.6, delay: 0.2 }}
       >
-        <Image
-          src={logo}
-          alt="Logo"
-          aria-label="Logo"
-          className="h-20"
-          // `alt` fornece uma descrição da imagem para leitores de tela
-          // `aria-label` reforça o propósito visual da imagem como logotipo
-        />
+        <Image src={logo} alt="Logo" aria-label="Logo" className="h-20" />
       </motion.div>
 
       <motion.div
@@ -45,11 +38,8 @@ const Registro = () => {
         <Card className="w-96">
           <CardHeader className="flex flex-col items-center justify-center gap-5">
             <h1 className="font-bold text-2xl">Cadastro</h1>
-            {/* Título principal da tela, útil para orientação do usuário e de leitores de tela */}
           </CardHeader>
-
           <CardBody className="flex flex-col items-center justify-center gap-5 w-full overflow-hidden">
-            {/* `aria-label` aqui define um rótulo descritivo para o grupo de abas, essencial para acessibilidade de navegação por teclado */}
             <Tabs aria-label="Seleção de tipo de Cadastro">
               <Tab key={"aluno"} title="Aluno" className="w-full">
                 <motion.div
@@ -62,7 +52,6 @@ const Registro = () => {
                   <AlunoForm />
                 </motion.div>
               </Tab>
-
               <Tab key={"professor"} title="Professor" className="w-full">
                 <motion.div
                   key="professor-form"
@@ -78,7 +67,6 @@ const Registro = () => {
           </CardBody>
         </Card>
       </motion.div>
-
       <motion.p
         className="font-bold text-center"
         initial={{ y: 10, opacity: 0 }}
@@ -104,7 +92,6 @@ const Registro = () => {
             navigate("/login");
           }}
           color="primary"
-      
         >
           Logar
         </Button>
