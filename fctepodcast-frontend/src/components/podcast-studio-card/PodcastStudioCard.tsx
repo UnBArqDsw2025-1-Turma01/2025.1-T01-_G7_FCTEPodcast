@@ -70,6 +70,7 @@ const PodcastStudioCard = ({
         className="bg-primary-50 p-4 rounded-xl flex items-center justify-evenly gap-6 shadow-sm h-20"
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
+        //whileHover={{ scale: 1.02 }}
         transition={{ duration: 0.4, ease: "easeOut" }}
       >
         <div className="flex gap-4 items-center">
@@ -80,7 +81,7 @@ const PodcastStudioCard = ({
           >
             <Image
               src={imageBlobUrl || no_image}
-              alt={`Capa do podcast ${podcast.titulo}`} // Descrição acessível para leitores de tela
+              alt="Capa do Podcast"
               className="w-16 rounded-md"
             />
           </motion.div>
@@ -96,7 +97,6 @@ const PodcastStudioCard = ({
           animate={{ opacity: 1 }}
           transition={{ delay: 0.2 }}
           className="flex-1 text-sm text-gray-500 mt-2 line-clamp-2 overflow-hidden"
-          title={podcast.descricao} // Tooltip com descrição completa para ajudar na acessibilidade
         >
           {podcast.descricao}
         </motion.div>
@@ -106,7 +106,6 @@ const PodcastStudioCard = ({
           animate={{ opacity: 1, x: 0 }}
           transition={{ delay: 0.3 }}
           className="flex items-center gap-2"
-          aria-label="Tags do podcast" // Label para leitores de tela explicando o conteúdo das tags
         >
           {podcast.tags.map((tag, index) => (
             <span
@@ -125,52 +124,47 @@ const PodcastStudioCard = ({
         >
           <Dropdown backdrop="blur">
             <DropdownTrigger>
-              {/* 
-                Botão para abrir o menu dropdown
-                aria-haspopup e aria-expanded informam aos leitores de tela que o botão controla um menu e se ele está aberto
-              */}
-              <Button aria-haspopup="menu" aria-expanded={isOpen}>
-                Ver opções
-              </Button>
+              <Button>Ver opões</Button>
             </DropdownTrigger>
             <DropdownMenu>
-              {/* 
-                DropdownItem já é acessível e clicável
-                Usar onClick diretamente no DropdownItem evita problema de colocar button dentro de button
-              */}
-              <DropdownItem key={"adicionar"} onClick={onOpen} startContent={<IoMdAdd />}>
-                Adicionar Episódio
+              <DropdownItem key={"adicionar"}>
+                <button
+                  onClick={onOpen}
+                  className="flex items-center gap-2 w-full"
+                >
+                  <IoMdAdd />
+                  Adicionar Episódio
+                </button>
               </DropdownItem>
-
-              <DropdownItem
-                key={"ver"}
-                onClick={onOpenVerEpisodios}
-                startContent={<MdAudiotrack />}
-              >
-                Ver Episódios
+              <DropdownItem key={"ver"}>
+                <button
+                  onClick={onOpenVerEpisodios}
+                  className="flex items-center gap-2 w-full"
+                >
+                  <MdAudiotrack />
+                  Ver Episódios
+                </button>
               </DropdownItem>
-
-              <DropdownItem
-                key={"editar"}
-                startContent={<FaPencil />}
-              >
-                Editar Podcast
+              <DropdownItem key={"editar"}>
+                <button className="flex items-center gap-2 w-full">
+                  <FaPencil />
+                  Editar Podcast
+                </button>
               </DropdownItem>
-
               <DropdownItem
                 key={"excluir"}
                 color="danger"
                 className="text-danger"
-                startContent={<FaTrash />}
               >
-                Excluir Podcast
+                <button className="flex items-center gap-2 w-full">
+                  <FaTrash />
+                  Excluir Podcast
+                </button>
               </DropdownItem>
             </DropdownMenu>
           </Dropdown>
         </motion.div>
       </motion.div>
-
-      {/* Modais para adicionar e ver episódios */}
       <CriarEpisodioModal
         isOpen={isOpen}
         onOpenChange={onOpenChange}
