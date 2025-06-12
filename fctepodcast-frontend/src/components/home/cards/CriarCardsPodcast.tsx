@@ -23,12 +23,10 @@ const PodcastCard = ({
   podcast,
   onPress,
   index,
-  ariaLabel,
 }: {
   podcast: PodcastType;
   onPress?: () => void;
   index: number;
-  ariaLabel?: string;
 }) => {
   const [imageBlobUrl, setImageBlobUrl] = useState<string | null>(null);
 
@@ -56,52 +54,51 @@ const PodcastCard = ({
     };
   }, [podcast?.imagem_path]);
 
-  // Acessibilidade: permite ativar o card via teclado (Enter ou Espaço),
-  // garantindo interação para usuários que navegam pelo teclado.
-  const handleKeyDown = (e: React.KeyboardEvent) => {
-    if ((e.key === "Enter" || e.key === " ") && onPress) {
-      e.preventDefault();
-      onPress();
-    }
-  };
-
   return (
     <motion.div
-      // Animação e controle de visibilidade com framer-motion, sem impacto na acessibilidade.
-      custom={index}
+      variants={variants}
       initial="hidden"
       animate="visible"
       whileHover="hover"
-      variants={variants}
-      className="w-56 cursor-pointer"
-      // Acessibilidade: define o papel como botão, pois o card é interativo.
-      role="button"
-      // Permite foco via teclado.
-      tabIndex={0}
-      // Fornece descrição acessível para leitores de tela, customizável via prop.
-      aria-label={ariaLabel || `Ouvir podcast ${podcast.titulo} por ${podcast.autor.nome}`}
-      onClick={onPress}
-      onKeyDown={handleKeyDown}
+      custom={index}
     >
-      <Card>
-        {/* 
-          Acessibilidade: a imagem usa alt text com o título do podcast, 
-          para que leitores de tela possam compreender o conteúdo visual. 
-        */}
-        <Image
-          src={imageBlobUrl || "/default-podcast.png"}
-          alt={`Capa do podcast ${podcast.titulo}`}
-          className="rounded-t-md"
-          aria-hidden={false} // garante que leitores de tela lêem a descrição do alt
-        />
-        <CardBody>
-          <h3 className="text-lg font-semibold">{podcast.titulo}</h3>
-          <p className="text-sm text-gray-600">{podcast.autor.nome}</p>
-          {/* Ícone visual para indicar função de "play" */}
-          <BiPlayCircle
-            aria-hidden="true" // ícones decorativos não devem ser lidos por leitores de tela
-            className="text-4xl mt-2 text-blue-600"
+      <Card
+        isPressable
+        shadow="sm"
+        onPress={onPress}
+        className="w-56 h-80 group relative flex flex-col items-center pt-4"
+      >
+        {/* Wrapper da imagem */}
+        <div className="relative w-[200px] h-[200px]">
+          <Image
+            alt="cover"
+            src={
+              imageBlobUrl ||
+              "https://heroui.com/images/hero-card-complete.jpeg"
+            }
+            width={200}
+            height={200}
+            className="rounded-xl object-cover w-full h-full"
           />
+
+          {/* Ícone de play no hover */}
+          <BiPlayCircle className="absolute bottom-2 right-2 text-white w-8 h-8 opacity-0 group-hover:opacity-100 transition-opacity duration-300 z-10 shadow-lg" />
+        </div>
+
+        {/* Conteúdo textual */}
+        <CardBody className="flex flex-col gap-2 items-start justify-start text-start w-full px-4">
+          <h2
+            className="font-bold text-sm truncate w-full"
+            title={podcast.titulo}
+          >
+            {podcast.titulo}
+          </h2>
+          <p className="text-sm truncate w-full" title={podcast.autor.nome}>
+            {podcast.autor.nome}
+          </p>
+          <p className="text-xs italic break-words w-full max-h-10 overflow-hidden">
+            {podcast.tags.join(", ")}
+          </p>
         </CardBody>
       </Card>
     </motion.div>
