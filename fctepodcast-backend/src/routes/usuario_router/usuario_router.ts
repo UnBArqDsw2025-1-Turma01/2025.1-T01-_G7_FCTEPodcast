@@ -90,6 +90,14 @@ usuario_router.get(
   )
 );
 
+usuario_router.post(
+  "/episodio/:episodio_id/like",
+  authFacade.handleSecureRequest(
+    ["PROFESSOR", "ALUNO"],
+    episodio_controller.likeEpisodio
+  )
+);
+
 usuario_router.get("/image/", async (req, res) => {
   const { path: imagePath } = req.query;
 

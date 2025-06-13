@@ -4,6 +4,7 @@ import Episodio from "../models/Episodio";
 import Podcast from "../models/Podcast";
 import path from "path";
 import fs from "fs";
+import { Usuario } from "../models/Usuario";
 export class EpisodioController {
   async criarEpisodio(req: Request, res: Response): Promise<void> {
     const { titulo, descricao, podcast_reference } = req.body;
@@ -179,6 +180,97 @@ export class EpisodioController {
           message: "Erro desconhecido ao enviar a imagem do podcast.",
         });
       }
+    }
+  }
+
+  async likeEpisodio(req: Request, res: Response): Promise<void> {
+    const { episodio_id } = req.params;
+    const { usuario_id } = req.body;
+
+    if (!usuario_id) {
+      res.status(400).json({
+        status: "error",
+        title: "Erro de validação",
+        message: "O ID do usuário é obrigatório.",
+      });
+      return;
+    }
+    const episodio = await Episodio.findById(episodio_id);
+    if (!episodio) {
+      res.status(404).json({
+        status: "error",
+        title: "Episódio não encontrado",
+        message: "O episódio referenciado não foi encontrado.",
+      });
+      return;
+    }
+
+    const usuario = await Usuario.findById(usuario_id);
+    if (!usuario) {
+      res.status(404).json({
+        status: "error",
+        title: "Usuário não encontrado",
+        message: "O usuário referenciado não foi encontrado.",
+      });
+      return;
+    }
+
+    if (episodio.curtidas.includes(usuario.id)) {
+      episodio.curtidas = episodio.curtidas.filter(
+        (curtida) => curtida.toString() !== usuario.id.toString()
+      );
+      episodio.curtidas_count -= 1;
+      usuario.curtidas = usuario.curtidas.filter(
+        (curtida) => curtida.toString() !== episodio.id.toString()
+      );
+      try {
+        await episodio.save();
+        await usuario.save();
+
+        res.status(200).json({
+          status: "success",
+          title: "Episódio descurtido com sucesso",
+          message: "Você descurtiu o episódio com sucesso!",
+          setLike: false,
+        });
+      } catch (error) {
+        console.error("Erro ao descurtir episódio:", error);
+        res.status(500).json({
+          status: "error",
+          title: "Erro interno do servidor",
+          message:
+            error instanceof Error
+              ? error.message
+              : "Erro desconhecido ao descurtir o episódio.",
+        });
+      }
+      return;
+    }
+
+    episodio.curtidas.push(usuario.id);
+    episodio.curtidas_count += 1;
+    usuario.curtidas.push(episodio.id);
+
+    try {
+      await episodio.save();
+      await usuario.save();
+
+      res.status(200).json({
+        status: "success",
+        title: "Episódio curtido com sucesso",
+        message: "Você curtiu o episódio com sucesso!",
+        setLike: true,
+      });
+    } catch (error) {
+      console.error("Erro ao curtir episódio:", error);
+      res.status(500).json({
+        status: "error",
+        title: "Erro interno do servidor",
+        message:
+          error instanceof Error
+            ? error.message
+            : "Erro desconhecido ao curtir o episódio.",
+      });
     }
   }
 }

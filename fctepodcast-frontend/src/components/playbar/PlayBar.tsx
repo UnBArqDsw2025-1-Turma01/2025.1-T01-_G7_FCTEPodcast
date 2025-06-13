@@ -1,5 +1,11 @@
 // import { BiSolidSpeaker } from "react-icons/bi";
-import { FaPause, FaPlay } from "react-icons/fa";
+import {
+  FaComments,
+  FaHeart,
+  FaPause,
+  FaPlay,
+  FaRegHeart,
+} from "react-icons/fa";
 import { FaVolumeLow } from "react-icons/fa6";
 import { IoMdSkipBackward, IoMdSkipForward } from "react-icons/io";
 // import { LuListMusic } from "react-icons/lu";
@@ -9,11 +15,12 @@ import { PlayCommand } from "../../context/player/commands/PlayerCommands";
 import { PauseCommand } from "../../context/player/commands/PauseCommand";
 import { NextCommand } from "../../context/player/commands/NextCommand";
 import { PreviousCommand } from "../../context/player/commands/PreviousCommand";
-import { addToast, Image, Slider } from "@heroui/react";
+import { addToast, Button, Image, Slider, Tooltip } from "@heroui/react";
 import { AxiosInstace } from "../../utils/axios/AxiosInstance";
 import type { ReferenceDataType } from "../../utils/types/ReferenceDataType";
 import { useEffect, useState } from "react";
 import { BASE_API_URL } from "../../utils/constants";
+import { useAuth } from "../../context/auth/AuthContext";
 
 const PlayBar = () => {
   const {
@@ -28,15 +35,43 @@ const PlayBar = () => {
     changeVolume,
     loading_audio,
   } = usePlayer();
+  const { user } = useAuth();
   const [referenceData, setReferenceData] = useState<ReferenceDataType | null>(
     null
   );
   const [imageBlobUrl, setImageBlobUrl] = useState<string | null>(null);
-
+  const [liked, setLiked] = useState<boolean>(false);
   const formatTime = (seconds: number) => {
     const m = Math.floor(seconds / 60);
     const s = Math.floor(seconds % 60);
     return `${m}:${s < 10 ? "0" : ""}${s}`;
+  };
+  const [loadingLike, setLoadingLike] = useState<boolean>(false);
+
+  const handleLike = async () => {
+    if (!episode_data?._id) return;
+
+    if (loadingLike) return; // Evita múltiplos cliques enquanto a requisição está em andamento
+    setLoadingLike(true);
+    try {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const res: any = await AxiosInstace.post(
+        `/usuario/episodio/${episode_data._id}/like`,
+        {
+          usuario_id: user?.id,
+        }
+      );
+      setLiked(res.data.setLike);
+    } catch (error) {
+      console.error("Erro ao curtir episódio:", error);
+      addToast({
+        title: "Erro ao curtir episódio",
+        description: "Não foi possível curtir o episódio.",
+        color: "danger",
+      });
+    } finally {
+      setLoadingLike(false);
+    }
   };
 
   const get_reference_data = async () => {
@@ -146,6 +181,7 @@ const PlayBar = () => {
           <p className="font-semibold">
             {episode_data?.titulo || "Nenhum Episódio Selecionado"}
           </p>
+
           <p className="text-xs text-gray-400">
             {referenceData?.reference_data.autor.nome || "Autor Desconhecido"}
           </p>
@@ -242,14 +278,28 @@ const PlayBar = () => {
         animate={{ x: 0, opacity: 1 }}
         transition={{ delay: 0.4, duration: 0.4 }}
       >
-        {/* <LuListMusic
-          size={18}
-          className="text-gray-400 hover:text-white cursor-pointer"
-        />
-        <BiSolidSpeaker
-          size={18}
-          className="text-gray-400 hover:text-white cursor-pointer"
-        /> */}
+        <Tooltip content="Ver comentários" placement="top">
+          <Button
+            isIconOnly
+            color="primary"
+            className="flex items-center justify-center"
+          >
+            <FaComments />
+          </Button>
+        </Tooltip>
+
+        <Tooltip content={liked ? "Remover Curtida" : "Curtir"} placement="top">
+          <Button
+            isIconOnly
+            color="primary"
+            className="flex items-center justify-center"
+            onPress={handleLike}
+            isLoading={loadingLike}
+          >
+            {!liked ? <FaRegHeart size={16} /> : <FaHeart size={16} />}
+          </Button>
+        </Tooltip>
+
         <div className="flex items-center space-x-2">
           <FaVolumeLow
             size={18}
