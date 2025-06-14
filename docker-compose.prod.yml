@@ -18,7 +18,7 @@ services:
     networks:
       - web
 
-  fctepocast-backend:
+  fctepodcast-backend:
     container_name: fctepodcast-backend
     build:
       context: ./fctepodcast-backend
@@ -38,6 +38,7 @@ services:
       - "traefik.docker.network=web"
     networks:
       - web
+      - mongo_network  # <<--- Adicionado aqui
 
   fctepodcast-db:
     container_name: fctepodcast-db
@@ -56,7 +57,7 @@ services:
   
 volumes:
   db_data:
-    
+
 networks:
   web:
     external: true
