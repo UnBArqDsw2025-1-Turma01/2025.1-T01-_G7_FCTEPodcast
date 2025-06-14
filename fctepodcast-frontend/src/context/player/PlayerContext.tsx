@@ -160,12 +160,14 @@ export const PlayerProvider = ({ children }: { children: React.ReactNode }) => {
     if (audioRef.current) {
       audioRef.current.pause();
       audioRef.current.src = "";
-      setAudioBlobUrl(null);
-      setCanPlay(false);
-      setIsPlaying(false);
-      setCurrentTime(0);
-      setDuration(0);
+      audioRef.current.load();
     }
+    setAudioBlobUrl(null);
+    setAudioPath(""); // limpar também o caminho do áudio para forçar recarregamento
+    setCanPlay(false);
+    setIsPlaying(false);
+    setCurrentTime(0);
+    setDuration(0);
     playerRef.current.reset();
   };
 
