@@ -26,6 +26,21 @@ export class Player {
       });
       return;
     }
+
+    // Verifica se a playlist e o índice são iguais aos atuais
+    const isSamePlaylist =
+      this.playlist.length === playlist.length &&
+      this.playlist.every((ep, i) => ep._id === playlist[i]._id) &&
+      this.currentIndex === startIndex;
+
+    if (isSamePlaylist) {
+      // Se for a mesma playlist e mesma posição, só garante que está tocando
+      if (!this.isPlaying) {
+        this.play();
+      }
+      return; // não reinicia a playlist nem troca o áudio
+    }
+
     this.playlist = playlist;
     this.currentIndex = startIndex;
     this.playCurrent();
