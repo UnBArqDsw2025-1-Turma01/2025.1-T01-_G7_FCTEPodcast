@@ -28,7 +28,7 @@ services:
       - stack.env
     restart: always
     depends_on:
-      - fctepocast-db
+      - fctepodcast-db
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.fctepodcast_backend.rule=Host(`api.fctepodcast.site`)"
@@ -40,7 +40,7 @@ services:
       - web
 
   fctepodcast-db:
-    container_name: fctepocast-db
+    container_name: fctepodcast-db
     image: mongo:latest
     env_file:
       - stack.env
