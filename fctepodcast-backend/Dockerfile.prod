@@ -1,23 +1,27 @@
-FROM node:alpine
-
-ENV NODE_ENV=production
+# Build stage
+FROM node:alpine AS build
 
 WORKDIR /app
 
-# Copia os arquivos necessários
 COPY package*.json ./
 
-# Instala apenas as dependências de produção
-RUN npm install --only=production
+RUN npm install  # instala dev + prod
 
-# Copia o restante dos arquivos (inclui src, etc.)
 COPY . .
 
-# Compila a aplicação
 RUN npm run build
 
-# Expõe a porta usada pela aplicação
+# Production stage
+FROM node:alpine
+
+WORKDIR /app
+
+# Copia só os arquivos buildados e package.json (ou só o que precisar)
+COPY --from=build /app/dist ./dist
+COPY package*.json ./
+
+RUN npm install --only=production
+
 EXPOSE 3008
 
-# Comando para iniciar a aplicação
 CMD ["node", "dist/app.js"]
