@@ -1,7 +1,5 @@
 import express from "express";
 import usuario_router from "./usuario_router/usuario_router";
-import { ImageAdapter, ImageFileSystem } from "../adapter/ImageAdapter";
-
 const router = express.Router();
 
 // rota de status
