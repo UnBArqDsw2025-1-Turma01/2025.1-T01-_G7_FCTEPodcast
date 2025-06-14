@@ -32,7 +32,7 @@ const NavBar = () => {
       </NavbarContent>
 
       <NavbarContent justify="end">
-        <Dropdown className="cursor-pointer">
+        <Dropdown backdrop="blur" className="cursor-pointer">
           <DropdownTrigger>
             <button>
               <Avatar />
