@@ -6,7 +6,7 @@ services:
       dockerfile: Dockerfile.prod
     image: fctepodcast-front:prod
     env_file:
-      - .env
+      - stack.env
     restart: always
     labels:
       - "traefik.enable=true"
@@ -25,7 +25,7 @@ services:
       dockerfile: Dockerfile.prod
     image: fctepodcast-backend:prod
     env_file:
-      - .env
+      - stack.env
     restart: always
     depends_on:
       - fctepocast-db
@@ -39,11 +39,11 @@ services:
     networks:
       - web
 
-  fctepocast-db:
+  fctepodcast-db:
     container_name: fctepocast-db
     image: mongo:latest
     env_file:
-      - .env
+      - stack.env
     restart: always
     volumes:
       - db_data:/data/db
