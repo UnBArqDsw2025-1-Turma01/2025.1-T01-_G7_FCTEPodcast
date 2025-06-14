@@ -10,6 +10,7 @@ import Studio from "./pages/studio/Studio";
 import GerenciarPodcasts from "./pages/podcasts/GerenciarPodcasts";
 import GerenciarMonitores from "./pages/podcasts/GerenciarMonitores";
 import PodcastView from "./pages/tmp/PodcastView";
+import ComentariosEpisodio from "./pages/comentarios-episodio/ComentariosEpisodio";
 
 function App() {
   return (
@@ -39,6 +40,10 @@ function App() {
           />
 
           <Route path="/tmp" element={<PodcastView />} />
+          <Route
+            path="/:episodio_id/comentarios"
+            element={<ComentariosEpisodio />}
+          />
         </Route>
 
         {/* rotas especiais */}

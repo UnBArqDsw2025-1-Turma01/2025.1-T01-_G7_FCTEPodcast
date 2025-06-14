@@ -164,8 +164,9 @@ export class UsuarioController {
       refresh_token,
       process.env.JWT_REFRESH_SECRET_KEY || "REFRESH"
     )) as jwt.JwtPayload;
+
     if (!verify_refresh_token) {
-      res.status(401).json({
+      res.status(401).clearCookie("").json({
         status: "error",
         message: "Refresh token inválido",
         title: "Erro ao atualizar sessão",
@@ -218,5 +219,46 @@ export class UsuarioController {
           role: usuario.role,
         },
       });
+  }
+
+  async checkLikedEpisodios(req: Request, res: Response): Promise<void> {
+    const usuario_id = req.params.usuario_id;
+    const episodio_id = req.params.episodio_id;
+    if (!usuario_id || !episodio_id) {
+      res.status(400).json({
+        status: "error",
+        title: "Erro de validação",
+        message: "Usuário ID e Episódio ID são obrigatórios.",
+      });
+      return;
+    }
+
+    try {
+      const usuario = await Usuario.findById(usuario_id);
+      if (!usuario) {
+        res.status(404).json({
+          status: "error",
+          title: "Usuário não encontrado",
+          message: "Usuário com o ID fornecido não existe.",
+        });
+        return;
+      }
+
+      const isLiked = usuario.curtidas.includes(episodio_id as any);
+
+      res.status(200).json({
+        status: "success",
+        title: "Verificação de Episódio Curtido",
+        setLiked: isLiked,
+      });
+    } catch (error) {
+      console.error("Erro ao buscar usuário:", error);
+      res.status(500).json({
+        status: "error",
+        title: "Erro interno do servidor",
+        message: "Erro ao buscar usuário.",
+      });
+      return;
+    }
   }
 }

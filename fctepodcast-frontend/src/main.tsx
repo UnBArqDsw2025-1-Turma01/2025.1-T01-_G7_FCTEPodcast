@@ -20,14 +20,14 @@ createRoot(document.getElementById("root")!).render(
     <BrowserRouter>
       <HeroUIProvider>
         <Suspense fallback={<Loader />}>
-          <AuthProvider>
-            <PlayerProvider>
+          <PlayerProvider>
+            <AuthProvider>
               <main className="dark text-foreground bg-background h-screen">
                 <ToastProvider />
                 <App />
               </main>
-            </PlayerProvider>
-          </AuthProvider>
+            </AuthProvider>
+          </PlayerProvider>
         </Suspense>
       </HeroUIProvider>
     </BrowserRouter>

@@ -54,6 +54,12 @@ export class AuthFacade {
         return;
       }
 
+      if (typeof req.body !== "object" || req.body === null) {
+        req.body = {};
+      }
+
+      req.body.usuario_id = usuario.id;
+
       try {
         await handler(req, res);
       } catch (error) {

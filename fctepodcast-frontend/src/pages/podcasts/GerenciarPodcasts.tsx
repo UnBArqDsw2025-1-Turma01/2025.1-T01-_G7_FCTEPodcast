@@ -93,12 +93,12 @@ const GerenciarPodcasts = () => {
             </motion.div>
           ))}
       </div>
-
+      {/* 
       <CriarPodcastModal
         isOpen={isOpen}
         onOpenChange={onOpenChange}
         refresh={fetchPodcasts}
-      />
+      /> */}
     </div>
   );
 };
