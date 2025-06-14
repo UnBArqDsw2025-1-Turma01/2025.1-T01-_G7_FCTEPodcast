@@ -82,6 +82,7 @@ usuario_router.get(
     episodio_controller.getReferenceData
   )
 );
+
 usuario_router.get(
   "/episodio/:episodio_id/image",
   authFacade.handleSecureRequest(
@@ -95,6 +96,31 @@ usuario_router.post(
   authFacade.handleSecureRequest(
     ["PROFESSOR", "ALUNO"],
     episodio_controller.likeEpisodio
+  )
+);
+
+usuario_router.get(
+  "/episodio/:episodio_id",
+
+  authFacade.handleSecureRequest(
+    ["PROFESSOR", "ALUNO"],
+    episodio_controller.getEpisodio
+  )
+);
+
+usuario_router.get(
+  "/episodio/:episodio_id/:usuario_id/check/liked",
+  authFacade.handleSecureRequest(
+    ["PROFESSOR", "ALUNO"],
+    usuario_controller.checkLikedEpisodios
+  )
+);
+
+usuario_router.post(
+  "/episodio/:episodio_id/comentar",
+  authFacade.handleSecureRequest(
+    ["PROFESSOR", "ALUNO"],
+    episodio_controller.adicionarComentario
   )
 );
 

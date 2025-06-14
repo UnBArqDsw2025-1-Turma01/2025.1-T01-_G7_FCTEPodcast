@@ -21,6 +21,7 @@ import type { ReferenceDataType } from "../../utils/types/ReferenceDataType";
 import { useEffect, useState } from "react";
 import { BASE_API_URL } from "../../utils/constants";
 import { useAuth } from "../../context/auth/AuthContext";
+import { useNavigate } from "react-router";
 
 const PlayBar = () => {
   const {
@@ -47,6 +48,30 @@ const PlayBar = () => {
     return `${m}:${s < 10 ? "0" : ""}${s}`;
   };
   const [loadingLike, setLoadingLike] = useState<boolean>(false);
+  const navigate = useNavigate();
+
+  const checkLiked = async () => {
+    if (!episode_data?._id || !user?.id) return;
+
+    if (loadingLike) return; // Evita múltiplos cliques enquanto a requisição está em andamento
+
+    setLoadingLike(true);
+    try {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const response: any = await AxiosInstace.get(
+        `/usuario/episodio/${episode_data._id}/${user.id}/check/liked`
+      );
+      setLiked(response.data.setLiked);
+    } catch {
+      addToast({
+        title: "Erro ao verificar curtida",
+        description: "Não foi possível verificar se o episódio foi curtido.",
+        color: "danger",
+      });
+    } finally {
+      setLoadingLike(false);
+    }
+  };
 
   const handleLike = async () => {
     if (!episode_data?._id) return;
@@ -127,6 +152,7 @@ const PlayBar = () => {
   useEffect(() => {
     if (episode_data?._id) {
       get_reference_data();
+      checkLiked();
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [episode_data]);
@@ -272,33 +298,56 @@ const PlayBar = () => {
       </motion.div>
 
       {/* Controles laterais */}
+
       <motion.div
         className="flex items-center justify-end space-x-4 w-1/3"
         initial={{ x: 20, opacity: 0 }}
         animate={{ x: 0, opacity: 1 }}
         transition={{ delay: 0.4, duration: 0.4 }}
       >
-        <Tooltip content="Ver comentários" placement="top">
-          <Button
-            isIconOnly
-            color="primary"
-            className="flex items-center justify-center"
-          >
-            <FaComments />
-          </Button>
-        </Tooltip>
+        {episode_data ? (
+          <>
+            <Tooltip content="Ver comentários" placement="top">
+              <motion.div
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.3, ease: "easeOut" }}
+              >
+                <Button
+                  isIconOnly
+                  onPress={() => navigate(`/${episode_data?._id}/comentarios`)}
+                  color="primary"
+                  className="flex items-center justify-center"
+                >
+                  <FaComments />
+                </Button>
+              </motion.div>
+            </Tooltip>
 
-        <Tooltip content={liked ? "Remover Curtida" : "Curtir"} placement="top">
-          <Button
-            isIconOnly
-            color="primary"
-            className="flex items-center justify-center"
-            onPress={handleLike}
-            isLoading={loadingLike}
-          >
-            {!liked ? <FaRegHeart size={16} /> : <FaHeart size={16} />}
-          </Button>
-        </Tooltip>
+            <Tooltip
+              content={liked ? "Remover Curtida" : "Curtir"}
+              placement="top"
+            >
+              <motion.div
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.3, ease: "easeOut", delay: 0.1 }}
+              >
+                <Button
+                  isIconOnly
+                  color="primary"
+                  className="flex items-center justify-center"
+                  onPress={handleLike}
+                  isLoading={loadingLike}
+                >
+                  {!liked ? <FaRegHeart size={16} /> : <FaHeart size={16} />}
+                </Button>
+              </motion.div>
+            </Tooltip>
+          </>
+        ) : (
+          <></>
+        )}
 
         <div className="flex items-center space-x-2">
           <FaVolumeLow

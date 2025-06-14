@@ -76,7 +76,7 @@ const VerEpisodiosModal = ({
                 <div>
                   <h2 className="font-bold">{podcast_reference.titulo}</h2>
                   <p>{podcast_reference.autor.nome}</p>
-                  <p className="italic overflow-hidden text-ellipsis whitespace-nowrap">
+                  <p className="italic overflow-hidden break-words">
                     {podcast_reference.descricao}
                   </p>
                 </div>

@@ -1,4 +1,5 @@
 // PlayerClass.ts (ajuste necessário na classe Player)
+import { addToast } from "@heroui/react";
 import type { EpisodioType } from "../../utils/types/EpisodioType";
 
 export class Player {
@@ -17,6 +18,14 @@ export class Player {
   }
 
   setPlaylist(playlist: EpisodioType[], startIndex: number = 0) {
+    if (!Array.isArray(playlist) || playlist.length === 0) {
+      addToast({
+        title: "Atenção!",
+        description: "Não há episódios disponíveis para reprodução.",
+        color: "warning",
+      });
+      return;
+    }
     this.playlist = playlist;
     this.currentIndex = startIndex;
     this.playCurrent();
