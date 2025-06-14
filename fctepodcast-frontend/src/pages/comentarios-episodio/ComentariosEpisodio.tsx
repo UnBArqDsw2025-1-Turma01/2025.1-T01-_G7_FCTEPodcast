@@ -7,7 +7,7 @@ import {
   Input,
   Skeleton,
 } from "@heroui/react";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { useParams } from "react-router";
 import { AxiosInstace } from "../../utils/axios/AxiosInstance";
 import type { EpisodioType } from "../../utils/types/EpisodioType";
@@ -26,6 +26,7 @@ const ComentariosEpisodio = () => {
   const [imageBlobUrl, setImageBlobUrl] = useState<string>("");
   const [textoComentario, setTextoComentario] = useState<string>("");
   const [loading, setLoading] = useState<boolean>(true);
+  const ultimoComentarioRef = useRef<HTMLDivElement | null>(null);
 
   const getEpisodioData = async () => {
     if (!episodio_id) {
@@ -117,7 +118,10 @@ const ComentariosEpisodio = () => {
         }
         return prev;
       });
-      setTextoComentario(""); // Limpa o campo de comentário após o envio
+      setTextoComentario("");
+      setTimeout(() => {
+        ultimoComentarioRef.current?.scrollIntoView({ behavior: "smooth" });
+      }, 100);
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (error: any) {
       addToast({
@@ -200,9 +204,12 @@ const ComentariosEpisodio = () => {
               )}
 
               <AnimatePresence>
-                {episodio?.comentarios.map((comentario) => (
+                {episodio?.comentarios.map((comentario, index, array) => (
                   <motion.div
-                    key={comentario._id} // garanta que comentário tem id
+                    key={comentario._id}
+                    ref={
+                      index === array.length - 1 ? ultimoComentarioRef : null
+                    }
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
                     exit={{ opacity: 0, y: 10 }}

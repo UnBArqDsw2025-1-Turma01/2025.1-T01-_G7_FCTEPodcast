@@ -73,4 +73,14 @@ export class Player {
   getCurrentTrackData(): EpisodioType | null {
     return this.playlist[this.currentIndex] || null;
   }
+
+  reset() {
+    this.pause();
+    this.playlist = [];
+    this.currentIndex = 0;
+    if (this.audioRef?.current) {
+      this.audioRef.current.src = "";
+      this.audioRef.current.load();
+    }
+  }
 }

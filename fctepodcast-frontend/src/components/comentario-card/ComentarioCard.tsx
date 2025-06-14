@@ -37,9 +37,9 @@ const ComentarioCard = ({ comentario }: { comentario: ComentarioType }) => {
       transition={{ duration: 0.4, ease: "easeOut" }}
       className="bg-primary-100 p-4 rounded-xl flex flex-col gap-4"
     >
-      <div className="flex gap-3 items-center">
-        <Avatar />
-        <div>
+      <div className="flex gap-2   items-center">
+        <Avatar size="lg" />
+        <div className="flex flex-col gap-2">
           <div className="flex items-center gap-2">
             <p className="font-bold">{comentario.usuario.nome}</p>
             <Chip
@@ -52,7 +52,11 @@ const ComentarioCard = ({ comentario }: { comentario: ComentarioType }) => {
           </div>
           <p className="text-sm text-gray-400">
             {comentario.createdAt
-              ? new Date(comentario.createdAt).toLocaleDateString("pt-BR")
+              ? `${new Date(comentario.createdAt).toLocaleDateString(
+                  "pt-BR"
+                )} às ${new Date(comentario.createdAt).toLocaleTimeString(
+                  "pt-BR"
+                )}`
               : "Data desconhecida"}
           </p>
         </div>
