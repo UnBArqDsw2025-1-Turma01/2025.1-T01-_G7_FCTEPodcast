@@ -7,14 +7,13 @@ import {
   Image,
   useDisclosure,
 } from "@heroui/react";
-import no_image from "../../assets/no_image_base/pngtree-no-image-available-icon-flatvector-illustration-picture-coming-creative-vector-png-image_40968940.jpg";
 import type { PodcastType } from "../../utils/types/PodcastType";
 import { motion } from "framer-motion";
 import { IoMdAdd } from "react-icons/io";
 import { MdAudiotrack } from "react-icons/md";
 import { FaPencil } from "react-icons/fa6";
 import { FaTrash } from "react-icons/fa";
-import { BASE_API_URL } from "../../utils/constants";
+import { BASE_API_URL, NO_IMAGE } from "../../utils/constants";
 import { useEffect, useState } from "react";
 import axios from "axios";
 import CriarEpisodioModal from "../modals/episodio/CriarEpisodioModal";
@@ -80,7 +79,7 @@ const PodcastStudioCard = ({
             transition={{ delay: 0.1 }}
           >
             <Image
-              src={imageBlobUrl || no_image}
+              src={imageBlobUrl || NO_IMAGE}
               alt="Capa do Podcast"
               className="w-16 rounded-md"
             />

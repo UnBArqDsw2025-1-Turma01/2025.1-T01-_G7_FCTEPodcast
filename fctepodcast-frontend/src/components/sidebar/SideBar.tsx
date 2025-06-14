@@ -10,7 +10,7 @@ const SideBar = () => {
     if (path.startsWith("/studio")) {
       return <StudioButtonLayout />;
     }
-    if (path === "/home") {
+    if (path.startsWith("/")) {
       return <HomeButtonLayout />;
     }
     return null;

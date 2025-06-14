@@ -5,6 +5,7 @@ import { addToast } from "@heroui/react";
 import { AxiosInstace } from "../../utils/axios/AxiosInstance";
 import Loader from "../../pages/loader/Loader";
 import { useNavigate } from "react-router";
+import { usePlayer } from "../player/PlayerContext";
 
 // A ideia de um Singleton é garantir que haja apenas uma instancia de uma classe em toda a aplicação
 interface AuthContextType {
@@ -23,6 +24,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [user, setUser] = useState<UserType | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
   const navigate = useNavigate();
+  const { resetPlayer } = usePlayer();
 
   const login = async (email: string, senha: string) => {
     try {
@@ -59,6 +61,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         color: "success",
         description: response.data.message,
       });
+      resetPlayer();
       navigate("/login");
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (error: any) {

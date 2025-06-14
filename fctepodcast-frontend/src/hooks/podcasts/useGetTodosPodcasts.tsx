@@ -7,8 +7,6 @@ export function useGetTodosPodcasts() {
   const [podcasts, setPodcasts] = useState<PodcastType[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
 
-  console.log(podcasts);
-
   const fetchPodcasts = async () => {
     setLoading(true);
 

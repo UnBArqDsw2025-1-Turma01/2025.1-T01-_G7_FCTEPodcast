@@ -5,6 +5,11 @@ import cors from "cors";
 import connect_db from "./config/connect_db";
 import router from "./routes/router";
 import cookieParser from "cookie-parser";
+import mongoose from "mongoose";
+import Comentario from "./models/Comentario";
+import { Usuario } from "./models/Usuario";
+import Podcast from "./models/Podcast";
+import Episodio from "./models/Episodio";
 configDotenv();
 
 const app = express();
@@ -34,6 +39,13 @@ app.use(cookieParser());
 connect_db();
 
 app.use("/api", router);
+
+Comentario.init(); // Inicializa o modelo Comentario
+Usuario.init(); // Inicializa o modelo Usuario
+Podcast.init(); // Inicializa o modelo Podcast
+Episodio.init(); // Inicializa o modelo Episodio
+
+console.log(mongoose.modelNames());
 
 // isntanciacao do servidor
 app.listen(API_PORT, () => {

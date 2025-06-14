@@ -17,6 +17,7 @@ interface PlayerContextProps {
   changeVolume: (value: number) => void;
   volume: number;
   loading_audio?: boolean;
+  resetPlayer: () => void;
 }
 
 const PlayerContext = createContext<PlayerContextProps | undefined>(undefined);
@@ -118,6 +119,12 @@ export const PlayerProvider = ({ children }: { children: React.ReactNode }) => {
     setCanPlay(true);
     if (audioRef.current) {
       setDuration(audioRef.current.duration);
+      if (isPlaying) {
+        audioRef.current.play().catch((e) => {
+          console.warn("Erro ao tocar:", e);
+          setIsPlaying(false);
+        });
+      }
     }
   };
 
@@ -149,9 +156,25 @@ export const PlayerProvider = ({ children }: { children: React.ReactNode }) => {
     }
   };
 
+  const resetPlayer = () => {
+    if (audioRef.current) {
+      audioRef.current.pause();
+      audioRef.current.src = "";
+      audioRef.current.load();
+    }
+    setAudioBlobUrl(null);
+    setAudioPath(""); // limpar também o caminho do áudio para forçar recarregamento
+    setCanPlay(false);
+    setIsPlaying(false);
+    setCurrentTime(0);
+    setDuration(0);
+    playerRef.current.reset();
+  };
+
   return (
     <PlayerContext.Provider
       value={{
+        resetPlayer,
         dispatchCommand,
         setPlaylist,
         isPlaying,
