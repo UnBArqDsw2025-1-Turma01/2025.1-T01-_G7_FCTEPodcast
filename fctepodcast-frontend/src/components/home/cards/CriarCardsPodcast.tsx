@@ -2,7 +2,7 @@ import { Card, CardBody, Image } from "@heroui/react";
 import { motion } from "framer-motion";
 import { useEffect, useState } from "react";
 import type { PodcastType } from "../../../utils/types/PodcastType";
-import { BASE_API_URL } from "../../../utils/constants";
+import { BASE_API_URL, NO_IMAGE } from "../../../utils/constants";
 import axios from "axios";
 import { BiPlayCircle } from "react-icons/bi";
 
@@ -29,10 +29,11 @@ const PodcastCard = ({
   index: number;
 }) => {
   const [imageBlobUrl, setImageBlobUrl] = useState<string | null>(null);
+  const [loadingImage, setLoadingImage] = useState<boolean>(true);
 
   useEffect(() => {
     if (!podcast?.imagem_path) return;
-
+    setLoadingImage(true);
     axios
       .get(
         `${BASE_API_URL}/usuario/image?path=${encodeURIComponent(
@@ -43,15 +44,18 @@ const PodcastCard = ({
       .then((response) => {
         const url = URL.createObjectURL(response.data);
         setImageBlobUrl(url);
+        setLoadingImage(false);
       })
       .catch((error) => {
         console.error("Error fetching image:", error);
         setImageBlobUrl(null);
+        setLoadingImage(false);
       });
 
     return () => {
       if (imageBlobUrl) URL.revokeObjectURL(imageBlobUrl);
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [podcast?.imagem_path]);
 
   return (
@@ -72,10 +76,8 @@ const PodcastCard = ({
         <div className="relative w-[200px] h-[200px]">
           <Image
             alt="cover"
-            src={
-              imageBlobUrl ||
-              "https://heroui.com/images/hero-card-complete.jpeg"
-            }
+            src={imageBlobUrl || NO_IMAGE}
+            isLoading={loadingImage}
             width={200}
             height={200}
             className="rounded-xl object-cover w-full h-full"

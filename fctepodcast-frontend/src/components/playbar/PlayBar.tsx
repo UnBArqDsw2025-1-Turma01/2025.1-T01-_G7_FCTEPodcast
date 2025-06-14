@@ -19,7 +19,7 @@ import { addToast, Button, Image, Slider, Tooltip } from "@heroui/react";
 import { AxiosInstace } from "../../utils/axios/AxiosInstance";
 import type { ReferenceDataType } from "../../utils/types/ReferenceDataType";
 import { useEffect, useState } from "react";
-import { BASE_API_URL } from "../../utils/constants";
+import { BASE_API_URL, NO_IMAGE } from "../../utils/constants";
 import { useAuth } from "../../context/auth/AuthContext";
 import { useNavigate } from "react-router";
 
@@ -199,7 +199,9 @@ const PlayBar = () => {
         ) : (
           <Image
             className="w-14 h-14 rounded-md object-cover"
-            src={imageBlobUrl || "/no_image.png"}
+            src={imageBlobUrl || NO_IMAGE}
+            loading="lazy"
+            isLoading={!imageBlobUrl}
             alt={episode_data?.titulo || "Imagem do episódio"}
           />
         )}
@@ -279,6 +281,7 @@ const PlayBar = () => {
           )}
           {!loading_audio && (
             <Slider
+              aria-label="Tempo de reprodução"
               className="cursor-pointer"
               defaultValue={[0]}
               value={[currentTime]}
@@ -315,6 +318,7 @@ const PlayBar = () => {
               >
                 <Button
                   isIconOnly
+                  aria-label="Ver comentários"
                   onPress={() => navigate(`/${episode_data?._id}/comentarios`)}
                   color="primary"
                   className="flex items-center justify-center"
@@ -335,6 +339,7 @@ const PlayBar = () => {
               >
                 <Button
                   isIconOnly
+                  aria-label="Curtir episódio"
                   color="primary"
                   className="flex items-center justify-center"
                   onPress={handleLike}
@@ -358,6 +363,7 @@ const PlayBar = () => {
             <div className="absolute h-1 bg-white rounded-full w-1/2" />
           </div> */}
           <Slider
+            aria-label="Volume"
             minValue={0}
             maxValue={1}
             step={0.01}
