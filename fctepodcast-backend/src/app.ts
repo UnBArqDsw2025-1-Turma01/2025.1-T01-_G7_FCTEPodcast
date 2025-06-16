@@ -53,7 +53,9 @@ app.listen(API_PORT, () => {
   console.log(`Environment: ${process.env.NODE_ENV || "development"}`);
   console.log(
     `Link: ${
-      `${process.env.API_HOST}:${API_PORT}` || `http://localhost:${API_PORT}`
+      process.env.API_HOST
+        ? `${process.env.API_HOST}:${API_PORT}`
+        : `http://localhost:${API_PORT}`
     }`
   );
   console.log(`Status: ${process.env.API_HOST}:${API_PORT}/status`);

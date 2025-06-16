@@ -315,6 +315,7 @@ export class EpisodioController {
     }
 
     // adicionar tags no comentario : ["ouvinte", "monitor", "autor"]
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const comentarios = episodio.comentarios.map((comentario: any) => {
       let tag: string = "";
 
@@ -323,6 +324,7 @@ export class EpisodioController {
       console.log("Autor do podcast:", podcast.autor);
       const isAutor =
         comentario.usuario._id?.toString() ===
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         (podcast.autor as any)._id?.toString();
       const isMonitor = podcast.co_autores?.includes(comentario.usuario.id);
 

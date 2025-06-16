@@ -24,6 +24,7 @@ export class AuthFacade {
     allowedRoles: string[],
     handler: (req: Request, res: Response) => Promise<void>
   ): RequestHandler {
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     return async (req: Request, res: Response, next: NextFunction) => {
       const token = this.jwtService.getTokenFromRequest(req);
       if (!token) {

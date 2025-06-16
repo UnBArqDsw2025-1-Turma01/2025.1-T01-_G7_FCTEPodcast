@@ -8,6 +8,7 @@ export const validate = (req: Request, res: Response, next: NextFunction) => {
     return next();
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const extractedErrors: any[] = [];
   errors.array().map((error) => {
     extractedErrors.push(error.msg);

@@ -14,6 +14,7 @@ export class UsuarioController {
     }
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   public hasPermission(usuario: any, allowedRoles: string[]): boolean {
     return !!usuario?.role && allowedRoles.includes(usuario.role);
   }
@@ -244,6 +245,7 @@ export class UsuarioController {
         return;
       }
 
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const isLiked = usuario.curtidas.includes(episodio_id as any);
 
       res.status(200).json({

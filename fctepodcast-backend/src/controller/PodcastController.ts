@@ -1,7 +1,6 @@
 import { Request, Response } from "express";
 import Podcast from "../models/Podcast";
 import { ConcretePodcastBuilder } from "../builder/Podcast/PodcastBuilder";
-import path from "path";
 
 export class PodcastController {
   async criarPodcast(req: Request, res: Response): Promise<void> {
