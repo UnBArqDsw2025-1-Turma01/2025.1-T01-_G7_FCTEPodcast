@@ -64,6 +64,5 @@ jobs:
 
     steps:
       - name: Call Webhook to Deploy
-        run: |
-          curl --fail -X POST ${{ secrets.DEPLOY_WEBHOOK_URL }}
+        run: curl -v -X POST ${{ secrets.PORTAINER_WEBHOOK_URL }}
 
