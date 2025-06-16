@@ -1,4 +1,4 @@
-name: Teste de Lint Backend e Frontend
+name: Lint
 
 on:
   push:
@@ -9,7 +9,7 @@ jobs:
     name: Lint Frontend
     runs-on: ubuntu-latest
     defaults:
-      runs: 
+      run: 
         working-directory: fctepodcast-frontend
 
     steps:
@@ -31,7 +31,7 @@ jobs:
     name: Lint Backend
     runs-on: ubuntu-latest
     defaults:
-      runs:
+      run:
         working-directory: fctepodcast-backend
     steps:
       - name: Checkout
