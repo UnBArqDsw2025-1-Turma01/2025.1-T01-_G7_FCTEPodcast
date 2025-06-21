@@ -1,1 +1,66 @@
-F
+services:
+  fctepodcast-frontend:
+    container_name: fctepodcast-frontend
+    build:
+      context: ./fctepodcast-frontend
+      dockerfile: Dockerfile.prod
+    image: fctepodcast-front:prod
+    env_file:
+      - stack.env
+    restart: always
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.fctepodcast_frontend.rule=Host(`fctepodcast.site`)"
+      - "traefik.http.routers.fctepodcast_frontend.tls=true"
+      - "traefik.http.routers.fctepodcast_frontend.tls.certresolver=lets-encrypt"
+      - "traefik.http.services.fctepodcast_frontend.loadbalancer.server.port=3000"
+      - "traefik.docker.network=web"
+    networks:
+      - web
+
+  fctepodcast-backend:
+    container_name: fctepodcast-backend
+    build:
+      context: ./fctepodcast-backend
+      dockerfile: Dockerfile.prod
+    image: fctepodcast-backend:prod
+    env_file:
+      - stack.env
+    restart: always
+    depends_on:
+      - fctepodcast-db
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.fctepodcast_backend.rule=Host(`api.fctepodcast.site`)"
+      - "traefik.http.routers.fctepodcast_backend.tls=true"
+      - "traefik.http.routers.fctepodcast_backend.tls.certresolver=lets-encrypt"
+      - "traefik.http.services.fctepodcast_backend.loadbalancer.server.port=${API_PORT}"
+      - "traefik.docker.network=web"
+    networks:
+      - web
+      - mongo_network  # <<--- Adicionado aqui
+
+  fctepodcast-db:
+    container_name: fctepodcast-db
+    image: mongo:latest
+    env_file:
+      - stack.env
+    restart: always
+    volumes:
+      - db_data:/data/db
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME=${MONGO_INITDB_ROOT_USERNAME}
+      - MONGO_INITDB_ROOT_PASSWORD=${MONGO_INITDB_ROOT_PASSWORD}
+      - MONGO_INITDB_DATABASE=fctepodcast
+    networks:
+      - mongo_network
+  
+volumes:
+  db_data:
+
+networks:
+  web:
+    external: true
+  
+  mongo_network:
+    driver: bridge
