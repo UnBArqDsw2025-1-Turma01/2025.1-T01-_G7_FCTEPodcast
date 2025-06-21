@@ -29,6 +29,9 @@ services:
     restart: always
     depends_on:
       - fctepodcast-db
+    volumes:
+      - ./fctepodcast-backend:/app
+      - ./fctepodcast-persist/uploads:/app/uploads 
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.fctepodcast_backend.rule=Host(`api.fctepodcast.site`)"
