@@ -3,6 +3,7 @@ import type { ComentarioType } from "../../utils/types/ComentarioType";
 import { Avatar, Button, Chip } from "@heroui/react";
 import { FaBook, FaComment, FaGraduationCap } from "react-icons/fa";
 import { motion, useInView } from "framer-motion";
+import RespostaCard from "../resposta-card/RespostaCard";
 
 type Tag = "autor" | "monitor" | "ouvinte";
 type ColorType =
@@ -25,7 +26,15 @@ const iconMap: Record<Tag, React.ReactNode> = {
   ouvinte: <FaBook size={18} />,
 };
 
-const ComentarioCard = ({ comentario }: { comentario: ComentarioType }) => {
+const ComentarioCard = ({
+  comentario,
+  setResposta,
+  setReferencia,
+}: {
+  comentario: ComentarioType;
+  setResposta: (usuario_email: string) => void;
+  setReferencia?: (referencia: string) => void;
+}) => {
   const ref = useRef(null);
   const isInView = useInView(ref, { once: true, margin: "-100px" });
 
@@ -41,7 +50,10 @@ const ComentarioCard = ({ comentario }: { comentario: ComentarioType }) => {
         <Avatar size="lg" />
         <div className="flex flex-col gap-2">
           <div className="flex items-center gap-2">
-            <p className="font-bold">{comentario.usuario.nome}</p>
+            <div className="flex flex-col">
+              <p className="font-bold">{comentario.usuario.nome}</p>
+              <p className="italic text-sm">{comentario.usuario.email}</p>
+            </div>
             <Chip
               startContent={iconMap[comentario.tag as Tag] || null}
               variant="shadow"
@@ -67,10 +79,26 @@ const ComentarioCard = ({ comentario }: { comentario: ComentarioType }) => {
       </div>
 
       <div>
-        <Button color="primary" size="sm">
+        <Button
+          onPress={() => {
+            setResposta(comentario.usuario.email);
+            if (setReferencia) {
+              setReferencia(comentario._id);
+            }
+          }}
+          color="primary"
+          size="sm"
+        >
           <FaComment size={18} />
           Responder
         </Button>
+      </div>
+      <div className="w-full flex flex-col justify-end">
+        {comentario.respostas &&
+          comentario.respostas.length > 0 &&
+          comentario.respostas.map((resposta, index: number) => (
+            <RespostaCard key={index} resposta={resposta} />
+          ))}
       </div>
     </motion.div>
   );

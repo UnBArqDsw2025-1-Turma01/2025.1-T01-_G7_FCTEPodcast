@@ -124,6 +124,14 @@ usuario_router.post(
   )
 );
 
+usuario_router.post(
+  "/episodio/:episodio_id/responder/:comentario_id",
+  authFacade.handleSecureRequest(
+    ["PROFESSOR", "ALUNO"],
+    episodio_controller.responderComentario
+  )
+);
+
 usuario_router.get("/image/", async (req, res) => {
   const { path: imagePath } = req.query;
 
