@@ -2,6 +2,7 @@ import {
   addToast,
   Avatar,
   Button,
+  Chip,
   Divider,
   Image,
   Input,
@@ -18,6 +19,7 @@ import { useAuth } from "../../context/auth/AuthContext";
 import ComentarioCard from "../../components/comentario-card/ComentarioCard";
 import { AnimatePresence, motion } from "framer-motion";
 import LoaderMini from "../loader/LoaderMini";
+import { IoIosClose } from "react-icons/io";
 
 const ComentariosEpisodio = () => {
   const { user } = useAuth();
@@ -26,7 +28,11 @@ const ComentariosEpisodio = () => {
   const [imageBlobUrl, setImageBlobUrl] = useState<string>("");
   const [textoComentario, setTextoComentario] = useState<string>("");
   const [loading, setLoading] = useState<boolean>(true);
+  const [loadingCampo, setLoadingCampo] = useState<boolean>(false);
   const ultimoComentarioRef = useRef<HTMLDivElement | null>(null);
+  const [isResposta, setIsResposta] = useState<boolean>(false);
+  const [respostaUsuarioEmail, setRespostaUsuarioEmail] = useState<string>("");
+  const [referenciaComentario, setReferenciaComentario] = useState<string>("");
 
   const getEpisodioData = async () => {
     if (!episodio_id) {
@@ -70,6 +76,8 @@ const ComentariosEpisodio = () => {
     }
   };
 
+  console.log(episodio?.comentarios);
+
   const handleComentar = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!episodio_id || !textoComentario.trim()) {
@@ -82,6 +90,89 @@ const ComentariosEpisodio = () => {
     }
 
     try {
+      setLoadingCampo(true);
+      if (isResposta && !respostaUsuarioEmail) {
+        addToast({
+          title: "Erro",
+          description: "Usuário não encontrado para resposta.",
+          color: "danger",
+        });
+        return;
+      }
+
+      if (isResposta && respostaUsuarioEmail) {
+        // tira <usuario_email> do início do texto
+        const regex = new RegExp(`^<${respostaUsuarioEmail}>\\s*`);
+        const conteudoLimpo = textoComentario.replace(regex, "").trim();
+        if (!conteudoLimpo) {
+          addToast({
+            title: "Atenção",
+            description: "O comentário não pode ser vazio.",
+            color: "warning",
+          });
+          return;
+        }
+
+        console.log("Comentário de resposta:", conteudoLimpo);
+
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const response: any = await AxiosInstace.post(
+          `/usuario/episodio/${episodio?._id}/responder/${referenciaComentario}`,
+          {
+            conteudo: conteudoLimpo,
+            usuario_id: user?.id,
+          }
+        );
+
+        console.log("Resposta adicionada:", response.data);
+        addToast({
+          title: "Resposta adicionada com sucesso!",
+          description: "Sua resposta foi adicionada ao comentário.",
+          color: "success",
+        });
+
+        // Atualiza o episódio com a nova resposta
+        setEpisodio((prev) => {
+          if (prev) {
+            return {
+              ...prev,
+              comentarios: prev.comentarios.map((comentario) => {
+                if (comentario._id === referenciaComentario) {
+                  return {
+                    ...comentario,
+                    respostas: [
+                      ...comentario.respostas,
+                      {
+                        tag: response.data.data.tag || "resposta", // Adiciona a propriedade obrigatória 'tag'
+                        _id: response.data.data._id,
+                        conteudo: response.data.data.conteudo,
+                        usuario: {
+                          _id: response.data.data.usuario._id,
+                          nome:
+                            response.data.data.usuario.nome ||
+                            "Usuário Anônimo",
+                          email: response.data.data.usuario.email || "",
+                          __t: response.data.data.usuario.__t || "ALUNO", // Tipo de usuário, por exemplo, "ALUNO", "PROFESSOR", etc.
+                        },
+                        createdAt: new Date().toISOString(),
+                      },
+                    ],
+                  };
+                }
+                return comentario;
+              }),
+            };
+          }
+          return prev;
+        });
+        setTextoComentario("");
+        setIsResposta(false);
+        setRespostaUsuarioEmail("");
+        setReferenciaComentario("");
+
+        return;
+      }
+
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const response: any = await AxiosInstace.post(
         `/usuario/episodio/${episodio_id}/comentar`,
@@ -131,13 +222,52 @@ const ComentariosEpisodio = () => {
           "Erro desconhecido ao adicionar comentário.",
         color: "danger",
       });
+    } finally {
+      setLoadingCampo(false);
     }
+  };
+
+  const handleSetResposta = (usuario_email: string) => {
+    if (!usuario_email) {
+      addToast({
+        title: "Erro",
+        description: "Usuário não encontrado para resposta.",
+        color: "danger",
+      });
+      return;
+    }
+
+    const comentarioInput = document.getElementById(
+      "comentario-input"
+    ) as HTMLInputElement;
+
+    setIsResposta(true);
+    setRespostaUsuarioEmail(usuario_email);
+    const texto = `<${usuario_email}> `;
+    setTextoComentario(texto);
+    setReferenciaComentario(usuario_email);
+
+    // Espera o estado ser atualizado e o input estar visível
+    setTimeout(() => {
+      if (comentarioInput) {
+        comentarioInput.scrollIntoView({ behavior: "smooth" });
+        comentarioInput.focus();
+
+        // Move o cursor para o final
+        comentarioInput.setSelectionRange(texto.length, texto.length);
+      }
+    }, 100);
   };
 
   useEffect(() => {
     getEpisodioData();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [episodio_id]);
+
+  useEffect(() => {
+    const regexEmail = /[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/;
+    setIsResposta(regexEmail.test(textoComentario));
+  }, [textoComentario]);
 
   return (
     <div className="h-full w-full flex flex-col gap-4">
@@ -215,7 +345,11 @@ const ComentariosEpisodio = () => {
                     exit={{ opacity: 0, y: 10 }}
                     transition={{ duration: 0.3 }}
                   >
-                    <ComentarioCard comentario={comentario} />
+                    <ComentarioCard
+                      comentario={comentario}
+                      setResposta={handleSetResposta}
+                      setReferencia={setReferenciaComentario}
+                    />
                   </motion.div>
                 ))}
               </AnimatePresence>
@@ -237,12 +371,39 @@ const ComentariosEpisodio = () => {
             className="flex items-center gap-2 w-full"
           >
             <Input
+              id="comentario-input"
               onChange={(e) => setTextoComentario(e.target.value)}
               value={textoComentario}
               placeholder="Adicionar comentário..."
               className="flex-1"
+              startContent={
+                <AnimatePresence>
+                  {isResposta && respostaUsuarioEmail && (
+                    <motion.button
+                      type="button"
+                      initial={{ opacity: 0, scale: 0.8 }}
+                      animate={{ opacity: 1, scale: 1 }}
+                      exit={{ opacity: 0, scale: 0.8 }}
+                      transition={{ duration: 0.2 }}
+                      onClick={() => {
+                        setTextoComentario("");
+                        setIsResposta(false);
+                        setRespostaUsuarioEmail("");
+                      }}
+                      style={{ display: "inline-flex" }} // para evitar problemas de inline-block
+                    >
+                      <Chip className="flex items-center gap-2">
+                        <p className="flex items-center gap-2">
+                          <IoIosClose size={16} />
+                          Re:
+                        </p>
+                      </Chip>
+                    </motion.button>
+                  )}
+                </AnimatePresence>
+              }
             />
-            <Button type="submit" color="primary">
+            <Button isLoading={loadingCampo} type="submit" color="primary">
               <FaComment size={20} />
               Comentar
             </Button>
