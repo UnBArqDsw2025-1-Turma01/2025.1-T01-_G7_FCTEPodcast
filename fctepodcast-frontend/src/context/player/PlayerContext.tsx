@@ -1,8 +1,8 @@
 import { createContext, useContext, useEffect, useRef, useState } from "react";
 import type { Command } from "./Command";
 import { Player } from "./PlayerClass";
-import { AxiosInstace } from "../../utils/axios/AxiosInstance";
 import type { EpisodioType } from "../../utils/types/EpisodioType";
+import { BASE_API_URL } from "../../utils/constants";
 
 interface PlayerContextProps {
   dispatchCommand: (command: Command) => void;
@@ -39,7 +39,7 @@ export const PlayerProvider = ({ children }: { children: React.ReactNode }) => {
   const [canPlay, setCanPlay] = useState(false);
   const [volume, setVolume] = useState<number>(1);
   const [loadingAudio, setLoadingAudio] = useState<boolean>(false);
-
+  const loadingDelayTimeout = useRef<number | null>(null);
   const [currentTime, setCurrentTime] = useState(0);
   const [duration, setDuration] = useState(0);
 
@@ -54,35 +54,14 @@ export const PlayerProvider = ({ children }: { children: React.ReactNode }) => {
   useEffect(() => {
     if (!audioPath) return;
 
-    const fetchAudio = async () => {
-      setLoadingAudio(true);
-      try {
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        const response: any = await AxiosInstace.get(
-          `/usuario/image?path=${encodeURIComponent(audioPath)}`,
-          { responseType: "blob" }
-        );
-        const blob = new Blob([response.data], {
-          type: response.headers["content-type"] || "audio/mpeg",
-        });
-        const url = URL.createObjectURL(blob);
-        setAudioBlobUrl(url);
-        setCanPlay(false);
-      } catch (err) {
-        console.error("Erro ao buscar áudio:", err);
-      } finally {
-        setLoadingAudio(false);
-      }
-    };
-    fetchAudio();
+    const url = `${BASE_API_URL}/file/audio/${encodeURIComponent(audioPath)}`;
+    console.log("Setting audio blob URL:", url);
+    setAudioBlobUrl(url);
+    setCanPlay(false);
 
     return () => {
-      if (audioBlobUrl) {
-        URL.revokeObjectURL(audioBlobUrl);
-        setAudioBlobUrl(null);
-      }
+      setAudioBlobUrl(null);
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [audioPath]);
 
   useEffect(() => {
@@ -191,9 +170,33 @@ export const PlayerProvider = ({ children }: { children: React.ReactNode }) => {
       {children}
       <audio
         ref={audioRef}
-        onCanPlay={handleCanPlay}
+        src={audioBlobUrl || ""}
+        onLoadStart={() => setLoadingAudio(true)} // início da carga do áudio
+        onCanPlay={() => {
+          setLoadingAudio(false);
+          handleCanPlay();
+        }}
+        onWaiting={() => {
+          loadingDelayTimeout.current = setTimeout(
+            () => setLoadingAudio(true),
+            300
+          );
+        }}
+        onPlaying={() => {
+          // limpa timeout e esconde loading
+          if (loadingDelayTimeout.current) {
+            clearTimeout(loadingDelayTimeout.current);
+            loadingDelayTimeout.current = null;
+          }
+          setLoadingAudio(false);
+        }}
+        onError={() => {
+          setLoadingAudio(false);
+          console.error("Erro ao carregar o áudio");
+        }}
         onTimeUpdate={handleTimeUpdate}
         onEnded={handleEnded}
+        crossOrigin="anonymous"
         style={{ display: "none" }}
       />
     </PlayerContext.Provider>

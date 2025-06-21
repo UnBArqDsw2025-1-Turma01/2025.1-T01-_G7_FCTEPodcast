@@ -43,12 +43,41 @@ const PlayBar = () => {
   const [imageBlobUrl, setImageBlobUrl] = useState<string | null>(null);
   const [liked, setLiked] = useState<boolean>(false);
   const formatTime = (seconds: number) => {
-    const m = Math.floor(seconds / 60);
+    const h = Math.floor(seconds / 3600);
+    const m = Math.floor((seconds % 3600) / 60);
     const s = Math.floor(seconds % 60);
-    return `${m}:${s < 10 ? "0" : ""}${s}`;
+
+    if (h > 0) {
+      return `${h}:${m.toString().padStart(2, "0")}:${s
+        .toString()
+        .padStart(2, "0")}`;
+    } else {
+      return `${m}:${s.toString().padStart(2, "0")}`;
+    }
   };
   const [loadingLike, setLoadingLike] = useState<boolean>(false);
   const navigate = useNavigate();
+  const [isSeeking, setIsSeeking] = useState<boolean>(false);
+  const [sliderValue, setSliderValue] = useState<number>(0);
+
+  useEffect(() => {
+    if (!isSeeking) {
+      setSliderValue(currentTime);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [currentTime, duration]);
+
+  const handleSliderChange = (value: number | number[]) => {
+    if (typeof value === "number") {
+      setSliderValue(value);
+      seek(value);
+    }
+  };
+
+  const handleSliderRelease = () => {
+    seek(sliderValue);
+    setIsSeeking(false);
+  };
 
   const checkLiked = async () => {
     if (!episode_data?._id || !user?.id) return;
@@ -156,12 +185,6 @@ const PlayBar = () => {
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [episode_data]);
-
-  const handleSliderChange = (value: number | number[]) => {
-    if (typeof value === "number") {
-      seek(value);
-    }
-  };
 
   const handlePlay = () => {
     dispatchCommand(new PlayCommand(player));
@@ -283,16 +306,17 @@ const PlayBar = () => {
             <Slider
               aria-label="Tempo de reprodução"
               className="cursor-pointer"
-              defaultValue={[0]}
-              value={[currentTime]}
               minValue={0}
               maxValue={duration}
               step={0.1}
-              onChange={(value: number | number[]) =>
+              value={sliderValue}
+              onChange={(value) =>
                 Array.isArray(value)
                   ? handleSliderChange(value[0])
                   : handleSliderChange(value)
               }
+              onMouseUp={handleSliderRelease}
+              onTouchEnd={handleSliderRelease}
               size="sm"
             />
           )}
