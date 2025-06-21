@@ -22,7 +22,7 @@
     "express-validator": "^7.2.1",
     "helmet": "^8.1.0",
     "jsonwebtoken": "^9.0.2",
-    "mongoose": "^8.15.0",
+    "mongoose": "^8.16.0",
     "multer": "^2.0.0",
     "uuid": "^11.1.0"
   },
