@@ -11,7 +11,7 @@
     "lint:fix": "eslint --fix ."
   },
   "dependencies": {
-    "@heroui/react": "^2.7.8",
+    "@heroui/react": "^2.7.11",
     "axios": "^1.9.0",
     "framer-motion": "^12.12.2",
     "react": "^19.1.0",
