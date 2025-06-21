@@ -1,5 +1,6 @@
 import express from "express";
 import usuario_router from "./usuario_router/usuario_router";
+
 const router = express.Router();
 
 // rota de status

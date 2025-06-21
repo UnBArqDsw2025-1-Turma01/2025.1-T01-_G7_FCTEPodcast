@@ -282,11 +282,21 @@ export class EpisodioController {
 
     const episodio = await Episodio.findById(episodio_id).populate({
       path: "comentarios",
-      select: "conteudo usuario createdAt",
-      populate: {
-        path: "usuario",
-        select: "nome email",
-      },
+      select: "conteudo usuario createdAt respostas",
+      populate: [
+        {
+          path: "usuario",
+          select: "nome email",
+        },
+        {
+          path: "respostas",
+          select: "conteudo usuario createdAt",
+          populate: {
+            path: "usuario",
+            select: "nome email",
+          },
+        },
+      ],
     });
 
     if (!episodio) {
@@ -298,12 +308,12 @@ export class EpisodioController {
       return;
     }
 
-    const podcast = await Podcast.findById(
-      episodio?.podcast_reference
-    ).populate({
-      path: "autor",
-      select: "nome email",
-    });
+    const podcast = await Podcast.findById(episodio.podcast_reference).populate(
+      {
+        path: "autor",
+        select: "nome email",
+      }
+    );
 
     if (!podcast) {
       res.status(404).json({
@@ -314,31 +324,48 @@ export class EpisodioController {
       return;
     }
 
-    // adicionar tags no comentario : ["ouvinte", "monitor", "autor"]
+    // Adiciona tags ao comentário e às respostas
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const comentarios = episodio.comentarios.map((comentario: any) => {
-      let tag: string = "";
-
-      console.log("Comentário:", comentario);
-      console.log("Usuário do comentário:", comentario.usuario);
-      console.log("Autor do podcast:", podcast.autor);
       const isAutor =
+        podcast.autor &&
         comentario.usuario._id?.toString() ===
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        (podcast.autor as any)._id?.toString();
-      const isMonitor = podcast.co_autores?.includes(comentario.usuario.id);
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          (podcast.autor as any)._id?.toString();
+      const isMonitor = podcast.co_autores?.includes(
+        comentario.usuario._id?.toString()
+      );
 
-      if (isAutor) {
-        tag = "autor";
-      } else if (isMonitor) {
-        tag = "monitor";
-      } else {
-        tag = "ouvinte";
-      }
+      let tag = "ouvinte";
+      if (isAutor) tag = "autor";
+      else if (isMonitor) tag = "monitor";
+
+      const respostasComTag = (comentario.respostas || []).map(
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        (resposta: any) => {
+          const isAutorResp =
+            resposta.usuario._id?.toString() ===
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            (podcast.autor as any)?._id.toString();
+          const isMonitorResp = podcast.co_autores?.includes(
+            resposta.usuario._id?.toString()
+          );
+
+          let tagResp = "ouvinte";
+          if (isAutorResp) tagResp = "autor";
+          else if (isMonitorResp) tagResp = "monitor";
+
+          return {
+            ...resposta.toObject(),
+            tag: tagResp,
+          };
+        }
+      );
 
       return {
         ...comentario.toObject(),
         tag,
+        respostas: respostasComTag,
       };
     });
 
@@ -351,7 +378,7 @@ export class EpisodioController {
         titulo: episodio.titulo,
         descricao: episodio.descricao,
         audio_path: episodio.audio_path,
-        comentarios: comentarios,
+        comentarios,
         comentarios_count: episodio.comentarios_count,
         curtidas: episodio.curtidas,
         curtidas_count: episodio.curtidas_count,
@@ -464,6 +491,113 @@ export class EpisodioController {
           error instanceof Error
             ? error.message
             : "Erro desconhecido ao adicionar o comentário.",
+      });
+    }
+  }
+
+  async responderComentario(req: Request, res: Response): Promise<void> {
+    const { episodio_id, comentario_id } = req.params;
+    const { usuario_id, conteudo } = req.body;
+    if (!episodio_id || !comentario_id || !usuario_id || !conteudo) {
+      res.status(400).json({
+        status: "error",
+        title: "Erro de validação",
+        message:
+          "Episódio ID, comentário ID, usuário ID e conteúdo são obrigatórios.",
+      });
+      return;
+    }
+
+    const episodio = await Episodio.findById(episodio_id);
+    if (!episodio) {
+      res.status(404).json({
+        status: "error",
+        title: "Episódio não encontrado",
+        message: "O episódio referenciado não foi encontrado.",
+      });
+      return;
+    }
+
+    const comentario = await Comentario.findById(comentario_id);
+    if (!comentario) {
+      res.status(404).json({
+        status: "error",
+        title: "Comentário não encontrado",
+        message: "O comentário referenciado não foi encontrado.",
+      });
+      return;
+    }
+
+    const usuario = await Usuario.findById(usuario_id);
+    if (!usuario) {
+      res.status(404).json({
+        status: "error",
+        title: "Usuário não encontrado",
+        message: "O usuário referenciado não foi encontrado.",
+      });
+      return;
+    }
+
+    const resposta = await Comentario.create({
+      conteudo,
+      usuario: usuario._id,
+      episodio: episodio._id,
+    });
+
+    comentario.respostas.push(resposta._id);
+    episodio.comentarios_count += 1;
+
+    // adiciona a tag
+    let tag: string = "";
+    const podcast = await Podcast.findById(episodio.podcast_reference);
+    const isAutor =
+      podcast && podcast.autor
+        ? podcast.autor.toString() === usuario.id
+        : false;
+
+    //  TODO: verificar se o usuario é monitor
+    const isMonitor = podcast
+      ? podcast.co_autores?.some((coAutor) => coAutor.toString() === usuario.id)
+      : false;
+
+    if (isAutor) {
+      tag = "autor";
+    } else if (isMonitor) {
+      tag = "monitor";
+    } else {
+      tag = "ouvinte";
+    }
+
+    try {
+      await comentario.save();
+      await episodio.save();
+
+      res.status(201).json({
+        status: "success",
+        title: "Resposta adicionada com sucesso",
+        message: "Resposta adicionada com sucesso!",
+        data: {
+          _id: resposta._id,
+          conteudo: resposta.conteudo,
+          usuario: {
+            _id: usuario._id,
+            nome: usuario.nome,
+            email: usuario.email,
+          },
+          tag: tag, // adiciona a tag à resposta
+          episodio: episodio._id,
+          createdAt: resposta.createdAt,
+        },
+      });
+    } catch (error) {
+      console.error("Erro ao adicionar resposta:", error);
+      res.status(500).json({
+        status: "error",
+        title: "Erro interno do servidor",
+        message:
+          error instanceof Error
+            ? error.message
+            : "Erro desconhecido ao adicionar a resposta.",
       });
     }
   }
