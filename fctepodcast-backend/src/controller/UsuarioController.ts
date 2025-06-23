@@ -3,6 +3,7 @@ import { creatorRegistry } from "../factory/usuario/CreatorRegistry";
 import { Usuario } from "../models/Usuario";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
+import Episodio from "../models/Episodio";
 
 export class UsuarioController {
   async getUsuarioById_Internal(id: string) {
@@ -252,6 +253,91 @@ export class UsuarioController {
         status: "success",
         title: "Verificação de Episódio Curtido",
         setLiked: isLiked,
+      });
+    } catch (error) {
+      console.error("Erro ao buscar usuário:", error);
+      res.status(500).json({
+        status: "error",
+        title: "Erro interno do servidor",
+        message: "Erro ao buscar usuário.",
+      });
+      return;
+    }
+  }
+
+  async getCurtidasUsuario(req: Request, res: Response): Promise<void> {
+    const { usuario_id } = req.params;
+    if (!usuario_id) {
+      res.status(400).json({
+        status: "error",
+        title: "Erro de validação",
+        message: "Usuário ID é obrigatório.",
+      });
+      return;
+    }
+
+    try {
+      const usuario = await Usuario.findById(usuario_id).populate("curtidas");
+      if (!usuario) {
+        res.status(404).json({
+          status: "error",
+          title: "Usuário não encontrado",
+          message: "Usuário com o ID fornecido não existe.",
+        });
+        return;
+      }
+
+      // Verifica se o usuário tem curtidas
+      if (usuario.curtidas.length === 0) {
+        res.status(200).json({
+          status: "success",
+          title: "Curtidas do Usuário",
+          message: "Usuário não possui episódios curtidos.",
+          curtidas: [],
+        });
+        return;
+      }
+
+      // pega o autor de cada episódio curtido
+      // nunca fiz um codigo tao porco, mas é necessário
+      const episodios_curtidos = await Promise.all(
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        usuario.curtidas.map(async (curtida: any) => {
+          const episodio = await Episodio.findById(curtida._id).populate(
+            "podcast_reference"
+          );
+          const autor = await Usuario.findById(
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            (episodio?.podcast_reference as any).autor
+          );
+          if (!episodio) {
+            console.error(`Episódio com ID ${curtida._id} não encontrado.`);
+            return null;
+          }
+          return {
+            _id: episodio._id,
+            titulo: episodio.titulo,
+            descricao: episodio.descricao,
+            audio_path: episodio.audio_path,
+            curtidas_count: episodio.curtidas_count,
+            comentarios_count: episodio.comentarios_count,
+            createdAt: episodio.createdAt,
+            updatedAt: episodio.updatedAt,
+            image_url: `${process.env.BASE_API_URL}/usuario/episodio/${episodio._id}/image`,
+            autor: {
+              _id: autor?._id,
+              nome: autor?.nome || "Autor não informado",
+              email: autor?.email || "Email não informado",
+            },
+          };
+        })
+      );
+
+      res.status(200).json({
+        status: "success",
+        title: "Curtidas do Usuário",
+        message: "Episódios curtidos encontrados com sucesso.",
+        curtidas: episodios_curtidos,
       });
     } catch (error) {
       console.error("Erro ao buscar usuário:", error);

@@ -9,8 +9,9 @@ import Loader from "./pages/loader/Loader";
 import Studio from "./pages/studio/Studio";
 import GerenciarPodcasts from "./pages/podcasts/GerenciarPodcasts";
 import GerenciarMonitores from "./pages/podcasts/GerenciarMonitores";
-import PodcastView from "./pages/tmp/PodcastView";
 import ComentariosEpisodio from "./pages/comentarios-episodio/ComentariosEpisodio";
+import MinhaBiblioteca from "./pages/minha-biblioteca/MinhaBiblioteca";
+import Curtidas from "./pages/curtidas/Curtidas";
 
 function App() {
   return (
@@ -26,23 +27,32 @@ function App() {
         <Route element={<ProtectedRoute roles={["PROFESSOR", "ALUNO"]} />}>
           <Route path="/home" element={<Home />} />
           <Route path="/studio" element={<Studio />} />
-          <Route
-            path="/studio/podcasts/gerenciar"
-            element={<GerenciarPodcasts />}
-          />
-          <Route
-            path="/studio/monitores/gerenciar"
-            element={<GerenciarMonitores />}
-          />
+
           <Route
             path="/studio/notificacoes"
             element={<div>Notificações</div>}
           />
-
-          <Route path="/tmp" element={<PodcastView />} />
+          {/* 
+          <Route path="/tmp" element={<PodcastView />} /> */}
           <Route
             path="/:episodio_id/comentarios"
             element={<ComentariosEpisodio />}
+          />
+
+          <Route path="/biblioteca" element={<MinhaBiblioteca />} />
+
+          <Route path="/curtidas/:usuario_id" element={<Curtidas />} />
+        </Route>
+
+        <Route element={<ProtectedRoute roles={["PROFESSOR"]} />}>
+          <Route
+            path="/studio/podcasts/gerenciar"
+            element={<GerenciarPodcasts />}
+          />
+
+          <Route
+            path="/studio/monitores/gerenciar"
+            element={<GerenciarMonitores />}
           />
         </Route>
 
