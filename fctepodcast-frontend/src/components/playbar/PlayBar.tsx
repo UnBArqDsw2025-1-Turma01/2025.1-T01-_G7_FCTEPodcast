@@ -204,7 +204,7 @@ const PlayBar = () => {
 
   return (
     <motion.div
-      className="fixed bottom-0 left-0 w-full h-24 bg-primary-100 text-white flex items-center justify-between px-6 z-50"
+      className="fixed bottom-0 left-0 w-full h-24 bg-primary-200/60 backdrop-blur-md text-white flex items-center justify-between px-6 z-50"
       initial={{ y: 100, opacity: 0 }}
       animate={{ y: 0, opacity: 1 }}
       transition={{ duration: 0.4, ease: "easeOut" }}

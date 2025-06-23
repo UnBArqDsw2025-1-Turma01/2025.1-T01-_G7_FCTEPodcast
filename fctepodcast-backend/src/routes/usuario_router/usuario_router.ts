@@ -100,6 +100,14 @@ usuario_router.post(
 );
 
 usuario_router.get(
+  "/:usuario_id/curtidas",
+  authFacade.handleSecureRequest(
+    ["PROFESSOR", "ALUNO"],
+    usuario_controller.getCurtidasUsuario
+  )
+);
+
+usuario_router.get(
   "/episodio/:episodio_id",
 
   authFacade.handleSecureRequest(
