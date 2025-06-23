@@ -66,3 +66,5 @@ app.listen(API_PORT, () => {
   );
   console.log(`Status: ${process.env.API_HOST}:${API_PORT}/status`);
 });
+
+export { app };
