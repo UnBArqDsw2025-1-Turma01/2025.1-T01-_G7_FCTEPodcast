@@ -16,7 +16,7 @@ const HomeButtonLayout = () => {
       title: "Sua Biblioteca",
       description: "Organize, descubra e aproveite",
       icon: <RiFolderMusicFill className="text-xl" />,
-      redirect: "/home",
+      redirect: "/biblioteca",
     },
     {
       title: "Criar Playlist",
