@@ -1,21 +1,14 @@
-import {
-  createContext,
-  useContext,
-  useEffect,
-  useLayoutEffect,
-  useRef,
-  useState,
-} from "react";
-import type { Command } from "./Command";
+// PlayerProvider.tsx (VERSÃO REVISADA E CENTRALIZADA)
+import { createContext, useContext, useEffect, useRef, useState } from "react";
+import type { Command } from "./Command"; // Supondo que você ainda use Command
 import { Player } from "./PlayerClass";
 import type { EpisodioType } from "../../utils/types/EpisodioType";
 import { BASE_API_URL } from "../../utils/constants";
 
 interface PlayerContextProps {
   dispatchCommand: (command: Command) => void;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  setPlaylist: (episodes: any[], startIndex?: number) => void;
-  isPlaying?: boolean;
+  setPlaylist: (episodes: EpisodioType[], startIndex?: number) => void;
+  isPlaying: boolean;
   player: Player;
   currentTime: number;
   duration: number;
@@ -23,76 +16,88 @@ interface PlayerContextProps {
   episode_data: EpisodioType | null;
   changeVolume: (value: number) => void;
   volume: number;
-  loading_audio?: boolean;
+  loading_audio: boolean;
   resetPlayer: () => void;
 }
 
 const PlayerContext = createContext<PlayerContextProps | undefined>(undefined);
 
-// O Gof Command é um padrão de design que encapsula uma solicitação como um objeto,
-// permitindo que você parametrize clientes com filas, solicitações e operações que podem ser executadas ou desfeitas.
-// Ele permite que você desacople o remetente de uma solicitação do receptor da solicitação,
-// Portanto, o remetente não precisa saber nada sobre o receptor,
-// e o receptor não precisa saber nada sobre o remetente.
-// O PlayerContext é um contexto React que fornece funcionalidades de controle de reprodução de áudio,
-// como play, pause, next, previous, e manipulação de playlist.
-// Ele encapsula a lógica de reprodução de áudio, permitindo que os componentes filhos acessem e controlem o estado do player.
 export const PlayerProvider = ({ children }: { children: React.ReactNode }) => {
+  // MUDANÇA: Player agora é apenas uma referência, sem estado próprio de UI
   const playerRef = useRef(new Player());
-  const [isPlaying, setIsPlaying] = useState(playerRef.current.getIsPlaying());
-  const [audioPath, setAudioPath] = useState("");
-  const audioRef = useRef<HTMLAudioElement>(null);
-  const [audioBlobUrl, setAudioBlobUrl] = useState<string | null>(null);
-  const [canPlay, setCanPlay] = useState(false);
+
+  // MUDANÇA: O estado do React é a ÚNICA fonte da verdade agora
+  const [isPlaying, setIsPlaying] = useState(false);
+  const [currentTrack, setCurrentTrack] = useState<EpisodioType | null>(null);
+  const [audioSrc, setAudioSrc] = useState<string>("");
+  const [isLoading, setIsLoading] = useState(false);
   const [volume, setVolume] = useState<number>(1);
-  const [loadingAudio, setLoadingAudio] = useState<boolean>(false);
-  const loadingDelayTimeout = useRef<number | null>(null);
   const [currentTime, setCurrentTime] = useState(0);
   const [duration, setDuration] = useState(0);
 
+  const audioRef = useRef<HTMLAudioElement>(null);
+
+  // MUDANÇA: Efeito para registrar os callbacks na classe Player
   useEffect(() => {
-    playerRef.current.setOnTrackChangeCallback((newAudioPath) => {
-      setAudioPath(newAudioPath);
-      setCanPlay(false);
+    const player = playerRef.current;
+
+    player.setOnTrackChange((track) => {
+      setCurrentTrack(track);
+    });
+    player.setOnPlayRequest(() => {
       setIsPlaying(true);
     });
-  }, []);
+    player.setOnPauseRequest(() => {
+      setIsPlaying(false);
+    });
+  }, []); // Roda apenas uma vez
 
+  // MUDANÇA: Efeito para preparar a URL do áudio quando a faixa mudar
   useEffect(() => {
-    if (!audioPath) return;
-
-    const url = `${BASE_API_URL}/file/audio/${encodeURIComponent(audioPath)}`;
-    console.log("Setting audio blob URL:", url);
-    setAudioBlobUrl(url);
-    setCanPlay(false);
-
-    return () => {
-      setAudioBlobUrl(null);
-    };
-  }, [audioPath]);
-
-  useEffect(() => {
-    if (audioRef.current && audioBlobUrl) {
-      audioRef.current.src = audioBlobUrl;
-      audioRef.current.load();
-      setCanPlay(false);
-      setCurrentTime(0);
-      setDuration(0);
+    if (currentTrack?.audio_path) {
+      const url = `${BASE_API_URL}/file/audio/${encodeURIComponent(
+        currentTrack.audio_path
+      )}`;
+      setAudioSrc(url);
+      setIsLoading(true); // Começa a carregar
+    } else {
+      setAudioSrc(""); // Limpa a URL se não houver faixa
     }
-  }, [audioBlobUrl]);
+  }, [currentTrack]);
 
+  // MUDANÇA: Efeito ÚNICO para controlar play/pause
   useEffect(() => {
-    if (!audioRef.current) return;
+    const audio = audioRef.current;
+    if (!audio) return;
 
-    if (isPlaying && canPlay) {
-      audioRef.current.play().catch((e) => {
-        console.warn("Autoplay bloqueado:", e);
-        setIsPlaying(false);
+    if (isPlaying && audio.src) {
+      // Se a fonte mudou, o play só vai funcionar depois que carregar
+      // O evento onCanPlay já cuidará disso. Se não mudou, toca direto.
+      if (!audio.paused) return; // Se já estiver tocando, não faz nada
+      audio.play().catch((e) => {
+        console.warn("Autoplay bloqueado pelo navegador:", e);
+        setIsPlaying(false); // Sincroniza o estado de volta
       });
     } else {
-      audioRef.current.pause();
+      audio.pause();
     }
-  }, [isPlaying, canPlay]);
+  }, [isPlaying, audioSrc]); // Depende do estado isPlaying e da fonte
+
+  // MUDANÇA: Funções de controle agora são mais simples
+  const setPlaylist = (episodes: EpisodioType[], startIndex: number = 0) => {
+    playerRef.current.setPlaylist(episodes, startIndex);
+  };
+
+  const dispatchCommand = (command: Command) => {
+    command.execute();
+    // Não precisa mais sincronizar estado aqui, os callbacks já fazem isso
+  };
+
+  const seek = (time: number) => {
+    if (audioRef.current) {
+      audioRef.current.currentTime = time;
+    }
+  };
 
   const changeVolume = (value: number) => {
     if (audioRef.current) {
@@ -101,79 +106,13 @@ export const PlayerProvider = ({ children }: { children: React.ReactNode }) => {
     setVolume(value);
   };
 
-  const handleCanPlay = () => {
-    setCanPlay(true);
-    if (audioRef.current) {
-      setDuration(audioRef.current.duration);
-      if (isPlaying) {
-        audioRef.current.play().catch((e) => {
-          console.warn("Erro ao tocar:", e);
-          setIsPlaying(false);
-        });
-      }
-    }
-  };
-
-  const handleTimeUpdate = () => {
-    if (audioRef.current) {
-      setCurrentTime(audioRef.current.currentTime);
-    }
-  };
-
-  const handleEnded = () => {
-    playerRef.current.next();
-  };
-
-  const dispatchCommand = (command: Command) => {
-    command.execute();
-    setIsPlaying(playerRef.current.getIsPlaying());
-  };
-
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const setPlaylist = (episodes: any[], startIndex?: number) => {
-    if (!startIndex) {
-      startIndex = 0; // se não for especificado, começa do primeiro episódio
-    }
-    if (playerRef.current.getIsPlaying() === true) {
-      setIsPlaying(true);
-    } else {
-      setIsPlaying(false);
-    }
-    playerRef.current.setPlaylist(episodes, startIndex);
-    setIsPlaying(playerRef.current.getIsPlaying());
-  };
-
-  // Função para avançar/retroceder o áudio ao clicar na barra
-  const seek = (time: number) => {
-    if (audioRef.current) {
-      audioRef.current.currentTime = time;
-      setCurrentTime(time);
-    }
-  };
-
   const resetPlayer = () => {
-    if (audioRef.current) {
-      audioRef.current.pause();
-      audioRef.current.src = "";
-      audioRef.current.load();
-    }
-    setAudioBlobUrl(null);
-    setAudioPath(""); // limpar também o caminho do áudio para forçar recarregamento
-    setCanPlay(false);
+    playerRef.current.reset(); // A classe notifica o React para limpar a faixa
     setIsPlaying(false);
     setCurrentTime(0);
     setDuration(0);
-    playerRef.current.reset();
+    setIsLoading(false);
   };
-
-  useLayoutEffect(() => {
-    if (audioRef.current) {
-      playerRef.current.setAudioElement(audioRef);
-    }
-  }, [audioBlobUrl]);
-
-  console.log("IS PLAYING LOCAL", isPlaying);
-  console.log("IS PLAYING player", playerRef.current.getIsPlaying());
 
   return (
     <PlayerContext.Provider
@@ -186,41 +125,36 @@ export const PlayerProvider = ({ children }: { children: React.ReactNode }) => {
         currentTime,
         duration,
         seek,
-        episode_data: playerRef.current.getCurrentTrackData(),
+        episode_data: currentTrack,
         changeVolume,
         volume,
-        loading_audio: loadingAudio,
+        loading_audio: isLoading,
       }}
     >
       {children}
       <audio
         ref={audioRef}
-        src={audioBlobUrl || ""}
-        onLoadStart={() => setLoadingAudio(true)} // início da carga do áudio
-        onCanPlay={() => {
-          setLoadingAudio(false);
-          handleCanPlay();
-        }}
-        onWaiting={() => {
-          loadingDelayTimeout.current = setTimeout(
-            () => setLoadingAudio(true),
-            300
-          );
-        }}
-        onPlaying={() => {
-          // limpa timeout e esconde loading
-          if (loadingDelayTimeout.current) {
-            clearTimeout(loadingDelayTimeout.current);
-            loadingDelayTimeout.current = null;
+        src={audioSrc} // MUDANÇA: A fonte é definida diretamente aqui
+        onLoadedData={() => {
+          // Quando os dados são carregados, podemos definir a duração e tentar tocar
+          if (audioRef.current) {
+            setDuration(audioRef.current.duration);
+            if (isPlaying) {
+              audioRef.current
+                .play()
+                .catch((e) => console.warn("Erro ao tocar após carregar", e));
+            }
           }
-          setLoadingAudio(false);
         }}
+        onCanPlay={() => setIsLoading(false)} // Esconde o loading quando PODE tocar
+        onPlaying={() => setIsLoading(false)} // Esconde o loading quando ESTÁ tocando
+        onWaiting={() => setIsLoading(true)} // Mostra o loading se a conexão ficar lenta
+        onTimeUpdate={() => setCurrentTime(audioRef.current?.currentTime || 0)}
+        onEnded={() => playerRef.current.next()}
         onError={() => {
-          setLoadingAudio(false);
-          console.error("Erro ao carregar o áudio");
+          setIsLoading(false);
+          console.error("Erro no elemento <audio>");
         }}
-        onTimeUpdate={handleTimeUpdate}
-        onEnded={handleEnded}
         crossOrigin="anonymous"
         style={{ display: "none" }}
       />
@@ -228,28 +162,10 @@ export const PlayerProvider = ({ children }: { children: React.ReactNode }) => {
   );
 };
 
-// O hook usePlayer é um hook personalizado que permite acessar o contexto do PlayerContext.
-// Ele verifica se o contexto está definido e, se não estiver, lança um erro informando que o hook deve ser usado dentro de um PlayerProvider.
-// Isso garante que o hook só seja usado em componentes que estão dentro do PlayerProvider, evitando erros de contexto não definido.
-// eslint-disable-next-line react-refresh/only-export-components
+// O hook usePlayer continua igual
 export const usePlayer = () => {
   const context = useContext(PlayerContext);
   if (!context)
     throw new Error("usePlayer must be used within a PlayerProvider");
   return context;
 };
-
-// Adaptações
-// Como o React é baseado em funções, hooks e estado imutável, algumas adaptações são necessárias
-// * Command como Função com Estado Capturado (Closure)
-// Em vez de guardar um "receiver" (objeto) como atributo, você injeta funções (callbacks) como dependência no construtor.
-// Isso usa o conceito de closure do JavaScript: funções capturam o escopo onde foram criadas.
-// * Invoker como uma função dentro do Contexto
-// O invocador não é mais um objeto com estado, é apenas uma função (executeCommand) fornecida pelo Context.
-// Isso mantém o acoplamento fraco: qualquer componente pode disparar comandos sem conhecer a lógica.
-// * Receiver vira uma função vinda do Context Original (OO):
-// O "receiver" que realmente realiza a ação (como tocar o episódio ou atualizar a fila) é representado por funções como playEpisode, addToQueue, setQueue, passadas como dependências nos comandos.
-// * Uso do React Context como meio de Inversão de Controle
-// No padrão GoF, comandos podem ser injetados em tempo de execução. Em React, você faz isso usando o Context API, que fornece as funções (os "receivers") e o invocador (executeCommand) aos componentes filhos.
-// * Componentes se tornam "Clientes" desacoplados
-// Os componentes React agora agem como o cliente do padrão Command, sem precisar conhecer a lógica interna da ação:
