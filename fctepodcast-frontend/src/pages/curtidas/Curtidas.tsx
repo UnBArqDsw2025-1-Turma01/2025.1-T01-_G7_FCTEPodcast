@@ -5,7 +5,7 @@ import { useParams } from "react-router";
 import { useGetUsuarioCurtidas } from "../../hooks/curtidas/useGetUsuarioCurtidas";
 import EpisodioSmallCard from "../../components/episodio-small-card/EpisodioSmallCard";
 import { usePlayer } from "../../context/player/PlayerContext";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion } from "framer-motion";
 
 const containerVariants = {
   hidden: { opacity: 0 },
@@ -77,41 +77,40 @@ const Curtidas = () => {
         initial="hidden"
         animate="visible"
       >
-        <AnimatePresence>
-          {loading && (
-            <motion.div
-              className="flex justify-center items-center h-full"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-            >
-              <Spinner size="lg" />
-            </motion.div>
-          )}
+        {/* <AnimatePresence> */}
+        {loading && (
+          <motion.div
+            className="flex justify-center items-center h-full"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+          >
+            <Spinner size="lg" />
+          </motion.div>
+        )}
 
-          {!loading && curtidas.length === 0 && (
-            <motion.div
-              className="flex justify-center items-center h-full"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-            >
-              <p className="text-gray-500">
-                Você ainda não curtiu nenhum episódio.
-              </p>
-            </motion.div>
-          )}
-
-          {!loading &&
-            curtidas.length > 0 &&
-            curtidas.map((episodio, index) => (
-              <EpisodioSmallCard
-                key={index}
-                episodio={episodio}
-                setPlaylist={() => setPlaylist(curtidas, index)}
-              />
-            ))}
-        </AnimatePresence>
+        {!loading && curtidas.length === 0 && (
+          <motion.div
+            className="flex justify-center items-center h-full"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+          >
+            <p className="text-gray-500">
+              Você ainda não curtiu nenhum episódio.
+            </p>
+          </motion.div>
+        )}
+        {/* </AnimatePresence> */}
+        {!loading &&
+          curtidas.length > 0 &&
+          curtidas.map((episodio, index) => (
+            <EpisodioSmallCard
+              key={index}
+              episodio={episodio}
+              setPlaylist={() => setPlaylist(curtidas, index)}
+            />
+          ))}
       </motion.div>
     </motion.div>
   );

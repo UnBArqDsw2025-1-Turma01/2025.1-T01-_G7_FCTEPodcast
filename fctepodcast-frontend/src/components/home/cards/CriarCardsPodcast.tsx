@@ -103,7 +103,7 @@ const PodcastCard = ({
 
         {/* Conteúdo textual */}
         <CardBody className="flex flex-row gap-2 items-start justify-between text-start w-full px-4">
-          <div className="flex flex-col gap-1 w-[90%] h-[100%]">
+          <div className="flex flex-col gap-1 w-[86%] h-[100%]">
             <h2
               className="font-bold text-sm truncate w-full"
               title={podcast.titulo}
