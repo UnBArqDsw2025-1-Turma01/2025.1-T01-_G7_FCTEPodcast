@@ -79,14 +79,12 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     setLoading(true);
 
     try {
-      console.log("Refreshing session");
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const response: any = await AxiosInstace.post("/usuario/refresh");
       setUser(response.data.usuario);
       setLoading(false);
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (error: any) {
-      console.log(error);
       addToast({
         title: error.response.data.title,
         description: error.response.data.message,

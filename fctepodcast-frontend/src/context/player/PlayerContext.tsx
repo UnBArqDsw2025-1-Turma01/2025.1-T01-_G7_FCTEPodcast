@@ -23,10 +23,7 @@ interface PlayerContextProps {
 const PlayerContext = createContext<PlayerContextProps | undefined>(undefined);
 
 export const PlayerProvider = ({ children }: { children: React.ReactNode }) => {
-  // MUDANÇA: Player agora é apenas uma referência, sem estado próprio de UI
   const playerRef = useRef(new Player());
-
-  // MUDANÇA: O estado do React é a ÚNICA fonte da verdade agora
   const [isPlaying, setIsPlaying] = useState(false);
   const [currentTrack, setCurrentTrack] = useState<EpisodioType | null>(null);
   const [audioSrc, setAudioSrc] = useState<string>("");
@@ -34,10 +31,8 @@ export const PlayerProvider = ({ children }: { children: React.ReactNode }) => {
   const [volume, setVolume] = useState<number>(1);
   const [currentTime, setCurrentTime] = useState(0);
   const [duration, setDuration] = useState(0);
-
   const audioRef = useRef<HTMLAudioElement>(null);
 
-  // MUDANÇA: Efeito para registrar os callbacks na classe Player
   useEffect(() => {
     const player = playerRef.current;
 
@@ -50,47 +45,47 @@ export const PlayerProvider = ({ children }: { children: React.ReactNode }) => {
     player.setOnPauseRequest(() => {
       setIsPlaying(false);
     });
-  }, []); // Roda apenas uma vez
+  }, []);
 
-  // MUDANÇA: Efeito para preparar a URL do áudio quando a faixa mudar
   useEffect(() => {
-    if (currentTrack?.audio_path) {
-      const url = `${BASE_API_URL}/file/audio/${encodeURIComponent(
-        currentTrack.audio_path
-      )}`;
-      setAudioSrc(url);
-      setIsLoading(true); // Começa a carregar
-    } else {
-      setAudioSrc(""); // Limpa a URL se não houver faixa
+    if (!currentTrack?.audio_path) {
+      setAudioSrc("");
+      return;
     }
+
+    const audio = audioRef.current;
+    if (audio) {
+      audio.currentTime = 0;
+    }
+
+    const url = `${BASE_API_URL}/file/audio/${encodeURIComponent(
+      currentTrack.audio_path
+    )}`;
+    setAudioSrc(url);
+    setIsLoading(true);
   }, [currentTrack]);
 
-  // MUDANÇA: Efeito ÚNICO para controlar play/pause
   useEffect(() => {
     const audio = audioRef.current;
     if (!audio) return;
 
     if (isPlaying && audio.src) {
-      // Se a fonte mudou, o play só vai funcionar depois que carregar
-      // O evento onCanPlay já cuidará disso. Se não mudou, toca direto.
-      if (!audio.paused) return; // Se já estiver tocando, não faz nada
+      if (!audio.paused) return;
       audio.play().catch((e) => {
         console.warn("Autoplay bloqueado pelo navegador:", e);
-        setIsPlaying(false); // Sincroniza o estado de volta
+        setIsPlaying(false);
       });
     } else {
       audio.pause();
     }
-  }, [isPlaying, audioSrc]); // Depende do estado isPlaying e da fonte
+  }, [isPlaying, audioSrc]);
 
-  // MUDANÇA: Funções de controle agora são mais simples
   const setPlaylist = (episodes: EpisodioType[], startIndex: number = 0) => {
     playerRef.current.setPlaylist(episodes, startIndex);
   };
 
   const dispatchCommand = (command: Command) => {
     command.execute();
-    // Não precisa mais sincronizar estado aqui, os callbacks já fazem isso
   };
 
   const seek = (time: number) => {
@@ -107,7 +102,7 @@ export const PlayerProvider = ({ children }: { children: React.ReactNode }) => {
   };
 
   const resetPlayer = () => {
-    playerRef.current.reset(); // A classe notifica o React para limpar a faixa
+    playerRef.current.reset();
     setIsPlaying(false);
     setCurrentTime(0);
     setDuration(0);
@@ -134,9 +129,8 @@ export const PlayerProvider = ({ children }: { children: React.ReactNode }) => {
       {children}
       <audio
         ref={audioRef}
-        src={audioSrc} // MUDANÇA: A fonte é definida diretamente aqui
+        src={audioSrc}
         onLoadedData={() => {
-          // Quando os dados são carregados, podemos definir a duração e tentar tocar
           if (audioRef.current) {
             setDuration(audioRef.current.duration);
             if (isPlaying) {
@@ -146,9 +140,9 @@ export const PlayerProvider = ({ children }: { children: React.ReactNode }) => {
             }
           }
         }}
-        onCanPlay={() => setIsLoading(false)} // Esconde o loading quando PODE tocar
-        onPlaying={() => setIsLoading(false)} // Esconde o loading quando ESTÁ tocando
-        onWaiting={() => setIsLoading(true)} // Mostra o loading se a conexão ficar lenta
+        onCanPlay={() => setIsLoading(false)}
+        onPlaying={() => setIsLoading(false)}
+        onWaiting={() => setIsLoading(true)}
         onTimeUpdate={() => setCurrentTime(audioRef.current?.currentTime || 0)}
         onEnded={() => playerRef.current.next()}
         onError={() => {
