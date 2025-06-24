@@ -10,6 +10,7 @@ import Comentario from "./models/Comentario";
 import { Usuario } from "./models/Usuario";
 import Podcast from "./models/Podcast";
 import Episodio from "./models/Episodio";
+import path from "path";
 configDotenv();
 
 const app = express();
@@ -19,7 +20,7 @@ const CORS_ALLOWED_ORIGINS = process.env.CORS_ALLOWED_ORIGINS?.split(",");
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 // Helmet para segurança
-app.use(helmet());
+app.use(helmet({}));
 app.use(
   cors({
     origin: (origin, callback) => {
@@ -45,6 +46,8 @@ app.use(cookieParser());
 connect_db();
 
 app.use("/api", router);
+
+app.use("/api/files/images", express.static(path.resolve("uploads")));
 
 Comentario.init(); // Inicializa o modelo Comentario
 Usuario.init(); // Inicializa o modelo Usuario

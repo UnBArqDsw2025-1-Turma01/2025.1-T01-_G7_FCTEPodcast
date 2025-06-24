@@ -12,6 +12,7 @@ import GerenciarMonitores from "./pages/podcasts/GerenciarMonitores";
 import ComentariosEpisodio from "./pages/comentarios-episodio/ComentariosEpisodio";
 import MinhaBiblioteca from "./pages/minha-biblioteca/MinhaBiblioteca";
 import Curtidas from "./pages/curtidas/Curtidas";
+import DetalhesPodcast from "./pages/detalhes-podcast/DetalhesPodcast";
 
 function App() {
   return (
@@ -42,6 +43,8 @@ function App() {
           <Route path="/biblioteca" element={<MinhaBiblioteca />} />
 
           <Route path="/curtidas/:usuario_id" element={<Curtidas />} />
+
+          <Route path="/podcast/:podcast_id" element={<DetalhesPodcast />} />
         </Route>
 
         <Route element={<ProtectedRoute roles={["PROFESSOR"]} />}>

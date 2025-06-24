@@ -40,7 +40,7 @@ const Curtidas = () => {
       animate="visible"
     >
       <motion.div
-        className="relative w-full h-64 overflow-hidden rounded-lg"
+        className="relative w-full h-[]30% overflow-hidden rounded-lg"
         variants={headerVariants}
       >
         {/* Fundo com blur usando div e background-image */}
@@ -51,7 +51,7 @@ const Curtidas = () => {
 
         {/* Conteúdo por cima */}
         <div className="flex gap-5 p-4 relative z-10">
-          <Image className="w-44" src={minhas_curtidas_logo} />
+          <Image className="w-48 h-48" src={minhas_curtidas_logo} />
           <div className="flex flex-col justify-center gap-2 text-white">
             <h2 className="font-bold text-2xl">Minhas curtidas</h2>
             <p>
@@ -60,7 +60,7 @@ const Curtidas = () => {
             </p>
 
             <Button
-              onPress={() => setPlaylist(curtidas)}
+              onPress={() => setPlaylist(curtidas, 0)}
               isIconOnly
               radius="full"
               color="primary"
@@ -104,8 +104,12 @@ const Curtidas = () => {
 
           {!loading &&
             curtidas.length > 0 &&
-            curtidas.map((episodio) => (
-              <EpisodioSmallCard episodio={episodio} />
+            curtidas.map((episodio, index) => (
+              <EpisodioSmallCard
+                key={index}
+                episodio={episodio}
+                setPlaylist={() => setPlaylist(curtidas, index)}
+              />
             ))}
         </AnimatePresence>
       </motion.div>

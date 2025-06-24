@@ -7,7 +7,7 @@ import { BASE_API_URL } from "../../utils/constants";
 interface PlayerContextProps {
   dispatchCommand: (command: Command) => void;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  setPlaylist: (episodes: any[]) => void;
+  setPlaylist: (episodes: any[], startIndex?: number) => void;
   isPlaying?: boolean;
   player: Player;
   currentTime: number;
@@ -123,7 +123,10 @@ export const PlayerProvider = ({ children }: { children: React.ReactNode }) => {
   };
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const setPlaylist = (episodes: any[], startIndex = 0) => {
+  const setPlaylist = (episodes: any[], startIndex?: number) => {
+    if (!startIndex) {
+      startIndex = 0; // se não for especificado, começa do primeiro episódio
+    }
     playerRef.current.setPlaylist(episodes, startIndex);
   };
 
