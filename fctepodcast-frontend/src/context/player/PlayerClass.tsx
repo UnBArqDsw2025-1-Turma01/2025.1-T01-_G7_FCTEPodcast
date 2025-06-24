@@ -6,10 +6,10 @@ export class Player {
   private playlist: EpisodioType[] = [];
   private currentIndex: number = 0;
   private isPlaying: boolean = false;
-  private audioRef: React.RefObject<HTMLAudioElement> | null = null;
+  private audioRef: React.RefObject<HTMLAudioElement | null> | null = null;
   private onTrackChange?: (audioPath: string) => void;
 
-  setAudioElement(ref: React.RefObject<HTMLAudioElement>) {
+  setAudioElement(ref: React.RefObject<HTMLAudioElement | null>) {
     this.audioRef = ref;
   }
 
@@ -34,8 +34,10 @@ export class Player {
       this.currentIndex === startIndex;
 
     if (isSamePlaylist) {
+      console.log("Playlist já está configurada e na mesma posição.");
       // Se for a mesma playlist e mesma posição, só garante que está tocando
       if (!this.isPlaying) {
+        console.log("Reiniciando a reprodução da playlist.");
         this.play();
       }
       return; // não reinicia a playlist nem troca o áudio
@@ -56,10 +58,17 @@ export class Player {
   }
 
   play() {
+    console.log("Chamando play(). audioRef:", this.audioRef?.current);
     this.isPlaying = true;
-    this.audioRef?.current?.play().catch((e) => {
-      console.warn("Autoplay bloqueado:", e);
-    });
+    this.audioRef?.current
+      ?.play()
+      .then(() => {
+        console.log("Reprodução iniciada com sucesso");
+        this.isPlaying = true;
+      })
+      .catch((e) => {
+        console.warn("Falha ao tentar reproduzir:", e);
+      });
   }
 
   pause() {

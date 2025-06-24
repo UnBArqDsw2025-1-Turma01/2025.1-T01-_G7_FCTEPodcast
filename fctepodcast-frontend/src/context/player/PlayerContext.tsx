@@ -1,4 +1,11 @@
-import { createContext, useContext, useEffect, useRef, useState } from "react";
+import {
+  createContext,
+  useContext,
+  useEffect,
+  useLayoutEffect,
+  useRef,
+  useState,
+} from "react";
 import type { Command } from "./Command";
 import { Player } from "./PlayerClass";
 import type { EpisodioType } from "../../utils/types/EpisodioType";
@@ -32,7 +39,7 @@ const PlayerContext = createContext<PlayerContextProps | undefined>(undefined);
 // Ele encapsula a lógica de reprodução de áudio, permitindo que os componentes filhos acessem e controlem o estado do player.
 export const PlayerProvider = ({ children }: { children: React.ReactNode }) => {
   const playerRef = useRef(new Player());
-  const [isPlaying, setIsPlaying] = useState(false);
+  const [isPlaying, setIsPlaying] = useState(playerRef.current.getIsPlaying());
   const [audioPath, setAudioPath] = useState("");
   const audioRef = useRef<HTMLAudioElement>(null);
   const [audioBlobUrl, setAudioBlobUrl] = useState<string | null>(null);
@@ -128,6 +135,7 @@ export const PlayerProvider = ({ children }: { children: React.ReactNode }) => {
       startIndex = 0; // se não for especificado, começa do primeiro episódio
     }
     playerRef.current.setPlaylist(episodes, startIndex);
+    setIsPlaying(playerRef.current.getIsPlaying());
   };
 
   // Função para avançar/retroceder o áudio ao clicar na barra
@@ -152,6 +160,15 @@ export const PlayerProvider = ({ children }: { children: React.ReactNode }) => {
     setDuration(0);
     playerRef.current.reset();
   };
+
+  useLayoutEffect(() => {
+    if (audioRef.current) {
+      playerRef.current.setAudioElement(audioRef);
+    }
+  }, [audioBlobUrl]);
+
+  console.log("IS PLAYING LOCAL", isPlaying);
+  console.log("IS PLAYING player", playerRef.current.getIsPlaying());
 
   return (
     <PlayerContext.Provider

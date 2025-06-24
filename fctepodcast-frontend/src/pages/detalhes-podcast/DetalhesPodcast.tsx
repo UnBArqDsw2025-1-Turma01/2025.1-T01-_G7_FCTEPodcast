@@ -36,8 +36,8 @@ const DetalhesPodcast = () => {
       const image = `data:${contentType};base64,${base64}`;
 
       return image;
-    } catch (error) {
-      console.error("Erro ao carregar imagem", error);
+    } catch {
+      // console.error("Erro ao carregar imagem", error);
       addToast({
         title: "Erro ao carregar imagem",
         description: "Não foi possível carregar a imagem do podcast.",
@@ -56,8 +56,6 @@ const DetalhesPodcast = () => {
       isMounted = false;
     };
   }, [fileName]);
-
-  console.log(podcast?.episodios);
 
   return (
     <motion.div
@@ -147,7 +145,6 @@ const DetalhesPodcast = () => {
 
         {podcast?.episodios.map((episodio, index) => (
           <>
-            {console.log(index)}
             <EpisodioSmallCard
               setPlaylist={() => setPlaylist(podcast.episodios, index)}
               key={index}
