@@ -157,6 +157,7 @@ export const PlayerProvider = ({ children }: { children: React.ReactNode }) => {
 };
 
 // O hook usePlayer continua igual
+// eslint-disable-next-line react-refresh/only-export-components
 export const usePlayer = () => {
   const context = useContext(PlayerContext);
   if (!context)
