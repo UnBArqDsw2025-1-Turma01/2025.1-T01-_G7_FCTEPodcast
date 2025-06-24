@@ -142,7 +142,7 @@ const PodcastCard = ({
                   ],
                 }}
               >
-                <DropdownSection showDivider title="Informações do Podcast">
+                <DropdownSection showDivider>
                   <DropdownItem isReadOnly key={"ver-podcast"}>
                     <div className="flex items-center gap-2">
                       <Image className="h-14" src={imageBlobUrl || NO_IMAGE} />
@@ -154,7 +154,7 @@ const PodcastCard = ({
                   </DropdownItem>
                 </DropdownSection>
 
-                <DropdownSection title="Ações">
+                <DropdownSection>
                   <DropdownItem
                     key={"ver-detalhes"}
                     onPress={() => navigate(`/podcast/${podcast._id}`)}
