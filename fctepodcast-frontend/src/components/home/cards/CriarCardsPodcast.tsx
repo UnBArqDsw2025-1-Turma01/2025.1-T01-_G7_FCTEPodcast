@@ -126,7 +126,34 @@ const PodcastCard = ({
                 </span>
               </DropdownTrigger>
 
-              <DropdownMenu>
+              <DropdownMenu
+                disabledKeys={["ver-podcast"]}
+                itemClasses={{
+                  base: [
+                    "rounded-md",
+                    "text-default-500",
+                    "transition-opacity",
+                    "data-[hover=true]:text-foreground",
+                    "data-[hover=true]:bg-default-100",
+                    "dark:data-[hover=true]:bg-default-50",
+                    "data-[selectable=true]:focus:bg-default-50",
+                    "data-[pressed=true]:opacity-70",
+                    "data-[focus-visible=true]:ring-default-500",
+                  ],
+                }}
+              >
+                <DropdownSection showDivider title="Informações do Podcast">
+                  <DropdownItem isReadOnly key={"ver-podcast"}>
+                    <div className="flex items-center gap-2">
+                      <Image className="h-14" src={imageBlobUrl || NO_IMAGE} />
+                      <div>
+                        <p className="text-xs">{podcast.titulo}</p>
+                        <p className="text-xs italic">{podcast.autor.nome}</p>
+                      </div>
+                    </div>
+                  </DropdownItem>
+                </DropdownSection>
+
                 <DropdownSection title="Ações">
                   <DropdownItem
                     key={"ver-detalhes"}
