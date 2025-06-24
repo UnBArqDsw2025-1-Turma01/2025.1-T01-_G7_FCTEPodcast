@@ -27,7 +27,7 @@ export class Player {
       return;
     }
 
-    // Verifica se a playlist e o índice são iguais aos atuais
+    // Se for a mesma playlist e mesma posição, toca sem resetar
     const isSamePlaylist =
       this.playlist.length === playlist.length &&
       this.playlist.every((ep, i) => ep._id === playlist[i]._id) &&
@@ -35,7 +35,6 @@ export class Player {
 
     if (isSamePlaylist) {
       console.log("Playlist já está configurada e na mesma posição.");
-      // Se for a mesma playlist e mesma posição, só garante que está tocando
       if (!this.isPlaying) {
         console.log("Reiniciando a reprodução da playlist.");
         this.play();
@@ -43,10 +42,21 @@ export class Player {
       return; // não reinicia a playlist nem troca o áudio
     }
 
+    // **Resetar o player antes de iniciar nova playlist**
+    this.reset();
+
     this.playlist = playlist;
     this.currentIndex = startIndex;
     this.playCurrent();
     console.log("Playlist set with", playlist.length, "episodes.");
+
+    console.log({
+      playlist: this.playlist,
+      newPlaylist: playlist,
+      currentIndex: this.currentIndex,
+      newIndex: startIndex,
+      isSamePlaylist,
+    });
   }
 
   private playCurrent() {
@@ -99,12 +109,14 @@ export class Player {
   }
 
   reset() {
-    this.pause();
+    this.isPlaying = false; // garante que o estado interno é limpo
+    this.pause(); // pausa o áudio se estiver tocando
     this.playlist = [];
     this.currentIndex = 0;
     if (this.audioRef?.current) {
-      this.audioRef.current.src = "";
-      this.audioRef.current.load();
+      this.audioRef.current.pause();
+      this.audioRef.current.removeAttribute("src"); // remove fonte do áudio
+      this.audioRef.current.load(); // reseta o player HTMLAudioElement
     }
   }
 }

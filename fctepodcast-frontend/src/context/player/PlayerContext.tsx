@@ -134,6 +134,11 @@ export const PlayerProvider = ({ children }: { children: React.ReactNode }) => {
     if (!startIndex) {
       startIndex = 0; // se não for especificado, começa do primeiro episódio
     }
+    if (playerRef.current.getIsPlaying() === true) {
+      setIsPlaying(true);
+    } else {
+      setIsPlaying(false);
+    }
     playerRef.current.setPlaylist(episodes, startIndex);
     setIsPlaying(playerRef.current.getIsPlaying());
   };
