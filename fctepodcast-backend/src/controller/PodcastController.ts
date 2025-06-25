@@ -113,4 +113,52 @@ export class PodcastController {
       podcasts: podcasts,
     });
   }
+
+  async getPodcastById(req: Request, res: Response): Promise<void> {
+    const podcastId = req.params.podcast_id;
+
+    if (!podcastId) {
+      res.status(400).json({
+        status: "error",
+        title: "ID de podcast ausente",
+        message: "O ID do podcast é obrigatório.",
+      });
+      return;
+    }
+
+    try {
+      const podcast = await Podcast.findById(podcastId)
+        .populate({
+          path: "autor",
+          select: "nome email", // Seleciona apenas os campos necessários do autor
+        })
+        .populate("episodios");
+      if (!podcast) {
+        res.status(404).json({
+          status: "error",
+          title: "Podcast não encontrado",
+          message: "Nenhum podcast encontrado com o ID fornecido.",
+        });
+        return;
+      }
+
+      res.status(200).json({
+        status: "success",
+        title: "Podcast encontrado",
+        message: "Podcast encontrado com sucesso!",
+        podcast: podcast,
+      });
+    } catch (error) {
+      console.error("Erro ao buscar podcast:", error);
+      res.status(500).json({
+        status: "error",
+        title: "Erro interno do servidor",
+        message:
+          error instanceof Error
+            ? error.message
+            : "Erro desconhecido ao buscar o podcast.",
+      });
+      return;
+    }
+  }
 }

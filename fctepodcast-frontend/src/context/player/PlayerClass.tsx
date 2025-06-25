@@ -1,23 +1,28 @@
-// PlayerClass.ts (ajuste necessário na classe Player)
-import { addToast } from "@heroui/react";
+// PlayerClass.ts (VERSÃO REVISADA E SIMPLIFICADA)
 import type { EpisodioType } from "../../utils/types/EpisodioType";
+import { addToast } from "@heroui/react";
 
 export class Player {
   private playlist: EpisodioType[] = [];
   private currentIndex: number = 0;
-  private isPlaying: boolean = false;
-  private audioRef: React.RefObject<HTMLAudioElement> | null = null;
-  private onTrackChange?: (audioPath: string) => void;
 
-  setAudioElement(ref: React.RefObject<HTMLAudioElement>) {
-    this.audioRef = ref;
+  // Callbacks para notificar o componente React
+  private onTrackChangeCallback?: (track: EpisodioType | null) => void;
+  private onPlayRequestCallback?: () => void;
+  private onPauseRequestCallback?: () => void;
+
+  // Métodos para o React se registrar
+  public setOnTrackChange(callback: (track: EpisodioType | null) => void) {
+    this.onTrackChangeCallback = callback;
+  }
+  public setOnPlayRequest(callback: () => void) {
+    this.onPlayRequestCallback = callback;
+  }
+  public setOnPauseRequest(callback: () => void) {
+    this.onPauseRequestCallback = callback;
   }
 
-  setOnTrackChangeCallback(callback: (audioPath: string) => void) {
-    this.onTrackChange = callback;
-  }
-
-  setPlaylist(playlist: EpisodioType[], startIndex: number = 0) {
+  public setPlaylist(playlist: EpisodioType[], startIndex: number = 0) {
     if (!Array.isArray(playlist) || playlist.length === 0) {
       addToast({
         title: "Atenção!",
@@ -27,75 +32,60 @@ export class Player {
       return;
     }
 
-    // Verifica se a playlist e o índice são iguais aos atuais
-    const isSamePlaylist =
-      this.playlist.length === playlist.length &&
-      this.playlist.every((ep, i) => ep._id === playlist[i]._id) &&
-      this.currentIndex === startIndex;
-
-    if (isSamePlaylist) {
-      // Se for a mesma playlist e mesma posição, só garante que está tocando
-      if (!this.isPlaying) {
-        this.play();
-      }
-      return; // não reinicia a playlist nem troca o áudio
-    }
-
     this.playlist = playlist;
     this.currentIndex = startIndex;
-    this.playCurrent();
-    console.log("Playlist set with", playlist.length, "episodes.");
-  }
 
-  private playCurrent() {
-    const currentAudio = this.playlist[this.currentIndex]?.audio_path || "";
-    if (this.onTrackChange) {
-      this.onTrackChange(currentAudio);
+    // Notifica o React que a faixa mudou e que ele deve começar a tocar
+    if (this.onTrackChangeCallback) {
+      this.onTrackChangeCallback(this.getCurrentTrackData());
     }
-    this.play();
+    this.play(); // Solicita o play da nova faixa
   }
 
-  play() {
-    this.isPlaying = true;
-    this.audioRef?.current?.play().catch((e) => {
-      console.warn("Autoplay bloqueado:", e);
-    });
+  // Agora, os métodos de controle APENAS disparam os callbacks.
+  // Eles não controlam mais o estado de isPlaying ou o audioRef.
+  public play() {
+    if (this.onPlayRequestCallback) {
+      this.onPlayRequestCallback();
+    }
   }
 
-  pause() {
-    this.isPlaying = false;
-    this.audioRef?.current?.pause();
+  public pause() {
+    if (this.onPauseRequestCallback) {
+      this.onPauseRequestCallback();
+    }
   }
 
-  next() {
+  public next() {
     if (this.currentIndex < this.playlist.length - 1) {
       this.currentIndex++;
-      this.playCurrent();
+      if (this.onTrackChangeCallback) {
+        this.onTrackChangeCallback(this.getCurrentTrackData());
+      }
+      this.play(); // Solicita o play da nova faixa
     }
   }
 
-  previous() {
+  public previous() {
     if (this.currentIndex > 0) {
       this.currentIndex--;
-      this.playCurrent();
+      if (this.onTrackChangeCallback) {
+        this.onTrackChangeCallback(this.getCurrentTrackData());
+      }
+      this.play(); // Solicita o play da nova faixa
     }
   }
 
-  getIsPlaying(): boolean {
-    return this.isPlaying;
-  }
-
-  getCurrentTrackData(): EpisodioType | null {
+  public getCurrentTrackData(): EpisodioType | null {
     return this.playlist[this.currentIndex] || null;
   }
 
-  reset() {
-    this.pause();
+  public reset() {
     this.playlist = [];
     this.currentIndex = 0;
-    if (this.audioRef?.current) {
-      this.audioRef.current.src = "";
-      this.audioRef.current.load();
+    if (this.onTrackChangeCallback) {
+      // Notifica o React para limpar a faixa atual
+      this.onTrackChangeCallback(null);
     }
   }
 }

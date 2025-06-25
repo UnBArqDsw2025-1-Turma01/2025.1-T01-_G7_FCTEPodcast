@@ -1,14 +1,22 @@
 import { useEffect, useState } from "react";
 import type { EpisodioType } from "../../utils/types/EpisodioType";
 import { AxiosInstace } from "../../utils/axios/AxiosInstance";
-import { addToast, Image } from "@heroui/react";
+import { addToast, Button, Image } from "@heroui/react";
 import { BASE_API_URL, NO_IMAGE } from "../../utils/constants";
-import { usePlayer } from "../../context/player/PlayerContext";
 import { motion } from "framer-motion";
+import { FaComment, FaHeart, FaPlay } from "react-icons/fa";
+import { useNavigate } from "react-router";
 
-const EpisodioSmallCard = ({ episodio }: { episodio: EpisodioType }) => {
+const EpisodioSmallCard = ({
+  episodio,
+  setPlaylist,
+}: {
+  episodio: EpisodioType;
+  setPlaylist: () => void;
+}) => {
   const [imageBlobUrl, setImageBlobUrl] = useState<string | null>(null);
-  const { setPlaylist } = usePlayer();
+  // const { setPlaylist } = usePlayer();
+  const navigate = useNavigate();
 
   useEffect(() => {
     if (!episodio?._id) return;
@@ -53,7 +61,7 @@ const EpisodioSmallCard = ({ episodio }: { episodio: EpisodioType }) => {
       whileHover={{ scale: 1.01 }}
       transition={{ duration: 0.3, ease: "easeInOut" }}
       className="bg-content1 p-4 rounded-2xl cursor-pointer hover:bg-content2 transition-colors duration-300"
-      onClick={() => setPlaylist([episodio])}
+      onClick={() => setPlaylist()}
     >
       <div className="flex items-center gap-4">
         <Image
@@ -62,9 +70,42 @@ const EpisodioSmallCard = ({ episodio }: { episodio: EpisodioType }) => {
           isLoading={!imageBlobUrl}
           alt={`Imagem do episódio ${episodio.titulo}`}
         />
-        <div>
+
+        <div className="flex flex-col gap-2">
           <h2 className="font-bold">{episodio.titulo}</h2>
           <p>{episodio.autor.nome || "Não informado"}</p>
+
+          <div className="flex items-center gap-4">
+            <span className="text-sm text-gray-500 flex gap-2 items-center">
+              <FaHeart />
+              {episodio.curtidas_count}
+            </span>
+
+            <span className="text-sm text-gray-500 flex gap-2 items-center">
+              <FaComment />
+              {episodio.comentarios_count}
+            </span>
+          </div>
+        </div>
+
+        <div className="ml-auto flex gap-5">
+          <Button
+            isIconOnly
+            variant="shadow"
+            color="primary"
+            onPress={() => setPlaylist()}
+          >
+            <FaPlay />
+          </Button>
+
+          <Button
+            isIconOnly
+            variant="shadow"
+            color="primary"
+            onPress={() => navigate(`/${episodio._id}/comentarios`)}
+          >
+            <FaComment />
+          </Button>
         </div>
       </div>
     </motion.div>

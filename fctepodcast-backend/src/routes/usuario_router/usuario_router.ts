@@ -63,6 +63,14 @@ usuario_router.get(
   )
 );
 
+usuario_router.get(
+  "/podcast/:podcast_id",
+  authFacade.handleSecureRequest(
+    ["PROFESSOR", "ALUNO"],
+    podcast_controller.getPodcastById
+  )
+);
+
 // rota publica para obter todos os podcasts TEMPORARIA
 usuario_router.get("/podcasts", podcast_controller.listarTodosPodcasts);
 

@@ -1,5 +1,6 @@
 import express from "express";
 import fs from "fs";
+// import path from "path";
 
 const file_router = express.Router();
 
@@ -39,5 +40,8 @@ file_router.get("/audio/:file_path", (req, res) => {
 
   audioStream.pipe(res);
 });
+// console.log("DIRETORIO: " + path.resolve("uploads"));
+
+// file_router.use("/images", express.static(path.resolve("uploads")));
 
 export default file_router;

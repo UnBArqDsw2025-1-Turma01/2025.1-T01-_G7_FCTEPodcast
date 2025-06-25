@@ -17,7 +17,6 @@ const PodcastView = () => {
     }
   };
 
-  console.log("Podcasts:", podcasts);
   useEffect(() => {
     get_podcasts();
   }, []);

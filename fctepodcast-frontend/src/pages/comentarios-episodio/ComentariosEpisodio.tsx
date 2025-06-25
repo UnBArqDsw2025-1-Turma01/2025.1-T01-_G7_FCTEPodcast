@@ -47,7 +47,6 @@ const ComentariosEpisodio = () => {
         `/usuario/episodio/${episodio_id}`
       );
 
-      console.log("Dados do episódio:", response.data);
       setEpisodio(response.data.data);
 
       const image_request_url = `${BASE_API_URL}/usuario/episodio/${response.data.data?._id}/image`;
@@ -55,10 +54,8 @@ const ComentariosEpisodio = () => {
       await fetchImage(image_request_url)
         .then((blobUrl) => {
           setImageBlobUrl(blobUrl);
-          console.log("Imagem do episódio carregada com sucesso:", blobUrl);
         })
         .catch((error) => {
-          console.error("Erro ao buscar imagem:", error);
           addToast({
             title: "Erro ao buscar imagem do episódio",
             description: error.message || "Erro desconhecido ao buscar imagem.",
@@ -67,7 +64,6 @@ const ComentariosEpisodio = () => {
 
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (error: any) {
-      console.error("Erro ao obter dados do episódio:", error);
       addToast({
         title: error.response.data.title || "Erro ao obter dados do episódio",
       });
@@ -75,8 +71,6 @@ const ComentariosEpisodio = () => {
       setLoading(false);
     }
   };
-
-  console.log(episodio?.comentarios);
 
   const handleComentar = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -113,8 +107,6 @@ const ComentariosEpisodio = () => {
           return;
         }
 
-        console.log("Comentário de resposta:", conteudoLimpo);
-
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const response: any = await AxiosInstace.post(
           `/usuario/episodio/${episodio?._id}/responder/${referenciaComentario}`,
@@ -124,7 +116,6 @@ const ComentariosEpisodio = () => {
           }
         );
 
-        console.log("Resposta adicionada:", response.data);
         addToast({
           title: "Resposta adicionada com sucesso!",
           description: "Sua resposta foi adicionada ao comentário.",
@@ -179,7 +170,6 @@ const ComentariosEpisodio = () => {
         { conteudo: textoComentario, usuario_id: user?.id }
       );
 
-      console.log("Comentário adicionado:", response.data);
       addToast({
         title: "Comentário adicionado com sucesso!",
         description: "Seu comentário foi adicionado ao episódio.",
