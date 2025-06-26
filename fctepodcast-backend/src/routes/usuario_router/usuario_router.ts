@@ -148,6 +148,23 @@ usuario_router.post(
   )
 );
 
+// notificacoes
+usuario_router.get(
+  "/notificacoes/:usuario_id",
+  authFacade.handleSecureRequest(
+    ["PROFESSOR"],
+    usuario_controller.getNotificacoes
+  )
+);
+
+usuario_router.post(
+  "/notificacoes/:usuario_id/visualizar",
+  authFacade.handleSecureRequest(
+    ["PROFESSOR"],
+    usuario_controller.visualizarNotificacoes
+  )
+);
+
 usuario_router.get("/image/", async (req, res) => {
   const { path: imagePath } = req.query;
 
