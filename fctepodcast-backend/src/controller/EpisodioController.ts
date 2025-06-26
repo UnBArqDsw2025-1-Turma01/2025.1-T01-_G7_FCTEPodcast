@@ -88,11 +88,11 @@ export class EpisodioController {
     const podcast = await Podcast.findById(episodio.podcast_reference)
       .populate({
         path: "co_autores",
-        select: "nome email",
+        select: "id nome email",
       })
       .populate({
         path: "autor",
-        select: "nome email",
+        select: "id nome email",
       });
     if (!podcast) {
       res.status(404).json({

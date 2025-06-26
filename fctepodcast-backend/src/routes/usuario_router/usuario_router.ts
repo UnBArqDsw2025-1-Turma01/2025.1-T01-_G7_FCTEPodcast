@@ -8,6 +8,7 @@ import { EpisodioController } from "../../controller/EpisodioController";
 import { ArchiveAdapter, ArchiveFileSystem } from "../../adapter/ImageAdapter";
 import { AuthFacade } from "../../facade/AuthFacade";
 import { JWTService } from "../../services/JWTService";
+import { uploadProfile } from "../../middleware/multer/profileMulter";
 
 const usuario_router = express.Router();
 
@@ -162,6 +163,24 @@ usuario_router.post(
   authFacade.handleSecureRequest(
     ["PROFESSOR"],
     usuario_controller.visualizarNotificacoes
+  )
+);
+
+// perfil
+usuario_router.post(
+  "/perfil/:usuario_id/upload/foto",
+  uploadProfile.single("profile_picture"),
+  authFacade.handleSecureRequest(
+    ["PROFESSOR", "ALUNO"],
+    usuario_controller.adicionarFotoDePerfil
+  )
+);
+
+usuario_router.get(
+  "/perfil/:usuario_id",
+  authFacade.handleSecureRequest(
+    ["PROFESSOR", "ALUNO"],
+    usuario_controller.getPerfilUsuario
   )
 );
 

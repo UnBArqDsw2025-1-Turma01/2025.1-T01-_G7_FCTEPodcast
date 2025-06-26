@@ -241,10 +241,19 @@ const PlayBar = () => {
           <p className="font-semibold">
             {episode_data?.titulo || "Nenhum Episódio Selecionado"}
           </p>
+          {referenceData?.reference_data.autor ? (
+            <p
+              onClick={() =>
+                navigate(`/perfil/${referenceData.reference_data.autor._id}`)
+              }
+              className="text-xs text-gray-400 cursor-pointer hover:underline"
+            >
+              {referenceData?.reference_data.autor.nome}
+            </p>
+          ) : (
+            <p className="text-xs text-gray-400">Autor Desconhecido</p>
+          )}
 
-          <p className="text-xs text-gray-400">
-            {referenceData?.reference_data.autor.nome || "Autor Desconhecido"}
-          </p>
           <p className="text-xs text-gray-400 italic">
             {referenceData?.reference_data.tags.join(", ")}
           </p>

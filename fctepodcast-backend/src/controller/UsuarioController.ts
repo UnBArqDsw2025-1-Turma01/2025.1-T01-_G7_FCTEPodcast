@@ -16,6 +16,51 @@ export class UsuarioController {
     }
   }
 
+  async getPerfilUsuario(req: Request, res: Response): Promise<void> {
+    const usuarioId = req.params.usuario_id;
+
+    if (!usuarioId) {
+      res.status(400).json({
+        status: "error",
+        title: "Erro de validação",
+        message: "ID do usuário é obrigatório.",
+      });
+      return;
+    }
+
+    try {
+      const usuario = await Usuario.findById(usuarioId);
+      if (!usuario) {
+        res.status(404).json({
+          status: "error",
+          title: "Usuário não encontrado",
+          message: "Usuário com o ID fornecido não existe.",
+        });
+        return;
+      }
+
+      res.status(200).json({
+        status: "success",
+        title: "Usuário encontrado",
+        usuario: {
+          id: usuario._id,
+          nome: usuario.nome,
+          email: usuario.email,
+          role: usuario.role,
+          profile_picture: usuario.profile_picture,
+          cover_picture: usuario.cover_picture,
+        },
+      });
+    } catch (error) {
+      console.error("Erro ao buscar usuário:", error);
+      res.status(500).json({
+        status: "error",
+        title: "Erro interno do servidor",
+        message: "Erro ao buscar usuário.",
+      });
+    }
+  }
+
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   public hasPermission(usuario: any, allowedRoles: string[]): boolean {
     return !!usuario?.role && allowedRoles.includes(usuario.role);
@@ -140,6 +185,8 @@ export class UsuarioController {
           nome: usuario.nome,
           email: usuario.email,
           role: usuario.role,
+          profile_picture: usuario.profile_picture,
+          cover_picture: usuario.cover_picture,
         },
       });
   }
@@ -220,6 +267,8 @@ export class UsuarioController {
           nome: usuario.nome,
           email: usuario.email,
           role: usuario.role,
+          profile_picture: usuario.profile_picture,
+          cover_picture: usuario.cover_picture,
         },
       });
   }
@@ -447,6 +496,56 @@ export class UsuarioController {
         title: "Erro interno do servidor",
         message: "Erro ao atualizar notificações.",
       });
+    }
+  }
+
+  async adicionarFotoDePerfil(req: Request, res: Response): Promise<void> {
+    const { usuario_id } = req.params;
+
+    if (!req.file) {
+      res.status(400).json({
+        status: "error",
+        title: "Erro de validação",
+        message: "Arquivo de imagem é obrigatório.",
+      });
+      return;
+    }
+
+    try {
+      const usuario = await Usuario.findById(usuario_id);
+      if (!usuario) {
+        res.status(404).json({
+          status: "error",
+          title: "Usuário não encontrado",
+          message: "Usuário com o ID fornecido não existe.",
+        });
+        return;
+      }
+
+      usuario.profile_picture = req.file.path;
+      await usuario.save();
+
+      res.status(200).json({
+        status: "success",
+        title: "Foto de perfil atualizada",
+        message: "Foto de perfil atualizada com sucesso.",
+        usuarioAtualizado: {
+          id: usuario._id,
+          nome: usuario.nome,
+          email: usuario.email,
+          role: usuario.role,
+          profile_picture: usuario.profile_picture,
+          cover_picture: usuario.cover_picture,
+        },
+      });
+    } catch (error) {
+      console.error("Erro ao buscar usuário:", error);
+      res.status(500).json({
+        status: "error",
+        title: "Erro interno do servidor",
+        message: "Erro ao buscar usuário.",
+      });
+      return;
     }
   }
 }

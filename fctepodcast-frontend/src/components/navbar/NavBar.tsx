@@ -13,7 +13,7 @@ import {
   Button,
 } from "@heroui/react";
 import logo from "../../assets/logo.png";
-import { FaSearch } from "react-icons/fa";
+import { FaSearch, FaUser } from "react-icons/fa";
 import { MdLogout } from "react-icons/md";
 import { useAuth } from "../../context/auth/AuthContext";
 import { useNavigate } from "react-router";
@@ -60,6 +60,15 @@ const NavBar = () => {
           >
             <DropdownItem key="profile_info">
               <p className="font-bold">Logado(a) como: {user?.nome}</p>
+            </DropdownItem>
+            <DropdownItem
+              onPress={() => navigate(`/perfil/${user?.id}`)}
+              key={"profile"}
+            >
+              <p className="flex items-center gap-2">
+                <FaUser />
+                Meu Perfil
+              </p>
             </DropdownItem>
             <DropdownItem onPress={() => logout()} key="logout">
               <p className="flex items-center gap-2">

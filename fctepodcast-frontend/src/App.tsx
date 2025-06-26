@@ -14,6 +14,7 @@ import MinhaBiblioteca from "./pages/minha-biblioteca/MinhaBiblioteca";
 import Curtidas from "./pages/curtidas/Curtidas";
 import DetalhesPodcast from "./pages/detalhes-podcast/DetalhesPodcast";
 import Notificacoes from "./pages/notificacoes/Notificacoes";
+import Perfil from "./pages/perfil/Perfil";
 
 function App() {
   return (
@@ -42,6 +43,9 @@ function App() {
           <Route path="/curtidas/:usuario_id" element={<Curtidas />} />
 
           <Route path="/podcast/:podcast_id" element={<DetalhesPodcast />} />
+
+          {/* <Route path="/meu-perfil" element={<MeuPerfil />} /> */}
+          <Route path="/perfil/:usuario_id" element={<Perfil />} />
         </Route>
 
         <Route element={<ProtectedRoute roles={["PROFESSOR"]} />}>

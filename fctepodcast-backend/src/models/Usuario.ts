@@ -44,6 +44,14 @@ const BaseUserSchema = new Schema(
       type: Boolean,
       default: true,
     },
+    profile_picture: {
+      type: String,
+      default: "",
+    },
+    cover_picture: {
+      type: String,
+      default: "",
+    },
   },
   {
     collection: "usuarios",
