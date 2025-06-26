@@ -13,6 +13,7 @@ import ComentariosEpisodio from "./pages/comentarios-episodio/ComentariosEpisodi
 import MinhaBiblioteca from "./pages/minha-biblioteca/MinhaBiblioteca";
 import Curtidas from "./pages/curtidas/Curtidas";
 import DetalhesPodcast from "./pages/detalhes-podcast/DetalhesPodcast";
+import Notificacoes from "./pages/notificacoes/Notificacoes";
 
 function App() {
   return (
@@ -29,10 +30,6 @@ function App() {
           <Route path="/home" element={<Home />} />
           <Route path="/studio" element={<Studio />} />
 
-          <Route
-            path="/studio/notificacoes"
-            element={<div>Notificações</div>}
-          />
           {/* 
           <Route path="/tmp" element={<PodcastView />} /> */}
           <Route
@@ -57,6 +54,8 @@ function App() {
             path="/studio/monitores/gerenciar"
             element={<GerenciarMonitores />}
           />
+
+          <Route path="/studio/notificacoes" element={<Notificacoes />} />
         </Route>
 
         {/* rotas especiais */}

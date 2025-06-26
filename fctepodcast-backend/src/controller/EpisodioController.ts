@@ -6,6 +6,9 @@ import path from "path";
 import fs from "fs";
 import { Usuario } from "../models/Usuario";
 import Comentario from "../models/Comentario";
+import { Notificacao } from "../models/Notificacao";
+import { user_connections } from "../app";
+import { io } from "../app";
 export class EpisodioController {
   async criarEpisodio(req: Request, res: Response): Promise<void> {
     const { titulo, descricao, podcast_reference } = req.body;
@@ -464,6 +467,33 @@ export class EpisodioController {
 
     try {
       await episodio.save();
+
+      const novaNotificacao = await Notificacao.create({
+        origem: usuario._id,
+        destino: podcast?.autor,
+        tipo: "comentario",
+        episodio_referente: episodio._id,
+        conteudo: `Novo comentário no episódio "${episodio.titulo}" do podcast "${podcast?.titulo}"`,
+      });
+
+      const sockets = user_connections.get(podcast?.autor?.toString());
+      if (sockets && sockets.length > 0) {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        sockets.forEach((socketId: any) => {
+          io.to(socketId).emit("nova_notificacao", {
+            origem: {
+              _id: usuario._id,
+              nome: usuario.nome,
+              email: usuario.email,
+            },
+            conteudo: novaNotificacao.conteudo,
+            episodio_referente: episodio._id,
+            data: novaNotificacao.data,
+            tipo: novaNotificacao.tipo,
+            destino: podcast?.autor,
+          });
+        });
+      }
 
       res.status(201).json({
         status: "success",

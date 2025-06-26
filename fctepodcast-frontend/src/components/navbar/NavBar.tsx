@@ -9,16 +9,23 @@ import {
   DropdownTrigger,
   DropdownMenu,
   DropdownItem,
+  Badge,
+  Button,
 } from "@heroui/react";
 import logo from "../../assets/logo.png";
 import { FaSearch } from "react-icons/fa";
 import { MdLogout } from "react-icons/md";
 import { useAuth } from "../../context/auth/AuthContext";
 import { useNavigate } from "react-router";
+import { IoIosNotifications } from "react-icons/io";
+import { useNotifications } from "../../context/notifications/NotificationsContext";
 
 const NavBar = () => {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
+
+  const { notifications } = useNotifications();
+
   return (
     <Navbar className="bg-primary-50">
       <NavbarBrand>
@@ -32,6 +39,15 @@ const NavBar = () => {
       </NavbarContent>
 
       <NavbarContent justify="end">
+        <Badge
+          color="primary"
+          content={notifications.filter((n) => !n.lida).length}
+        >
+          <Button onPress={() => navigate(`/studio/notificacoes`)} isIconOnly>
+            <IoIosNotifications size={25} />
+          </Button>
+        </Badge>
+
         <Dropdown backdrop="blur" className="cursor-pointer">
           <DropdownTrigger>
             <button>
