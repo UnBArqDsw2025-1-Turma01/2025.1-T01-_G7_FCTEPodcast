@@ -487,7 +487,10 @@ export class EpisodioController {
               email: usuario.email,
             },
             conteudo: novaNotificacao.conteudo,
-            episodio_referente: episodio._id,
+            episodio_referente: {
+              _id: episodio._id,
+              titulo: episodio.titulo,
+            },
             data: novaNotificacao.data,
             tipo: novaNotificacao.tipo,
             destino: podcast?.autor,

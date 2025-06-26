@@ -10,14 +10,18 @@ const ProtectedRoute = ({ roles }: { roles: string[] }) => {
   const { user } = useAuth();
 
   useEffect(() => {
-    if (!user) {
+    if (user === null) {
+      // Usuário não autenticado, manda para login
       navigate("/login");
-    }
-    if (user && roles && !roles.includes(user.role)) {
+    } else if (user && roles && !roles.includes(user.role)) {
+      // Usuário sem permissão, manda para unauthorized
       navigate("/unauthorized");
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [user]);
+  }, [user, roles, navigate]);
+
+  // Opcional: se quiser evitar renderizar o conteúdo antes de confirmar usuário,
+  // pode retornar null ou um loader aqui enquanto o user é undefined (loading)
+  if (user === undefined) return null;
 
   return (
     <div className="h-screen flex flex-col">

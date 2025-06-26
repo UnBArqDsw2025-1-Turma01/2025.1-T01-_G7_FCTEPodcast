@@ -39,14 +39,16 @@ const NavBar = () => {
       </NavbarContent>
 
       <NavbarContent justify="end">
-        <Badge
-          color="primary"
-          content={notifications.filter((n) => !n.lida).length}
-        >
-          <Button onPress={() => navigate(`/studio/notificacoes`)} isIconOnly>
-            <IoIosNotifications size={25} />
-          </Button>
-        </Badge>
+        {user?.role === "PROFESSOR" && (
+          <Badge
+            color="primary"
+            content={notifications.filter((n) => !n.lida).length}
+          >
+            <Button onPress={() => navigate(`/studio/notificacoes`)} isIconOnly>
+              <IoIosNotifications size={25} />
+            </Button>
+          </Badge>
+        )}
 
         <Dropdown backdrop="blur" className="cursor-pointer">
           <DropdownTrigger>
