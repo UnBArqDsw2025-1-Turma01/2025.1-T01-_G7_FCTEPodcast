@@ -43,12 +43,15 @@ export const NotificationProvider = ({
     }
   };
   useEffect(() => {
+    if (!user) return;
+    if (user.role !== "PROFESSOR") return;
     fetchNotificacoes();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user]);
 
   useEffect(() => {
     if (!user) return;
+    if (user.role !== "PROFESSOR") return;
 
     const socket: Socket = io(BASE_API_URL.replace(/\/api\/?$/, ""), {
       path: "/socket",
@@ -73,11 +76,13 @@ export const NotificationProvider = ({
     };
   }, [user]);
 
-  const visualizarNotificacoes = (ids: string[]) => {
+  console.log("Notificações:", notifications);
+
+  const visualizarNotificacoes = async (ids: string[]) => {
     if (!user) return;
 
     try {
-      AxiosInstace.post(`/usuario/notificacoes/${user.id}/visualizar`, {
+      await AxiosInstace.post(`/usuario/notificacoes/${user.id}/visualizar`, {
         ids,
       }).catch((error) => {
         console.error("Erro ao visualizar notificações:", error);

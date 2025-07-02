@@ -88,17 +88,35 @@ export class EpisodioController {
     const podcast = await Podcast.findById(episodio.podcast_reference)
       .populate({
         path: "co_autores",
-        select: "nome email",
+        select: "id nome email",
       })
       .populate({
         path: "autor",
-        select: "nome email",
+        select: "id nome email",
       });
     if (!podcast) {
       res.status(404).json({
         status: "error",
         title: "Podcast não encontrado",
         message: "O podcast referenciado não foi encontrado.",
+      });
+      return;
+    }
+
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    (podcast as any).reproducoes += 1;
+
+    try {
+      await podcast.save();
+    } catch (error) {
+      console.error("Erro ao atualizar reproduções do podcast:", error);
+      res.status(500).json({
+        status: "error",
+        title: "Erro ao atualizar reproduções",
+        message:
+          error instanceof Error
+            ? error.message
+            : "Erro desconhecido ao atualizar as reproduções do podcast.",
       });
       return;
     }
@@ -487,7 +505,10 @@ export class EpisodioController {
               email: usuario.email,
             },
             conteudo: novaNotificacao.conteudo,
-            episodio_referente: episodio._id,
+            episodio_referente: {
+              _id: episodio._id,
+              titulo: episodio.titulo,
+            },
             data: novaNotificacao.data,
             tipo: novaNotificacao.tipo,
             destino: podcast?.autor,

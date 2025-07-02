@@ -6,12 +6,50 @@ import { FaPodcast } from "react-icons/fa";
 import { IoIosArrowBack } from "react-icons/io";
 import { MdManageAccounts } from "react-icons/md";
 import { Avatar, Spacer } from "@heroui/react";
-import type { JSX } from "react";
+import { useEffect, useState, type JSX } from "react";
+import { getImageUrlFromPath } from "../../../hooks/static/useImageFromPath";
 
 const StudioButtonLayout = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
+  const [imageBlobUrl, setImageBlobUrl] = useState<string>("");
+
+  useEffect(() => {
+    let isActive = true;
+    let objectUrl: string | null = null;
+
+    async function fetchImage() {
+      if (!user?.profile_picture) {
+        setImageBlobUrl("");
+        return;
+      }
+
+      try {
+        const url = await getImageUrlFromPath(user.profile_picture);
+        if (isActive) {
+          setImageBlobUrl(url);
+          objectUrl = url;
+        } else {
+          // Se já não está ativo, revoga a URL criada para evitar vazamento
+          URL.revokeObjectURL(url);
+        }
+      } catch {
+        if (isActive) {
+          setImageBlobUrl("");
+        }
+      }
+    }
+
+    fetchImage();
+
+    return () => {
+      isActive = false;
+      if (objectUrl) {
+        URL.revokeObjectURL(objectUrl);
+      }
+    };
+  }, [user?.profile_picture]);
 
   const buttons = [
     {
@@ -57,7 +95,7 @@ const StudioButtonLayout = () => {
         custom={0}
       >
         <div className="flex items-center gap-4">
-          <Avatar size="lg" />
+          <Avatar size="lg" src={imageBlobUrl} />
           <div>
             <h2 className="text-xl font-bold">{user?.nome}</h2>
             <p className="text-sm text-gray-200">{user?.email}</p>

@@ -7,10 +7,12 @@ export interface PodcastType {
   descricao: string;
   co_autores: string[];
   autor: {
+    _id: string;
     nome: string;
     email: string;
   };
   episodios: EpisodioType[];
   tags: string[];
   createdAt: string;
+  reproducoes: number;
 }

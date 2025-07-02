@@ -35,6 +35,10 @@ const PodcastSchema = new Schema(
         default: [],
       },
     ],
+    reproducoes: {
+      type: Number,
+      default: 0,
+    },
     tags: [
       {
         type: String,
