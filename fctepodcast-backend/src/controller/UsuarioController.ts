@@ -5,6 +5,7 @@ import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import Episodio from "../models/Episodio";
 import { Notificacao } from "../models/Notificacao";
+import Podcast from "../models/Podcast";
 
 export class UsuarioController {
   async getUsuarioById_Internal(id: string) {
@@ -546,6 +547,104 @@ export class UsuarioController {
         message: "Erro ao buscar usuário.",
       });
       return;
+    }
+  }
+
+  async getPodcastsPopulares(req: Request, res: Response): Promise<void> {
+    const { usuario_id } = req.params;
+
+    if (!usuario_id) {
+      res.status(400).json({
+        status: "error",
+        title: "Erro de validação",
+        message: "Usuário ID é obrigatório.",
+      });
+      return;
+    }
+
+    try {
+      const usuario = await Usuario.findById(usuario_id);
+      if (!usuario) {
+        res.status(404).json({
+          status: "error",
+          title: "Usuário não encontrado",
+          message: "Usuário com o ID fornecido não existe.",
+        });
+        return;
+      }
+
+      // Busca os podcasts mais populares do usuário
+      const podcastsPopulares = await Podcast.find({
+        autor: usuario_id,
+      })
+        .sort({ reproducoes: -1 })
+        .limit(10)
+        .populate("co_autores", "_id nome email")
+        .populate("autor", "_id nome email")
+        .populate("episodios", "_id titulo descricao audio_path");
+
+      res.status(200).json({
+        status: "success",
+        title: "Podcasts populares do usuário",
+        message: "Podcasts populares encontrados com sucesso.",
+        podcasts: podcastsPopulares,
+      });
+    } catch (error) {
+      console.error("Erro ao buscar podcasts populares:", error);
+      res.status(500).json({
+        status: "error",
+        title: "Erro interno do servidor",
+        message: "Erro ao buscar podcasts populares.",
+      });
+    }
+  }
+
+  async getPodcastsRecentes(req: Request, res: Response): Promise<void> {
+    const { usuario_id } = req.params;
+
+    if (!usuario_id) {
+      res.status(400).json({
+        status: "error",
+        title: "Erro de validação",
+        message: "Usuário ID é obrigatório.",
+      });
+      return;
+    }
+
+    try {
+      const usuario = await Usuario.findById(usuario_id);
+      if (!usuario) {
+        res.status(404).json({
+          status: "error",
+          title: "Usuário não encontrado",
+          message: "Usuário com o ID fornecido não existe.",
+        });
+        return;
+      }
+
+      // Busca os podcasts mais recentes do usuário
+      const podcastsRecentes = await Podcast.find({
+        autor: usuario_id,
+      })
+        .sort({ createdAt: -1 })
+        .limit(4)
+        .populate("co_autores", "_id nome email")
+        .populate("autor", "_id nome email")
+        .populate("episodios", "_id titulo descricao audio_path");
+
+      res.status(200).json({
+        status: "success",
+        title: "Podcasts recentes do usuário",
+        message: "Podcasts recentes encontrados com sucesso.",
+        podcasts: podcastsRecentes,
+      });
+    } catch (error) {
+      console.error("Erro ao buscar podcasts recentes:", error);
+      res.status(500).json({
+        status: "error",
+        title: "Erro interno do servidor",
+        message: "Erro ao buscar podcasts recentes.",
+      });
     }
   }
 }

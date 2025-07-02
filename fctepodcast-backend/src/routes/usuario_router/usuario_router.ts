@@ -184,6 +184,22 @@ usuario_router.get(
   )
 );
 
+usuario_router.get(
+  "/perfil/:usuario_id/populares",
+  authFacade.handleSecureRequest(
+    ["PROFESSOR", "ALUNO"],
+    usuario_controller.getPodcastsPopulares
+  )
+);
+
+usuario_router.get(
+  "/perfil/:usuario_id/recentes",
+  authFacade.handleSecureRequest(
+    ["PROFESSOR", "ALUNO"],
+    usuario_controller.getPodcastsRecentes
+  )
+);
+
 usuario_router.get("/image/", async (req, res) => {
   const { path: imagePath } = req.query;
 

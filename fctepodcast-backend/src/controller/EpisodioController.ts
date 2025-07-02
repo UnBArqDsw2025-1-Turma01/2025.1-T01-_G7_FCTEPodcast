@@ -103,6 +103,24 @@ export class EpisodioController {
       return;
     }
 
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    (podcast as any).reproducoes += 1;
+
+    try {
+      await podcast.save();
+    } catch (error) {
+      console.error("Erro ao atualizar reproduções do podcast:", error);
+      res.status(500).json({
+        status: "error",
+        title: "Erro ao atualizar reproduções",
+        message:
+          error instanceof Error
+            ? error.message
+            : "Erro desconhecido ao atualizar as reproduções do podcast.",
+      });
+      return;
+    }
+
     res.status(200).json({
       imagem_path: podcast.imagem_path,
       reference_data: {

@@ -13,4 +13,5 @@ export interface PodcastType {
   episodios: EpisodioType[];
   tags: string[];
   createdAt: string;
+  reproducoes: number;
 }

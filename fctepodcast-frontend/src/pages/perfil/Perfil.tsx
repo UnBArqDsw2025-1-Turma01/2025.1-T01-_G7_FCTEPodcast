@@ -1,9 +1,11 @@
-import { addToast, Image } from "@heroui/react";
+import { addToast, Button, Image } from "@heroui/react";
 import no_photo from "../../assets/no_image_base/icon-7797704_640.png";
 import no_cover from "../../assets/no_image_base/Gemini_Generated_Image_obzlrgobzlrgobzl.png";
 import { useParams } from "react-router";
 import { useEffect, useState } from "react";
 import { AxiosInstace } from "../../utils/axios/AxiosInstance";
+import { useAuth } from "../../context/auth/AuthContext";
+import PerfilProfessor from "./professor/PerfilProfessor";
 
 interface Usuario {
   nome: string;
@@ -15,10 +17,17 @@ interface Usuario {
 
 const Perfil = () => {
   const { usuario_id } = useParams<{ usuario_id: string }>();
+  const { user } = useAuth();
   const [usuario, setUsuario] = useState<Usuario | null>(null);
+  const isSameUser = user?.id === usuario_id;
 
   const getUsuario = async () => {
     if (!usuario_id) {
+      addToast({
+        title: "Erro",
+        description: "Usuário não encontrado.",
+        color: "danger",
+      });
       return;
     }
 
@@ -42,7 +51,7 @@ const Perfil = () => {
   }, [usuario_id]);
 
   return (
-    <div className="h-screen">
+    <div className="h-screen flex flex-col gap-4">
       <div
         className="h-64 bg-cover bg-center flex items-center gap-4 p-4 rounded-xl"
         style={{
@@ -50,11 +59,20 @@ const Perfil = () => {
         }}
       >
         <Image className="rounded-full h-36" src={no_photo} />
-        <div>
+        <div className="flex flex-col gap-2">
           <h2 className="font-bold text-2xl">{usuario?.nome}</h2>
           <p>{usuario?.email}</p>
+          {isSameUser && <Button>Editar Perfil</Button>}
         </div>
       </div>
+
+      <h1>
+        {usuario?.role === "PROFESSOR" && usuario_id ? (
+          <PerfilProfessor usuario_id={usuario_id} />
+        ) : (
+          <></>
+        )}
+      </h1>
     </div>
   );
 };

@@ -44,7 +44,6 @@ const PodcastCard = ({
   const [imageBlobUrl, setImageBlobUrl] = useState<string | null>(null);
   const [loadingImage, setLoadingImage] = useState<boolean>(true);
   const navigate = useNavigate();
-
   useEffect(() => {
     if (!podcast?.imagem_path) return;
     setLoadingImage(true);
