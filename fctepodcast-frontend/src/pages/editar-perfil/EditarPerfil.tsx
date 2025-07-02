@@ -39,6 +39,7 @@ const EditarPerfil = () => {
 
   useEffect(() => {
     getImage();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user]);
 
   useEffect(() => {
@@ -50,6 +51,7 @@ const EditarPerfil = () => {
         URL.revokeObjectURL(URL.createObjectURL(novaFoto)); // Libera a URL do blob da nova foto
       }
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const handleChangeProfilePic = async () => {
