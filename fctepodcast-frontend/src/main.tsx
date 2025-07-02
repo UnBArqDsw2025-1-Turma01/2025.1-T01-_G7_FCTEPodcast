@@ -7,6 +7,7 @@ import { BrowserRouter } from "react-router";
 import { AuthProvider } from "./context/auth/AuthContext.tsx";
 import Loader from "./pages/loader/Loader.tsx";
 import { PlayerProvider } from "./context/player/PlayerContext.tsx";
+import { NotificationProvider } from "./context/notifications/NotificationsContext.tsx";
 
 // aqui se importa o ReactDOM para renderizar a aplicação
 // Quando o react encontra o AuthProvider, ele executa o componente de função
@@ -22,10 +23,12 @@ createRoot(document.getElementById("root")!).render(
         <Suspense fallback={<Loader />}>
           <PlayerProvider>
             <AuthProvider>
-              <main className="dark text-foreground bg-background h-screen">
-                <ToastProvider />
-                <App />
-              </main>
+              <NotificationProvider>
+                <main className="dark text-foreground bg-background h-screen">
+                  <ToastProvider />
+                  <App />
+                </main>
+              </NotificationProvider>
             </AuthProvider>
           </PlayerProvider>
         </Suspense>

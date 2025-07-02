@@ -4,6 +4,8 @@ import { Usuario } from "../models/Usuario";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import Episodio from "../models/Episodio";
+import { Notificacao } from "../models/Notificacao";
+import Podcast from "../models/Podcast";
 
 export class UsuarioController {
   async getUsuarioById_Internal(id: string) {
@@ -12,6 +14,51 @@ export class UsuarioController {
     } catch (error) {
       console.error("Erro ao buscar usuário:", error);
       return null;
+    }
+  }
+
+  async getPerfilUsuario(req: Request, res: Response): Promise<void> {
+    const usuarioId = req.params.usuario_id;
+
+    if (!usuarioId) {
+      res.status(400).json({
+        status: "error",
+        title: "Erro de validação",
+        message: "ID do usuário é obrigatório.",
+      });
+      return;
+    }
+
+    try {
+      const usuario = await Usuario.findById(usuarioId);
+      if (!usuario) {
+        res.status(404).json({
+          status: "error",
+          title: "Usuário não encontrado",
+          message: "Usuário com o ID fornecido não existe.",
+        });
+        return;
+      }
+
+      res.status(200).json({
+        status: "success",
+        title: "Usuário encontrado",
+        usuario: {
+          id: usuario._id,
+          nome: usuario.nome,
+          email: usuario.email,
+          role: usuario.role,
+          profile_picture: usuario.profile_picture,
+          cover_picture: usuario.cover_picture,
+        },
+      });
+    } catch (error) {
+      console.error("Erro ao buscar usuário:", error);
+      res.status(500).json({
+        status: "error",
+        title: "Erro interno do servidor",
+        message: "Erro ao buscar usuário.",
+      });
     }
   }
 
@@ -139,6 +186,8 @@ export class UsuarioController {
           nome: usuario.nome,
           email: usuario.email,
           role: usuario.role,
+          profile_picture: usuario.profile_picture,
+          cover_picture: usuario.cover_picture,
         },
       });
   }
@@ -219,6 +268,8 @@ export class UsuarioController {
           nome: usuario.nome,
           email: usuario.email,
           role: usuario.role,
+          profile_picture: usuario.profile_picture,
+          cover_picture: usuario.cover_picture,
         },
       });
   }
@@ -347,6 +398,297 @@ export class UsuarioController {
         message: "Erro ao buscar usuário.",
       });
       return;
+    }
+  }
+
+  async getNotificacoes(req: Request, res: Response): Promise<void> {
+    const usuario_id = req.params.usuario_id;
+    if (!usuario_id) {
+      res.status(400).json({
+        status: "error",
+        title: "Erro de validação",
+        message: "Usuário ID é obrigatório.",
+      });
+      return;
+    }
+
+    try {
+      const usuario = await Usuario.findById(usuario_id);
+      if (!usuario) {
+        res.status(404).json({
+          status: "error",
+          title: "Usuário não encontrado",
+          message: "Usuário com o ID fornecido não existe.",
+        });
+        return;
+      }
+
+      const notificacoes = await Notificacao.find({ destino: usuario_id })
+        .sort({ createdAt: -1 })
+        .populate({
+          path: "origem",
+          select: "_id nome email",
+        })
+        .populate({
+          path: "destino",
+          select: "_id nome email",
+        })
+        .populate({
+          path: "episodio_referente",
+          select: "_id titulo",
+        });
+
+      res.status(200).json({
+        status: "success",
+        title: "Notificações do Usuário",
+        message: "Notificações encontradas com sucesso.",
+        notificacoes: notificacoes,
+      });
+    } catch (error) {
+      console.error("Erro ao buscar usuário:", error);
+      res.status(500).json({
+        status: "error",
+        title: "Erro interno do servidor",
+        message: "Erro ao buscar usuário.",
+      });
+      return;
+    }
+  }
+
+  async visualizarNotificacoes(req: Request, res: Response): Promise<void> {
+    const { usuario_id } = req.params;
+    const { ids } = req.body;
+
+    if (!usuario_id || !ids || !Array.isArray(ids)) {
+      res.status(400).json({
+        status: "error",
+        title: "Erro de validação",
+        message: "Usuário ID e IDs de notificações são obrigatórios.",
+      });
+      return;
+    }
+
+    try {
+      const usuario = await Usuario.findById(usuario_id);
+      if (!usuario) {
+        res.status(404).json({
+          status: "error",
+          title: "Usuário não encontrado",
+          message: "Usuário com o ID fornecido não existe.",
+        });
+        return;
+      }
+
+      // Atualiza as notificações para lidas
+      await Notificacao.updateMany(
+        { _id: { $in: ids }, destino: usuario_id },
+        { $set: { lida: true } }
+      );
+
+      res.status(200).json({
+        status: "success",
+        title: "Notificações visualizadas",
+        message: "Notificações atualizadas para lidas com sucesso.",
+      });
+    } catch (error) {
+      console.error("Erro ao atualizar notificações:", error);
+      res.status(500).json({
+        status: "error",
+        title: "Erro interno do servidor",
+        message: "Erro ao atualizar notificações.",
+      });
+    }
+  }
+
+  async adicionarFotoDePerfil(req: Request, res: Response): Promise<void> {
+    const { usuario_id } = req.params;
+
+    if (!req.file) {
+      res.status(400).json({
+        status: "error",
+        title: "Erro de validação",
+        message: "Arquivo de imagem é obrigatório.",
+      });
+      return;
+    }
+
+    try {
+      const usuario = await Usuario.findById(usuario_id);
+      if (!usuario) {
+        res.status(404).json({
+          status: "error",
+          title: "Usuário não encontrado",
+          message: "Usuário com o ID fornecido não existe.",
+        });
+        return;
+      }
+
+      usuario.profile_picture = req.file.path;
+      await usuario.save();
+
+      res.status(200).json({
+        status: "success",
+        title: "Foto de perfil atualizada",
+        message: "Foto de perfil atualizada com sucesso.",
+        usuarioAtualizado: {
+          id: usuario._id,
+          nome: usuario.nome,
+          email: usuario.email,
+          role: usuario.role,
+          profile_picture: usuario.profile_picture,
+          cover_picture: usuario.cover_picture,
+        },
+      });
+    } catch (error) {
+      console.error("Erro ao buscar usuário:", error);
+      res.status(500).json({
+        status: "error",
+        title: "Erro interno do servidor",
+        message: "Erro ao buscar usuário.",
+      });
+      return;
+    }
+  }
+
+  async getPodcastsPopulares(req: Request, res: Response): Promise<void> {
+    const { usuario_id } = req.params;
+
+    if (!usuario_id) {
+      res.status(400).json({
+        status: "error",
+        title: "Erro de validação",
+        message: "Usuário ID é obrigatório.",
+      });
+      return;
+    }
+
+    try {
+      const usuario = await Usuario.findById(usuario_id);
+      if (!usuario) {
+        res.status(404).json({
+          status: "error",
+          title: "Usuário não encontrado",
+          message: "Usuário com o ID fornecido não existe.",
+        });
+        return;
+      }
+
+      // Busca os podcasts mais populares do usuário
+      const podcastsPopulares = await Podcast.find({
+        autor: usuario_id,
+      })
+        .sort({ reproducoes: -1 })
+        .limit(10)
+        .populate("co_autores", "_id nome email")
+        .populate("autor", "_id nome email")
+        .populate("episodios", "_id titulo descricao audio_path");
+
+      res.status(200).json({
+        status: "success",
+        title: "Podcasts populares do usuário",
+        message: "Podcasts populares encontrados com sucesso.",
+        podcasts: podcastsPopulares,
+      });
+    } catch (error) {
+      console.error("Erro ao buscar podcasts populares:", error);
+      res.status(500).json({
+        status: "error",
+        title: "Erro interno do servidor",
+        message: "Erro ao buscar podcasts populares.",
+      });
+    }
+  }
+
+  async getPodcastsRecentes(req: Request, res: Response): Promise<void> {
+    const { usuario_id } = req.params;
+
+    if (!usuario_id) {
+      res.status(400).json({
+        status: "error",
+        title: "Erro de validação",
+        message: "Usuário ID é obrigatório.",
+      });
+      return;
+    }
+
+    try {
+      const usuario = await Usuario.findById(usuario_id);
+      if (!usuario) {
+        res.status(404).json({
+          status: "error",
+          title: "Usuário não encontrado",
+          message: "Usuário com o ID fornecido não existe.",
+        });
+        return;
+      }
+
+      // Busca os podcasts mais recentes do usuário
+      const podcastsRecentes = await Podcast.find({
+        autor: usuario_id,
+      })
+        .sort({ createdAt: -1 })
+        .limit(4)
+        .populate("co_autores", "_id nome email")
+        .populate("autor", "_id nome email")
+        .populate("episodios", "_id titulo descricao audio_path");
+
+      res.status(200).json({
+        status: "success",
+        title: "Podcasts recentes do usuário",
+        message: "Podcasts recentes encontrados com sucesso.",
+        podcasts: podcastsRecentes,
+      });
+    } catch (error) {
+      console.error("Erro ao buscar podcasts recentes:", error);
+      res.status(500).json({
+        status: "error",
+        title: "Erro interno do servidor",
+        message: "Erro ao buscar podcasts recentes.",
+      });
+    }
+  }
+
+  async alterarFotoDePerfil(req: Request, res: Response): Promise<void> {
+    const { usuario_id } = req.params;
+
+    if (!req.file) {
+      res.status(400).json({
+        status: "error",
+        title: "Erro de validação",
+        message: "Arquivo de imagem é obrigatório.",
+      });
+      return;
+    }
+
+    try {
+      const usuario = await Usuario.findById(usuario_id);
+      if (!usuario) {
+        res.status(404).json({
+          status: "error",
+          title: "Usuário não encontrado",
+          message: "Usuário com o ID fornecido não existe.",
+        });
+        return;
+      }
+      const filepath_sem_uploads = req.file.path.replace(/^uploads\//, "");
+      usuario.profile_picture = filepath_sem_uploads;
+      await usuario.save();
+
+      res.status(200).json({
+        status: "success",
+        title: "Foto de perfil alterada",
+        message: "Foto de perfil alterada com sucesso.",
+        usuarioAtualizado: {
+          profile_picture: usuario.profile_picture,
+        },
+      });
+    } catch (error) {
+      console.error("Erro ao alterar foto de perfil:", error);
+      res.status(500).json({
+        status: "error",
+        title: "Erro interno do servidor",
+        message: "Erro ao alterar foto de perfil.",
+      });
     }
   }
 }

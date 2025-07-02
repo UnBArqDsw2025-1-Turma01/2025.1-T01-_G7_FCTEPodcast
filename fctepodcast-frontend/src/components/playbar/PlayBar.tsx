@@ -68,14 +68,23 @@ const PlayBar = () => {
   }, [currentTime, duration]);
 
   const handleSliderChange = (value: number | number[]) => {
-    if (typeof value === "number") {
-      setSliderValue(value);
-      seek(value);
+    const numericValue = Array.isArray(value) ? value[0] : value;
+
+    // 1. Avisa que estamos no modo de arrastar (para pausar a atualização automática)
+    if (!isSeeking) {
+      setIsSeeking(true);
     }
+    // 2. Apenas atualiza o valor visual da bolinha do slider
+    setSliderValue(numericValue);
   };
 
-  const handleSliderRelease = () => {
-    seek(sliderValue);
+  const handleSliderChangeEnd = (value: number | number[]) => {
+    const numericValue = Array.isArray(value) ? value[0] : value;
+
+    // 1. Envia o comando de seek UMA VEZ com o valor final
+    seek(numericValue);
+
+    // 2. Avisa que terminamos o arraste
     setIsSeeking(false);
   };
 
@@ -232,10 +241,19 @@ const PlayBar = () => {
           <p className="font-semibold">
             {episode_data?.titulo || "Nenhum Episódio Selecionado"}
           </p>
+          {referenceData?.reference_data.autor ? (
+            <p
+              onClick={() =>
+                navigate(`/perfil/${referenceData.reference_data.autor._id}`)
+              }
+              className="text-xs text-gray-400 cursor-pointer hover:underline"
+            >
+              {referenceData?.reference_data.autor.nome}
+            </p>
+          ) : (
+            <p className="text-xs text-gray-400">Autor Desconhecido</p>
+          )}
 
-          <p className="text-xs text-gray-400">
-            {referenceData?.reference_data.autor.nome || "Autor Desconhecido"}
-          </p>
           <p className="text-xs text-gray-400 italic">
             {referenceData?.reference_data.tags.join(", ")}
           </p>
@@ -310,13 +328,10 @@ const PlayBar = () => {
               maxValue={duration}
               step={0.1}
               value={sliderValue}
-              onChange={(value) =>
-                Array.isArray(value)
-                  ? handleSliderChange(value[0])
-                  : handleSliderChange(value)
-              }
-              onMouseUp={handleSliderRelease}
-              onTouchEnd={handleSliderRelease}
+              // MUDANÇA: onChange é para a atualização VISUAL durante o arraste
+              onChange={handleSliderChange}
+              // MUDANÇA: onChangeEnd é para a AÇÃO FINAL após soltar
+              onChangeEnd={handleSliderChangeEnd}
               size="sm"
             />
           )}

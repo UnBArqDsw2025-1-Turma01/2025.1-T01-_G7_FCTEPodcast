@@ -8,6 +8,7 @@ import { EpisodioController } from "../../controller/EpisodioController";
 import { ArchiveAdapter, ArchiveFileSystem } from "../../adapter/ImageAdapter";
 import { AuthFacade } from "../../facade/AuthFacade";
 import { JWTService } from "../../services/JWTService";
+import { uploadProfile } from "../../middleware/multer/profileMulter";
 
 const usuario_router = express.Router();
 
@@ -60,6 +61,14 @@ usuario_router.get(
   authFacade.handleSecureRequest(
     ["PROFESSOR", "ALUNO"],
     podcast_controller.listarPodcastsUsuario
+  )
+);
+
+usuario_router.get(
+  "/podcast/:podcast_id",
+  authFacade.handleSecureRequest(
+    ["PROFESSOR", "ALUNO"],
+    podcast_controller.getPodcastById
   )
 );
 
@@ -137,6 +146,66 @@ usuario_router.post(
   authFacade.handleSecureRequest(
     ["PROFESSOR", "ALUNO"],
     episodio_controller.responderComentario
+  )
+);
+
+// notificacoes
+usuario_router.get(
+  "/notificacoes/:usuario_id",
+  authFacade.handleSecureRequest(
+    ["PROFESSOR"],
+    usuario_controller.getNotificacoes
+  )
+);
+
+usuario_router.post(
+  "/notificacoes/:usuario_id/visualizar",
+  authFacade.handleSecureRequest(
+    ["PROFESSOR"],
+    usuario_controller.visualizarNotificacoes
+  )
+);
+
+// perfil
+usuario_router.post(
+  "/perfil/:usuario_id/upload/foto",
+  uploadProfile.single("profile_picture"),
+  authFacade.handleSecureRequest(
+    ["PROFESSOR", "ALUNO"],
+    usuario_controller.adicionarFotoDePerfil
+  )
+);
+
+usuario_router.get(
+  "/perfil/:usuario_id",
+  authFacade.handleSecureRequest(
+    ["PROFESSOR", "ALUNO"],
+    usuario_controller.getPerfilUsuario
+  )
+);
+
+usuario_router.get(
+  "/perfil/:usuario_id/populares",
+  authFacade.handleSecureRequest(
+    ["PROFESSOR", "ALUNO"],
+    usuario_controller.getPodcastsPopulares
+  )
+);
+
+usuario_router.get(
+  "/perfil/:usuario_id/recentes",
+  authFacade.handleSecureRequest(
+    ["PROFESSOR", "ALUNO"],
+    usuario_controller.getPodcastsRecentes
+  )
+);
+
+usuario_router.post(
+  "/perfil/:usuario_id/alterar/foto",
+  uploadProfile.single("profile_picture"),
+  authFacade.handleSecureRequest(
+    ["PROFESSOR", "ALUNO"],
+    usuario_controller.alterarFotoDePerfil
   )
 );
 
