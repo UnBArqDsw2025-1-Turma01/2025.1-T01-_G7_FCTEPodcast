@@ -6,6 +6,8 @@ import jwt from "jsonwebtoken";
 import Episodio from "../models/Episodio";
 import { Notificacao } from "../models/Notificacao";
 import Podcast from "../models/Podcast";
+import path from "path";
+import fs from "fs";
 
 export class UsuarioController {
   async getUsuarioById_Internal(id: string) {
@@ -670,6 +672,13 @@ export class UsuarioController {
         });
         return;
       }
+      if (usuario.profile_picture) {
+        const caminhoAntigo = path.join("uploads", usuario.profile_picture);
+        if (fs.existsSync(caminhoAntigo)) {
+          fs.unlinkSync(caminhoAntigo);
+        }
+      }
+
       const filepath_sem_uploads = req.file.path.replace(/^uploads\//, "");
       usuario.profile_picture = filepath_sem_uploads;
       await usuario.save();
