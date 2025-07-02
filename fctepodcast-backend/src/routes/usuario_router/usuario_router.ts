@@ -200,6 +200,15 @@ usuario_router.get(
   )
 );
 
+usuario_router.post(
+  "/perfil/:usuario_id/alterar/foto",
+  uploadProfile.single("profile_picture"),
+  authFacade.handleSecureRequest(
+    ["PROFESSOR", "ALUNO"],
+    usuario_controller.alterarFotoDePerfil
+  )
+);
+
 usuario_router.get("/image/", async (req, res) => {
   const { path: imagePath } = req.query;
 

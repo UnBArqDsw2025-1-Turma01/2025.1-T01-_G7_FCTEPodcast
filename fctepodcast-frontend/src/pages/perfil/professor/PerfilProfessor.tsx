@@ -1,3 +1,4 @@
+import { Divider } from "@heroui/react";
 import PodcastCard from "../../../components/home/cards/CriarCardsPodcast";
 import PodcastSmallCard from "../../../components/podcast-small-card/PodcastSmallCard";
 import { usePlayer } from "../../../context/player/PlayerContext";
@@ -18,7 +19,10 @@ const PerfilProfessor = ({ usuario_id }: { usuario_id: string }) => {
         )}
         {podcastsPopulares.length !== 0 &&
           podcastsPopulares.map((podcast, index: number) => (
-            <PodcastSmallCard podcast={podcast} index={index + 1} />
+            <>
+              <PodcastSmallCard podcast={podcast} index={index + 1} />
+              <Divider />
+            </>
           ))}
       </div>
       <h2 className="font-bold text-2xl">Podcasts Recentes</h2>

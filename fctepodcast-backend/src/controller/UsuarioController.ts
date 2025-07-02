@@ -647,4 +647,48 @@ export class UsuarioController {
       });
     }
   }
+
+  async alterarFotoDePerfil(req: Request, res: Response): Promise<void> {
+    const { usuario_id } = req.params;
+
+    if (!req.file) {
+      res.status(400).json({
+        status: "error",
+        title: "Erro de validação",
+        message: "Arquivo de imagem é obrigatório.",
+      });
+      return;
+    }
+
+    try {
+      const usuario = await Usuario.findById(usuario_id);
+      if (!usuario) {
+        res.status(404).json({
+          status: "error",
+          title: "Usuário não encontrado",
+          message: "Usuário com o ID fornecido não existe.",
+        });
+        return;
+      }
+      const filepath_sem_uploads = req.file.path.replace(/^uploads\//, "");
+      usuario.profile_picture = filepath_sem_uploads;
+      await usuario.save();
+
+      res.status(200).json({
+        status: "success",
+        title: "Foto de perfil alterada",
+        message: "Foto de perfil alterada com sucesso.",
+        usuarioAtualizado: {
+          profile_picture: usuario.profile_picture,
+        },
+      });
+    } catch (error) {
+      console.error("Erro ao alterar foto de perfil:", error);
+      res.status(500).json({
+        status: "error",
+        title: "Erro interno do servidor",
+        message: "Erro ao alterar foto de perfil.",
+      });
+    }
+  }
 }

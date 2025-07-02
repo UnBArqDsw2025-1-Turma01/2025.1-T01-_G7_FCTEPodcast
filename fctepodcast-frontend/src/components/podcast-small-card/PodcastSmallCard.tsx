@@ -47,7 +47,7 @@ const PodcastSmallCard = ({
   }, [podcast?.imagem_path]);
 
   return (
-    <div className="bg-content1 p-2 rounded-2xl flex gap-4 items-center justify-between">
+    <div className=" p-2 rounded-2xl flex gap-4 items-center justify-between">
       <div className="flex items-center gap-4">
         <span className="text-gray-500">{index}</span>
         <Image

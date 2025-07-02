@@ -163,7 +163,10 @@ const PodcastCard = ({
                       Ver detalhes
                     </span>
                   </DropdownItem>
-                  <DropdownItem key={"ver-autor"}>
+                  <DropdownItem
+                    key={"ver-autor"}
+                    onPress={() => navigate(`/perfil/${podcast.autor._id}`)}
+                  >
                     <span className="flex items-center gap-2">
                       <FaGraduationCap />
                       Ver Autor

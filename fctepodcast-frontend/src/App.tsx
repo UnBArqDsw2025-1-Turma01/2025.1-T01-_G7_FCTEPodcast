@@ -15,6 +15,7 @@ import Curtidas from "./pages/curtidas/Curtidas";
 import DetalhesPodcast from "./pages/detalhes-podcast/DetalhesPodcast";
 import Notificacoes from "./pages/notificacoes/Notificacoes";
 import Perfil from "./pages/perfil/Perfil";
+import EditarPerfil from "./pages/editar-perfil/EditarPerfil";
 
 function App() {
   return (
@@ -60,6 +61,8 @@ function App() {
           />
 
           <Route path="/studio/notificacoes" element={<Notificacoes />} />
+
+          <Route path="/usuario/perfil/editar" element={<EditarPerfil />} />
         </Route>
 
         {/* rotas especiais */}

@@ -20,11 +20,51 @@ import { useNavigate } from "react-router";
 import { IoIosNotifications } from "react-icons/io";
 import { useNotifications } from "../../context/notifications/NotificationsContext";
 
+import { useEffect, useState } from "react";
+import { getImageUrlFromPath } from "../../hooks/static/useImageFromPath";
+
 const NavBar = () => {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
 
   const { notifications } = useNotifications();
+  const [imageBlobUrl, setImageBlobUrl] = useState<string>("");
+
+  useEffect(() => {
+    let isActive = true;
+    let objectUrl: string | null = null;
+
+    async function fetchImage() {
+      if (!user?.profile_picture) {
+        setImageBlobUrl("");
+        return;
+      }
+
+      try {
+        const url = await getImageUrlFromPath(user.profile_picture);
+        if (isActive) {
+          setImageBlobUrl(url);
+          objectUrl = url;
+        } else {
+          // Se já não está ativo, revoga a URL criada para evitar vazamento
+          URL.revokeObjectURL(url);
+        }
+      } catch {
+        if (isActive) {
+          setImageBlobUrl("");
+        }
+      }
+    }
+
+    fetchImage();
+
+    return () => {
+      isActive = false;
+      if (objectUrl) {
+        URL.revokeObjectURL(objectUrl);
+      }
+    };
+  }, [user?.profile_picture]);
 
   return (
     <Navbar className="bg-primary-50">
@@ -53,7 +93,7 @@ const NavBar = () => {
         <Dropdown backdrop="blur" className="cursor-pointer">
           <DropdownTrigger>
             <button>
-              <Avatar />
+              <Avatar src={imageBlobUrl} />
             </button>
           </DropdownTrigger>
           <DropdownMenu
