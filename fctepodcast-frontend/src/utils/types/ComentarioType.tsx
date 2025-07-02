@@ -4,6 +4,7 @@ export interface ComentarioType {
     _id: string;
     nome: string;
     email: string;
+    profile_picture?: string; // URL da imagem de perfil do usuário
   };
   conteudo: string;
   episodio: string; // ID do episódio ao qual o comentário pertence
@@ -15,9 +16,9 @@ export interface ComentarioType {
       _id: string;
       nome: string;
       email: string;
-      __t: string; // Tipo de usuário, por exemplo, "ALUNO", "PROFESSOR", etc.
+      __t: string;
     };
   }[]; // Respostas a este comentário
   createdAt?: string; // Data de criação do comentário
-  tag: string; // Tag do comentário, por exemplo, "comentario", "resposta", etc.
+  tag: string;
 }

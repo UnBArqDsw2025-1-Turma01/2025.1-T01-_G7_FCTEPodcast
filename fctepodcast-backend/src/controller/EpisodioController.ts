@@ -9,6 +9,7 @@ import Comentario from "../models/Comentario";
 import { Notificacao } from "../models/Notificacao";
 import { user_connections } from "../app";
 import { io } from "../app";
+
 export class EpisodioController {
   async criarEpisodio(req: Request, res: Response): Promise<void> {
     const { titulo, descricao, podcast_reference } = req.body;
@@ -307,7 +308,7 @@ export class EpisodioController {
       populate: [
         {
           path: "usuario",
-          select: "nome email",
+          select: "nome email profile_picture",
         },
         {
           path: "respostas",
@@ -503,6 +504,7 @@ export class EpisodioController {
               _id: usuario._id,
               nome: usuario.nome,
               email: usuario.email,
+              profile_picture: usuario.profile_picture,
             },
             conteudo: novaNotificacao.conteudo,
             episodio_referente: {
@@ -634,6 +636,7 @@ export class EpisodioController {
             _id: usuario._id,
             nome: usuario.nome,
             email: usuario.email,
+            profile_picture: usuario.profile_picture,
           },
           tag: tag, // adiciona a tag à resposta
           episodio: episodio._id,

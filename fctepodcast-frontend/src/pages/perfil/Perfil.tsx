@@ -7,6 +7,7 @@ import { AxiosInstace } from "../../utils/axios/AxiosInstance";
 import { useAuth } from "../../context/auth/AuthContext";
 import PerfilProfessor from "./professor/PerfilProfessor";
 import { motion } from "framer-motion";
+import PerfilAluno from "./aluno/PerfilAluno";
 
 interface Usuario {
   nome: string;
@@ -127,8 +128,10 @@ const Perfil = () => {
         animate={{ opacity: 1 }}
         transition={{ duration: 0.6, delay: 0.7 }}
       >
-        {usuario?.role === "PROFESSOR" && usuario_id && (
+        {usuario?.role === "PROFESSOR" && usuario_id ? (
           <PerfilProfessor usuario_id={usuario_id} />
+        ) : (
+          <PerfilAluno />
         )}
       </motion.div>
     </div>
