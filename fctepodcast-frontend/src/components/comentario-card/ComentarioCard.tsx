@@ -78,7 +78,7 @@ const ComentarioCard = ({
       }
     };
   }, [comentario.usuario._id, comentario.usuario.profile_picture]);
-  console.log(comentario.usuario.profile_picture);
+
   return (
     <motion.div
       ref={ref}
@@ -88,7 +88,7 @@ const ComentarioCard = ({
       className="bg-primary-100 p-4 rounded-xl flex flex-col gap-4"
     >
       <div className="flex gap-2   items-center">
-        <Avatar src={imageBlobUrl} />
+        <Avatar size="lg" src={imageBlobUrl} />
         <div className="flex flex-col gap-2">
           <div className="flex items-center gap-2">
             <div className="flex flex-col">

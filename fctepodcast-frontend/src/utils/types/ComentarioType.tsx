@@ -17,6 +17,7 @@ export interface ComentarioType {
       nome: string;
       email: string;
       __t: string;
+      profile_picture?: string; // URL da imagem de perfil do usuário que respondeu
     };
   }[]; // Respostas a este comentário
   createdAt?: string; // Data de criação do comentário

@@ -144,6 +144,8 @@ const ComentariosEpisodio = () => {
                             "Usuário Anônimo",
                           email: response.data.data.usuario.email || "",
                           __t: response.data.data.usuario.__t || "ALUNO", // Tipo de usuário, por exemplo, "ALUNO", "PROFESSOR", etc.
+                          profile_picture:
+                            response.data.data.usuario.profile_picture || "",
                         },
                         createdAt: new Date().toISOString(),
                       },
@@ -188,6 +190,7 @@ const ComentariosEpisodio = () => {
                   _id: user?.id || "",
                   nome: user?.nome || "Usuário Anônimo",
                   email: user?.email || "",
+                  profile_picture: user?.profile_picture || "",
                 },
                 conteudo: textoComentario,
                 episodio: episodio_id,

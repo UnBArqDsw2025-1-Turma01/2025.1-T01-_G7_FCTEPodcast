@@ -315,7 +315,7 @@ export class EpisodioController {
           select: "conteudo usuario createdAt",
           populate: {
             path: "usuario",
-            select: "nome email",
+            select: "nome email profile_picture",
           },
         },
       ],
