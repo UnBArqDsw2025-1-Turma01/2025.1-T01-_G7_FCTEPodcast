@@ -73,7 +73,7 @@ const Perfil = () => {
   console.log(usuario);
 
   return (
-    <div className="h-screen flex flex-col gap-4">
+    <div className=" flex flex-col gap-4">
       <motion.div
         initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}
@@ -82,22 +82,22 @@ const Perfil = () => {
       >
         {/* Fundo com imagem e blur */}
         <div
-          className="absolute inset-0 bg-cover bg-center"
+          className="absolute inset-0 bg-cover bg-center z-0"
           style={{
-            backgroundImage: `url(${imageBlobUrl})`,
+            backgroundImage: `url(${imageBlobUrl || "/placeholder.png"})`,
             filter: "blur(10px)",
           }}
         />
 
         {/* Camada semi-transparente para reforçar contraste */}
-        <div className="absolute inset-0 bg-black/20" />
+        <div className="absolute inset-0 bg-black/20 z-10" />
 
         {/* Conteúdo sobre o fundo */}
         <motion.div
           initial={{ scale: 0 }}
           animate={{ scale: 1 }}
           transition={{ duration: 0.5, delay: 0.2 }}
-          className="relative"
+          className="relative z-20"
         >
           <Image
             className="rounded-full h-36 object-cover shadow-md"
@@ -112,7 +112,7 @@ const Perfil = () => {
           initial={{ opacity: 0, x: -20 }}
           animate={{ opacity: 1, x: 0 }}
           transition={{ duration: 0.5, delay: 0.4 }}
-          className="relative flex flex-col gap-2"
+          className="relative flex flex-col gap-2 z-20"
         >
           <h2 className="font-bold text-2xl">{usuario?.nome}</h2>
           <p>{usuario?.email}</p>
@@ -137,6 +137,7 @@ const Perfil = () => {
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ duration: 0.6, delay: 0.7 }}
+        className="mb-8"
       >
         {usuario?.role === "PROFESSOR" && usuario_id ? (
           <PerfilProfessor usuario_id={usuario_id} />
