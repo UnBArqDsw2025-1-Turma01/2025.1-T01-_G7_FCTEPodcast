@@ -1,7 +1,8 @@
 import { Request, Response } from "express";
 import Podcast from "../models/Podcast";
 import { ConcretePodcastBuilder } from "../builder/Podcast/PodcastBuilder";
-
+import fs from "fs";
+import Episodio from "../models/Episodio";
 export class PodcastController {
   async criarPodcast(req: Request, res: Response): Promise<void> {
     const { titulo, descricao, autor, co_autores, tags } = req.body;
@@ -159,6 +160,66 @@ export class PodcastController {
             : "Erro desconhecido ao buscar o podcast.",
       });
       return;
+    }
+  }
+
+  async deletarPodcast(req: Request, res: Response): Promise<void> {
+    const { podcast_id } = req.params;
+    if (!podcast_id) {
+      res.status(400).json({
+        status: "error",
+        title: "ID de podcast ausente",
+        message: "O ID do podcast é obrigatório.",
+      });
+      return;
+    }
+
+    try {
+      const podcast = await Podcast.findById(podcast_id).populate("episodios");
+      if (!podcast) {
+        res.status(404).json({
+          status: "error",
+          title: "Podcast não encontrado",
+          message: "Nenhum podcast encontrado com o ID fornecido.",
+        });
+        return;
+      }
+
+      // Deletar episódios associados
+      for (const episodio of podcast.episodios) {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        if (fs.existsSync((podcast.episodios as any).audio_path as string)) {
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          fs.unlinkSync((podcast.episodios as any).audio_path as string);
+        }
+        await Episodio.findByIdAndDelete(episodio._id);
+      }
+
+      // Deletar imagem do podcast
+      if (podcast.imagem_path) {
+        if (fs.existsSync(podcast.imagem_path as string)) {
+          fs.unlinkSync(podcast.imagem_path as string);
+        }
+      }
+
+      // Deletar o próprio podcast
+      await Podcast.findByIdAndDelete(podcast_id);
+
+      res.status(200).json({
+        status: "success",
+        title: "Podcast deletado com sucesso",
+        message: "Podcast deletado com sucesso!",
+      });
+    } catch (error) {
+      console.error("Erro ao deletar podcast:", error);
+      res.status(500).json({
+        status: "error",
+        title: "Erro interno do servidor",
+        message:
+          error instanceof Error
+            ? error.message
+            : "Erro desconhecido ao deletar o podcast.",
+      });
     }
   }
 }

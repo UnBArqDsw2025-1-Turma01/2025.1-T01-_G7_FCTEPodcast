@@ -655,4 +655,67 @@ export class EpisodioController {
       });
     }
   }
+
+  async deletarEpisodio(req: Request, res: Response): Promise<void> {
+    const { episodio_id } = req.params;
+    if (!episodio_id) {
+      res.status(400).json({
+        status: "error",
+        title: "ID de episódio ausente",
+        message: "O ID do episódio é obrigatório.",
+      });
+      return;
+    }
+
+    const episodio = await Episodio.findById(episodio_id);
+    if (!episodio) {
+      res.status(404).json({
+        status: "error",
+        title: "Episódio não encontrado",
+        message: "O episódio referenciado não foi encontrado.",
+      });
+      return;
+    }
+
+    const podcast = await Podcast.findById(episodio.podcast_reference);
+    if (!podcast) {
+      res.status(404).json({
+        status: "error",
+        title: "Podcast não encontrado",
+        message: "O podcast referenciado não foi encontrado.",
+      });
+      return;
+    }
+
+    // Deletar o arquivo de áudio do episódio
+    if (episodio.audio_path) {
+      if (fs.existsSync(episodio.audio_path)) {
+        fs.unlinkSync(episodio.audio_path);
+      }
+    }
+
+    // Deletar o episódio do banco de dados
+    try {
+      await Episodio.findByIdAndDelete(episodio_id);
+      podcast.episodios.pull(episodio_id);
+      await podcast.save();
+
+      res.status(200).json({
+        status: "success",
+        title: "Episódio deletado com sucesso",
+        message: "Episódio deletado com sucesso!",
+      });
+    } catch (error) {
+      console.error("Erro ao deletar episódio:", error);
+      res.status(500).json({
+        status: "error",
+        title: "Erro interno do servidor",
+        message:
+          error instanceof Error
+            ? error.message
+            : "Erro desconhecido ao deletar o episódio.",
+      });
+      return;
+    }
+  }
 }

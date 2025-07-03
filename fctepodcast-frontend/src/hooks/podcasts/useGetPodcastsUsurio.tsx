@@ -6,9 +6,10 @@ import { AxiosInstace } from "../../utils/axios/AxiosInstance";
 export function useGetPodcastsUsuario(usuario_id: string) {
   const [podcasts, setPodcasts] = useState<PodcastType[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
-
+  console.log(podcasts);
   const fetchPodcasts = async () => {
     setLoading(true);
+    setPodcasts([]);
     try {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const response: any = await AxiosInstace.get(
@@ -38,5 +39,5 @@ export function useGetPodcastsUsuario(usuario_id: string) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [usuario_id]);
 
-  return { podcasts, loading, fetchPodcasts };
+  return { podcasts, loading, fetchPodcasts, setPodcasts };
 }

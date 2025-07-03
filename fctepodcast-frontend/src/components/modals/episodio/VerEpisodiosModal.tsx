@@ -17,10 +17,12 @@ const VerEpisodiosModal = ({
   isOpen,
   onOpenChange,
   podcast_reference,
+  refresh_function,
 }: {
   isOpen: boolean;
   onOpenChange: (isOpen: boolean) => void;
   podcast_reference: PodcastType;
+  refresh_function: () => void;
 }) => {
   const [imageBlobUrl, setImageBlobUrl] = useState<string | null>(null);
 
@@ -111,6 +113,7 @@ const VerEpisodiosModal = ({
                     <EpisodioStudioCard
                       episodio={episodio}
                       image_blob_url={imageBlobUrl}
+                      refresh_function={refresh_function}
                     />
                   </motion.div>
                 ))}
