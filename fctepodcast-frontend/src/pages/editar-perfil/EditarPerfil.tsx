@@ -1,7 +1,6 @@
 import { Button, Image, Input } from "@heroui/react";
 import { useAuth } from "../../context/auth/AuthContext";
 import no_photo from "../../assets/no_image_base/icon-7797704_640.png";
-import no_cover from "../../assets/no_image_base/Gemini_Generated_Image_obzlrgobzlrgobzl.png";
 import { useEffect, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { AxiosInstace } from "../../utils/axios/AxiosInstance";
@@ -97,7 +96,7 @@ const EditarPerfil = () => {
       </motion.h2>
 
       <motion.div
-        className="w-[60%] flex flex-col md:flex-row justify-between items-center gap-8 p-6 rounded-xl shadow-lg bg-content1"
+        className=" flex flex-col md:flex-row justify-between items-center gap-8 p-6 rounded-xl shadow-lg bg-content1"
         initial={{ opacity: 0, scale: 0.9 }}
         animate={{ opacity: 1, scale: 1 }}
         transition={{ duration: 0.5, delay: 0.2 }}
@@ -136,22 +135,6 @@ const EditarPerfil = () => {
               </motion.div>
             )}
           </AnimatePresence>
-        </motion.div>
-
-        {/* Foto de Fundo */}
-        <motion.div
-          className="flex flex-col gap-4 items-center"
-          initial={{ opacity: 0, y: -10 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.4, delay: 0.6 }}
-        >
-          <h3 className="text-xl font-semibold">Foto de Fundo</h3>
-          <Image
-            className="w-72 h-40 rounded-lg object-cover shadow-md"
-            src={user?.cover_picture || no_cover}
-            alt="Foto de fundo"
-          />
-          <Input type="file" />
         </motion.div>
       </motion.div>
 
