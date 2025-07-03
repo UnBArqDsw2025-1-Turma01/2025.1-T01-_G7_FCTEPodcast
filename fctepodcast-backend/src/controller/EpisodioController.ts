@@ -708,6 +708,21 @@ export class EpisodioController {
       }
     }
 
+    // deletar notificacoes
+    await Notificacao.deleteMany({
+      episodio_referente: episodio_id,
+    });
+
+    // atualizar as notificacoes do socket
+    // Notificar o autor que as notificações foram atualizadas
+    const sockets = user_connections.get(podcast?.autor?.toString());
+    if (sockets && sockets.length > 0) {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      sockets.forEach((socketId: any) => {
+        io.to(socketId).emit("atualizar_notificacoes");
+      });
+    }
+
     // Deletar o episódio do banco de dados
     try {
       await Episodio.findByIdAndDelete(episodio_id);
