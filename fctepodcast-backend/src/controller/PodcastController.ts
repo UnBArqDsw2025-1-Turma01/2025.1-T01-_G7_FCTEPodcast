@@ -3,6 +3,8 @@ import Podcast from "../models/Podcast";
 import { ConcretePodcastBuilder } from "../builder/Podcast/PodcastBuilder";
 import fs from "fs";
 import Episodio from "../models/Episodio";
+import { Notificacao } from "../models/Notificacao";
+import { io, user_connections } from "../app";
 export class PodcastController {
   async criarPodcast(req: Request, res: Response): Promise<void> {
     const { titulo, descricao, autor, co_autores, tags } = req.body;
@@ -187,6 +189,10 @@ export class PodcastController {
 
       // Deletar episódios associados
       for (const episodio of podcast.episodios) {
+        await Notificacao.deleteMany({
+          episodio: episodio._id,
+        });
+
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         if (fs.existsSync((podcast.episodios as any).audio_path as string)) {
           // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -204,6 +210,14 @@ export class PodcastController {
 
       // Deletar o próprio podcast
       await Podcast.findByIdAndDelete(podcast_id);
+
+      const sockets = user_connections.get(podcast.autor?.toString());
+      if (sockets && sockets.length > 0) {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        sockets.forEach((socketId: any) => {
+          io.to(socketId).emit("atualizar_notificacoes");
+        });
+      }
 
       res.status(200).json({
         status: "success",
