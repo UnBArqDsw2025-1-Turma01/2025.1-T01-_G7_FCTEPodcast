@@ -1,16 +1,20 @@
-import { FaComments } from "react-icons/fa";
+import { FaComments, FaTrash } from "react-icons/fa";
 import type { EpisodioType } from "../../utils/types/EpisodioType";
-import { Button, Image } from "@heroui/react";
+import { Button, Image, useDisclosure } from "@heroui/react";
 import { useNavigate } from "react-router";
+import DeletarEpisodioModal from "../modals/episodio/DeletarEpisodioModal";
 
 const EpisodioStudioCard = ({
   episodio,
   image_blob_url,
+  refresh_function,
 }: {
   episodio: EpisodioType;
   image_blob_url: string | null;
+  refresh_function: () => void;
 }) => {
   const navigate = useNavigate();
+  const { isOpen, onOpen, onOpenChange } = useDisclosure();
   return (
     <div className="bg-primary-50 p-2 rounded-xl h-24">
       <div className="flex gap-4">
@@ -35,7 +39,7 @@ const EpisodioStudioCard = ({
           </div>
         </div>
 
-        <div className="flex items-center justify-center">
+        <div className="flex items-center justify-center gap-2">
           <Button
             onPress={() => navigate(`/${episodio?._id}/comentarios`)}
             isIconOnly
@@ -43,8 +47,24 @@ const EpisodioStudioCard = ({
           >
             <FaComments />
           </Button>
+
+          <Button
+            onPress={onOpen}
+            isIconOnly
+            color="danger"
+            className="text-white"
+          >
+            <FaTrash />
+          </Button>
         </div>
       </div>
+
+      <DeletarEpisodioModal
+        onOpenChange={onOpenChange}
+        isOpen={isOpen}
+        episodio={episodio}
+        refresh_function={refresh_function}
+      />
     </div>
   );
 };

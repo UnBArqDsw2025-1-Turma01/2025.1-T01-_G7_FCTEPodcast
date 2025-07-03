@@ -1,9 +1,10 @@
-import { useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import type { ComentarioType } from "../../utils/types/ComentarioType";
 import { Avatar, Button, Chip } from "@heroui/react";
 import { FaBook, FaComment, FaGraduationCap } from "react-icons/fa";
 import { motion, useInView } from "framer-motion";
 import RespostaCard from "../resposta-card/RespostaCard";
+import { getImageUrlFromPath } from "../../hooks/static/useImageFromPath";
 
 type Tag = "autor" | "monitor" | "ouvinte";
 type ColorType =
@@ -38,6 +39,46 @@ const ComentarioCard = ({
   const ref = useRef(null);
   const isInView = useInView(ref, { once: true, margin: "-100px" });
 
+  const [imageBlobUrl, setImageBlobUrl] = useState<string>("");
+
+  useEffect(() => {
+    let isActive = true;
+    let objectUrl: string | null = null;
+
+    async function fetchImage() {
+      if (!comentario.usuario._id) {
+        setImageBlobUrl("");
+        return;
+      }
+
+      try {
+        const url = await getImageUrlFromPath(
+          comentario.usuario.profile_picture
+        );
+        if (isActive) {
+          setImageBlobUrl(url);
+          objectUrl = url;
+        } else {
+          // Se já não está ativo, revoga a URL criada para evitar vazamento
+          URL.revokeObjectURL(url);
+        }
+      } catch {
+        if (isActive) {
+          setImageBlobUrl("");
+        }
+      }
+    }
+
+    fetchImage();
+
+    return () => {
+      isActive = false;
+      if (objectUrl) {
+        URL.revokeObjectURL(objectUrl);
+      }
+    };
+  }, [comentario.usuario._id, comentario.usuario.profile_picture]);
+
   return (
     <motion.div
       ref={ref}
@@ -47,7 +88,7 @@ const ComentarioCard = ({
       className="bg-primary-100 p-4 rounded-xl flex flex-col gap-4"
     >
       <div className="flex gap-2   items-center">
-        <Avatar size="lg" />
+        <Avatar size="lg" src={imageBlobUrl} />
         <div className="flex flex-col gap-2">
           <div className="flex items-center gap-2">
             <div className="flex flex-col">

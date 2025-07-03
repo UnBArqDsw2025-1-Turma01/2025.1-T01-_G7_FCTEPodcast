@@ -48,6 +48,15 @@ usuario_router.post("/login", usuario_controller.login);
 usuario_router.post("/logout", usuario_controller.logout);
 usuario_router.post("/refresh", usuario_controller.refresh_session);
 
+// usuarios
+usuario_router.get(
+  "/criadores",
+  authFacade.handleSecureRequest(
+    ["PROFESSOR", "ALUNO"],
+    usuario_controller.getCriadores
+  )
+);
+
 // professor
 usuario_router.post(
   "/podcast/criar",
@@ -56,6 +65,14 @@ usuario_router.post(
 );
 
 // podcasts
+usuario_router.get(
+  "/podcasts/em-alta",
+  authFacade.handleSecureRequest(
+    ["PROFESSOR", "ALUNO"],
+    podcast_controller.getPodcastsEmAlta
+  )
+);
+
 usuario_router.get(
   "/podcasts/:usuario_id",
   authFacade.handleSecureRequest(
@@ -72,10 +89,19 @@ usuario_router.get(
   )
 );
 
+usuario_router.delete(
+  "/podcast/:podcast_id",
+  authFacade.handleSecureRequest(
+    ["PROFESSOR"],
+    podcast_controller.deletarPodcast
+  )
+);
+
 // rota publica para obter todos os podcasts TEMPORARIA
 usuario_router.get("/podcasts", podcast_controller.listarTodosPodcasts);
 
 // episodios
+
 usuario_router.post(
   "/episodio/criar",
   upload.single("audio"),
@@ -105,6 +131,14 @@ usuario_router.post(
   authFacade.handleSecureRequest(
     ["PROFESSOR", "ALUNO"],
     episodio_controller.likeEpisodio
+  )
+);
+
+usuario_router.delete(
+  "/episodio/:episodio_id",
+  authFacade.handleSecureRequest(
+    ["PROFESSOR"],
+    episodio_controller.deletarEpisodio
   )
 );
 

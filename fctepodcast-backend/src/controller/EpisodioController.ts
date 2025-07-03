@@ -9,6 +9,7 @@ import Comentario from "../models/Comentario";
 import { Notificacao } from "../models/Notificacao";
 import { user_connections } from "../app";
 import { io } from "../app";
+
 export class EpisodioController {
   async criarEpisodio(req: Request, res: Response): Promise<void> {
     const { titulo, descricao, podcast_reference } = req.body;
@@ -307,14 +308,14 @@ export class EpisodioController {
       populate: [
         {
           path: "usuario",
-          select: "nome email",
+          select: "nome email profile_picture",
         },
         {
           path: "respostas",
           select: "conteudo usuario createdAt",
           populate: {
             path: "usuario",
-            select: "nome email",
+            select: "nome email profile_picture",
           },
         },
       ],
@@ -503,6 +504,7 @@ export class EpisodioController {
               _id: usuario._id,
               nome: usuario.nome,
               email: usuario.email,
+              profile_picture: usuario.profile_picture,
             },
             conteudo: novaNotificacao.conteudo,
             episodio_referente: {
@@ -634,6 +636,7 @@ export class EpisodioController {
             _id: usuario._id,
             nome: usuario.nome,
             email: usuario.email,
+            profile_picture: usuario.profile_picture,
           },
           tag: tag, // adiciona a tag à resposta
           episodio: episodio._id,
@@ -650,6 +653,98 @@ export class EpisodioController {
             ? error.message
             : "Erro desconhecido ao adicionar a resposta.",
       });
+    }
+  }
+
+  async deletarEpisodio(req: Request, res: Response): Promise<void> {
+    const { episodio_id } = req.params;
+    if (!episodio_id) {
+      res.status(400).json({
+        status: "error",
+        title: "ID de episódio ausente",
+        message: "O ID do episódio é obrigatório.",
+      });
+      return;
+    }
+
+    const episodio = await Episodio.findById(episodio_id);
+    if (!episodio) {
+      res.status(404).json({
+        status: "error",
+        title: "Episódio não encontrado",
+        message: "O episódio referenciado não foi encontrado.",
+      });
+      return;
+    }
+
+    const podcast = await Podcast.findById(episodio.podcast_reference);
+    if (!podcast) {
+      res.status(404).json({
+        status: "error",
+        title: "Podcast não encontrado",
+        message: "O podcast referenciado não foi encontrado.",
+      });
+      return;
+    }
+
+    // Deletar o arquivo de áudio do episódio
+    if (episodio.audio_path) {
+      if (fs.existsSync(episodio.audio_path)) {
+        fs.unlinkSync(episodio.audio_path);
+      }
+    }
+
+    for (const comentarioId of episodio.comentarios) {
+      const comentario = await Comentario.findById(comentarioId);
+
+      if (comentario) {
+        // Deletar todas as respostas de uma vez
+        if (comentario.respostas && comentario.respostas.length > 0) {
+          await Comentario.deleteMany({ _id: { $in: comentario.respostas } });
+        }
+
+        // Deletar o próprio comentário
+        await Comentario.findByIdAndDelete(comentarioId);
+      }
+    }
+
+    // deletar notificacoes
+    await Notificacao.deleteMany({
+      episodio_referente: episodio_id,
+    });
+
+    // atualizar as notificacoes do socket
+    // Notificar o autor que as notificações foram atualizadas
+    const sockets = user_connections.get(podcast?.autor?.toString());
+    if (sockets && sockets.length > 0) {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      sockets.forEach((socketId: any) => {
+        io.to(socketId).emit("atualizar_notificacoes");
+      });
+    }
+
+    // Deletar o episódio do banco de dados
+    try {
+      await Episodio.findByIdAndDelete(episodio_id);
+      podcast.episodios.pull(episodio_id);
+      await podcast.save();
+
+      res.status(200).json({
+        status: "success",
+        title: "Episódio deletado com sucesso",
+        message: "Episódio deletado com sucesso!",
+      });
+    } catch (error) {
+      console.error("Erro ao deletar episódio:", error);
+      res.status(500).json({
+        status: "error",
+        title: "Erro interno do servidor",
+        message:
+          error instanceof Error
+            ? error.message
+            : "Erro desconhecido ao deletar o episódio.",
+      });
+      return;
     }
   }
 }

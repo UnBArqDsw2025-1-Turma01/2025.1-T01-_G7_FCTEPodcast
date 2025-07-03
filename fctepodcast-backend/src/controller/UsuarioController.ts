@@ -6,6 +6,8 @@ import jwt from "jsonwebtoken";
 import Episodio from "../models/Episodio";
 import { Notificacao } from "../models/Notificacao";
 import Podcast from "../models/Podcast";
+import path from "path";
+import fs from "fs";
 
 export class UsuarioController {
   async getUsuarioById_Internal(id: string) {
@@ -578,7 +580,7 @@ export class UsuarioController {
         autor: usuario_id,
       })
         .sort({ reproducoes: -1 })
-        .limit(10)
+        .limit(4)
         .populate("co_autores", "_id nome email")
         .populate("autor", "_id nome email")
         .populate("episodios", "_id titulo descricao audio_path");
@@ -670,6 +672,13 @@ export class UsuarioController {
         });
         return;
       }
+      if (usuario.profile_picture) {
+        const caminhoAntigo = path.join("uploads", usuario.profile_picture);
+        if (fs.existsSync(caminhoAntigo)) {
+          fs.unlinkSync(caminhoAntigo);
+        }
+      }
+
       const filepath_sem_uploads = req.file.path.replace(/^uploads\//, "");
       usuario.profile_picture = filepath_sem_uploads;
       await usuario.save();
@@ -688,6 +697,36 @@ export class UsuarioController {
         status: "error",
         title: "Erro interno do servidor",
         message: "Erro ao alterar foto de perfil.",
+      });
+    }
+  }
+
+  async getCriadores(req: Request, res: Response): Promise<void> {
+    try {
+      const criadores = await Usuario.find({ role: { $in: ["PROFESSOR"] } })
+        .select("id nome email profile_picture cover_picture role")
+        .sort({ createdAt: -1 });
+
+      if (criadores.length === 0) {
+        res.status(404).json({
+          status: "error",
+          title: "Nenhum criador encontrado",
+          message: "Nenhum criador encontrado.",
+        });
+        return;
+      }
+
+      res.status(200).json({
+        status: "success",
+        title: "Criadores encontrados",
+        criadores: criadores,
+      });
+    } catch (error) {
+      console.error("Erro ao buscar criadores:", error);
+      res.status(500).json({
+        status: "error",
+        title: "Erro interno do servidor",
+        message: "Erro ao buscar criadores.",
       });
     }
   }

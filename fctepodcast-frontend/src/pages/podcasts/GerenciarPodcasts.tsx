@@ -16,7 +16,7 @@ const GerenciarPodcasts = () => {
   );
 
   return (
-    <div className="w-full h-full flex flex-col gap-4">
+    <div className="w-full flex flex-col gap-4 overflow-y-auto ">
       <motion.div
         initial={{ opacity: 0, y: -10 }}
         animate={{ opacity: 1, y: 0 }}
@@ -77,7 +77,7 @@ const GerenciarPodcasts = () => {
           onOpenChange={onOpenChange}
           refresh={fetchPodcasts}
         />
-
+        <div></div>
         {!loading &&
           podcasts.map((podcast, index) => (
             <motion.div

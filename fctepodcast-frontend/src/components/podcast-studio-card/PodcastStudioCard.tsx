@@ -18,6 +18,7 @@ import { useEffect, useState } from "react";
 import axios from "axios";
 import CriarEpisodioModal from "../modals/episodio/CriarEpisodioModal";
 import VerEpisodiosModal from "../modals/episodio/VerEpisodiosModal";
+import DeletarPodcastModal from "../modals/podcast/DeletarPodcastModal";
 
 const PodcastStudioCard = ({
   podcast,
@@ -29,6 +30,11 @@ const PodcastStudioCard = ({
   const [imageBlobUrl, setImageBlobUrl] = useState<string | null>(null);
 
   const { isOpen, onOpen, onOpenChange } = useDisclosure();
+  const {
+    isOpen: isOpenDelete,
+    onOpen: onOpenDelete,
+    onOpenChange: onOpenChangeDelete,
+  } = useDisclosure();
   const {
     isOpen: isOpenVerEpisodios,
     onOpen: onOpenVerEpisodios,
@@ -154,6 +160,7 @@ const PodcastStudioCard = ({
                 key={"excluir"}
                 color="danger"
                 className="text-danger"
+                onPress={onOpenDelete}
               >
                 <button className="flex items-center gap-2 w-full">
                   <FaTrash />
@@ -174,6 +181,13 @@ const PodcastStudioCard = ({
         isOpen={isOpenVerEpisodios}
         onOpenChange={onOpenChangeVerEpisodios}
         podcast_reference={podcast}
+        refresh_function={fetch_function}
+      />
+      <DeletarPodcastModal
+        podcast_id={podcast._id}
+        refresh_function={fetch_function}
+        onOpenChange={onOpenChangeDelete}
+        isOpen={isOpenDelete}
       />
     </>
   );

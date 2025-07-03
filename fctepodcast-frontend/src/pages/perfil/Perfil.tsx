@@ -1,12 +1,12 @@
 import { addToast, Button, Image } from "@heroui/react";
 import no_photo from "../../assets/no_image_base/icon-7797704_640.png";
-import no_cover from "../../assets/no_image_base/Gemini_Generated_Image_obzlrgobzlrgobzl.png";
 import { useNavigate, useParams } from "react-router";
 import { useEffect, useState } from "react";
 import { AxiosInstace } from "../../utils/axios/AxiosInstance";
 import { useAuth } from "../../context/auth/AuthContext";
 import PerfilProfessor from "./professor/PerfilProfessor";
 import { motion } from "framer-motion";
+import PerfilAluno from "./aluno/PerfilAluno";
 
 interface Usuario {
   nome: string;
@@ -73,20 +73,31 @@ const Perfil = () => {
   console.log(usuario);
 
   return (
-    <div className="h-screen flex flex-col gap-4">
+    <div className=" flex flex-col gap-4">
       <motion.div
         initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.6 }}
-        className="h-64 bg-cover bg-center flex items-center gap-4 p-4 rounded-xl"
-        style={{
-          backgroundImage: `url(${no_cover})`,
-        }}
+        className="relative h-64 flex items-center gap-4 p-4 rounded-xl overflow-hidden"
       >
+        {/* Fundo com imagem e blur */}
+        <div
+          className="absolute inset-0 bg-cover bg-center z-0"
+          style={{
+            backgroundImage: `url(${imageBlobUrl || "/placeholder.png"})`,
+            filter: "blur(10px)",
+          }}
+        />
+
+        {/* Camada semi-transparente para reforçar contraste */}
+        <div className="absolute inset-0 bg-black/20 z-10" />
+
+        {/* Conteúdo sobre o fundo */}
         <motion.div
           initial={{ scale: 0 }}
           animate={{ scale: 1 }}
           transition={{ duration: 0.5, delay: 0.2 }}
+          className="relative z-20"
         >
           <Image
             className="rounded-full h-36 object-cover shadow-md"
@@ -101,7 +112,7 @@ const Perfil = () => {
           initial={{ opacity: 0, x: -20 }}
           animate={{ opacity: 1, x: 0 }}
           transition={{ duration: 0.5, delay: 0.4 }}
-          className="flex flex-col gap-2"
+          className="relative flex flex-col gap-2 z-20"
         >
           <h2 className="font-bold text-2xl">{usuario?.nome}</h2>
           <p>{usuario?.email}</p>
@@ -126,9 +137,12 @@ const Perfil = () => {
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ duration: 0.6, delay: 0.7 }}
+        className="mb-8"
       >
-        {usuario?.role === "PROFESSOR" && usuario_id && (
+        {usuario?.role === "PROFESSOR" && usuario_id ? (
           <PerfilProfessor usuario_id={usuario_id} />
+        ) : (
+          <PerfilAluno />
         )}
       </motion.div>
     </div>

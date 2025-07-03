@@ -71,9 +71,14 @@ export const NotificationProvider = ({
       ]);
     });
 
+    socket.on("atualizar_notificacoes", () => {
+      fetchNotificacoes();
+    });
+
     return () => {
       socket.disconnect();
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user]);
 
   console.log("Notificações:", notifications);

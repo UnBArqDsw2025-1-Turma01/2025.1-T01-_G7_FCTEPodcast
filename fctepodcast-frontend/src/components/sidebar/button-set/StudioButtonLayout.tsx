@@ -4,7 +4,7 @@ import { motion } from "framer-motion";
 import { useAuth } from "../../../context/auth/AuthContext";
 import { FaPodcast } from "react-icons/fa";
 import { IoIosArrowBack } from "react-icons/io";
-import { MdManageAccounts } from "react-icons/md";
+// import { MdManageAccounts } from "react-icons/md";
 import { Avatar, Spacer } from "@heroui/react";
 import { useEffect, useState, type JSX } from "react";
 import { getImageUrlFromPath } from "../../../hooks/static/useImageFromPath";
@@ -58,12 +58,12 @@ const StudioButtonLayout = () => {
       redirect: "/studio/podcasts/gerenciar",
       reference_path: "/studio/podcasts/gerenciar",
     },
-    {
-      title: "Gerenciar Monitores",
-      icon: <MdManageAccounts className="text-xl" />,
-      redirect: "/studio/monitores/gerenciar",
-      reference_path: "/studio/monitores/gerenciar",
-    },
+    // {
+    //   title: "Gerenciar Monitores",
+    //   icon: <MdManageAccounts className="text-xl" />,
+    //   redirect: "/studio/monitores/gerenciar",
+    //   reference_path: "/studio/monitores/gerenciar",
+    // },
     {
       title: "Notificações",
       icon: <RiClapperboardFill className="text-xl" />,

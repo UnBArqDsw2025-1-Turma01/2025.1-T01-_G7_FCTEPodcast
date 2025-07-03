@@ -47,6 +47,8 @@ function App() {
 
           {/* <Route path="/meu-perfil" element={<MeuPerfil />} /> */}
           <Route path="/perfil/:usuario_id" element={<Perfil />} />
+
+          <Route path="/usuario/perfil/editar" element={<EditarPerfil />} />
         </Route>
 
         <Route element={<ProtectedRoute roles={["PROFESSOR"]} />}>
@@ -61,8 +63,6 @@ function App() {
           />
 
           <Route path="/studio/notificacoes" element={<Notificacoes />} />
-
-          <Route path="/usuario/perfil/editar" element={<EditarPerfil />} />
         </Route>
 
         {/* rotas especiais */}

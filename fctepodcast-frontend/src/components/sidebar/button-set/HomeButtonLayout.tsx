@@ -1,29 +1,36 @@
 import {
-  RiFolderMusicFill,
-  RiPlayListFill,
+  // RiFolderMusicFill,
+  // RiPlayListFill,
   RiClapperboardFill,
 } from "react-icons/ri";
 import { useNavigate } from "react-router";
 import { motion } from "framer-motion";
 import { useAuth } from "../../../context/auth/AuthContext";
+import { FaHeart } from "react-icons/fa";
 
 const HomeButtonLayout = () => {
   const navigate = useNavigate();
   const { user } = useAuth();
 
   const buttons = [
+    // {
+    //   title: "Sua Biblioteca",
+    //   description: "Organize, descubra e aproveite",
+    //   icon: <RiFolderMusicFill className="text-xl" />,
+    //   redirect: "/biblioteca",
+    // },
     {
-      title: "Sua Biblioteca",
+      title: "Minhas Curtidas",
       description: "Organize, descubra e aproveite",
-      icon: <RiFolderMusicFill className="text-xl" />,
-      redirect: "/biblioteca",
+      icon: <FaHeart className="text-xl" />,
+      redirect: `/curtidas/${user?.id}`,
     },
-    {
-      title: "Criar Playlist",
-      description: "Organize conversas que te inspiram",
-      icon: <RiPlayListFill className="text-xl" />,
-      redirect: "/tmp",
-    },
+    // {
+    //   title: "Criar Playlist",
+    //   description: "Organize conversas que te inspiram",
+    //   icon: <RiPlayListFill className="text-xl" />,
+    //   redirect: "/tmp",
+    // },
     {
       title: "Studio",
       description: "O backstage do seu conteúdo em áudio",
