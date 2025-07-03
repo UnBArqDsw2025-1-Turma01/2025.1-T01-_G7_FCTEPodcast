@@ -72,6 +72,14 @@ usuario_router.get(
   )
 );
 
+usuario_router.delete(
+  "/podcast/:podcast_id",
+  authFacade.handleSecureRequest(
+    ["PROFESSOR"],
+    podcast_controller.deletarPodcast
+  )
+);
+
 // rota publica para obter todos os podcasts TEMPORARIA
 usuario_router.get("/podcasts", podcast_controller.listarTodosPodcasts);
 
@@ -105,6 +113,14 @@ usuario_router.post(
   authFacade.handleSecureRequest(
     ["PROFESSOR", "ALUNO"],
     episodio_controller.likeEpisodio
+  )
+);
+
+usuario_router.delete(
+  "/episodio/:episodio_id",
+  authFacade.handleSecureRequest(
+    ["PROFESSOR"],
+    episodio_controller.deletarEpisodio
   )
 );
 

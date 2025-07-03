@@ -1,6 +1,6 @@
 import {
   RiFolderMusicFill,
-  RiPlayListFill,
+  // RiPlayListFill,
   RiClapperboardFill,
 } from "react-icons/ri";
 import { useNavigate } from "react-router";
@@ -18,12 +18,12 @@ const HomeButtonLayout = () => {
       icon: <RiFolderMusicFill className="text-xl" />,
       redirect: "/biblioteca",
     },
-    {
-      title: "Criar Playlist",
-      description: "Organize conversas que te inspiram",
-      icon: <RiPlayListFill className="text-xl" />,
-      redirect: "/tmp",
-    },
+    // {
+    //   title: "Criar Playlist",
+    //   description: "Organize conversas que te inspiram",
+    //   icon: <RiPlayListFill className="text-xl" />,
+    //   redirect: "/tmp",
+    // },
     {
       title: "Studio",
       description: "O backstage do seu conteúdo em áudio",

@@ -20,6 +20,7 @@ import ComentarioCard from "../../components/comentario-card/ComentarioCard";
 import { AnimatePresence, motion } from "framer-motion";
 import LoaderMini from "../loader/LoaderMini";
 import { IoIosClose } from "react-icons/io";
+import { getImageUrlFromPath } from "../../hooks/static/useImageFromPath";
 
 const ComentariosEpisodio = () => {
   const { user } = useAuth();
@@ -33,6 +34,44 @@ const ComentariosEpisodio = () => {
   const [isResposta, setIsResposta] = useState<boolean>(false);
   const [respostaUsuarioEmail, setRespostaUsuarioEmail] = useState<string>("");
   const [referenciaComentario, setReferenciaComentario] = useState<string>("");
+
+  const [imageBlobUrlAvatar, setImageBlobUrlAvatar] = useState<string>("");
+
+  useEffect(() => {
+    let isActive = true;
+    let objectUrl: string | null = null;
+
+    async function fetchImage() {
+      if (!user?.profile_picture) {
+        setImageBlobUrlAvatar("");
+        return;
+      }
+
+      try {
+        const url = await getImageUrlFromPath(user.profile_picture);
+        if (isActive) {
+          setImageBlobUrlAvatar(url);
+          objectUrl = url;
+        } else {
+          // Se já não está ativo, revoga a URL criada para evitar vazamento
+          URL.revokeObjectURL(url);
+        }
+      } catch {
+        if (isActive) {
+          setImageBlobUrlAvatar("");
+        }
+      }
+    }
+
+    fetchImage();
+
+    return () => {
+      isActive = false;
+      if (objectUrl) {
+        URL.revokeObjectURL(objectUrl);
+      }
+    };
+  }, [user?.profile_picture]);
 
   const getEpisodioData = async () => {
     if (!episodio_id) {
@@ -358,7 +397,7 @@ const ComentariosEpisodio = () => {
           className="bg-primary-200/70 backdrop-blur-md p-2 rounded-xl flex gap-5 shrink-0
                  absolute bottom-2 left-0 right-0 z-10"
         >
-          <Avatar />
+          <Avatar src={imageBlobUrlAvatar} />
           <form
             onSubmit={handleComentar}
             className="flex items-center gap-2 w-full"
