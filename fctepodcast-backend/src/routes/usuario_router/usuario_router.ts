@@ -57,6 +57,14 @@ usuario_router.post(
 
 // podcasts
 usuario_router.get(
+  "/podcasts/em-alta",
+  authFacade.handleSecureRequest(
+    ["PROFESSOR", "ALUNO"],
+    podcast_controller.getPodcastsEmAlta
+  )
+);
+
+usuario_router.get(
   "/podcasts/:usuario_id",
   authFacade.handleSecureRequest(
     ["PROFESSOR", "ALUNO"],
@@ -84,6 +92,7 @@ usuario_router.delete(
 usuario_router.get("/podcasts", podcast_controller.listarTodosPodcasts);
 
 // episodios
+
 usuario_router.post(
   "/episodio/criar",
   upload.single("audio"),

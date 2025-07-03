@@ -236,4 +236,34 @@ export class PodcastController {
       });
     }
   }
+
+  async getPodcastsEmAlta(req: Request, res: Response): Promise<void> {
+    const podcasts = await Podcast.find()
+      .populate({
+        path: "autor",
+        select: "id nome email", // Seleciona apenas os campos necessários do autor
+      })
+      .populate("episodios");
+    if (!podcasts || podcasts.length === 0) {
+      res.status(404).json({
+        status: "error",
+        title: "Nenhum podcast encontrado",
+        message: "Nenhum podcast encontrado.",
+      });
+      return;
+    }
+
+    // obtem a soma de reproducoes de todos os podcasts apartir das suas reproducoes
+    const podcastsEmAlta = podcasts
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      .sort((a: any, b: any) => b.reproducoes - a.reproducoes)
+      .slice(0, 10); // Pega os 10 podcasts mais reproduz
+
+    res.status(200).json({
+      status: "success",
+      title: "Podcasts em alta",
+      message: "Podcasts em alta encontrados com sucesso!",
+      podcasts: podcastsEmAlta,
+    });
+  }
 }

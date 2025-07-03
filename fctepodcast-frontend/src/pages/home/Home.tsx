@@ -1,11 +1,12 @@
 import PodcastCard from "../../components/home/cards/CriarCardsPodcast";
 import AuthorCard from "../../components/home/cards/AutorCard";
-import { useGetTodosPodcasts } from "../../hooks/podcasts/useGetTodosPodcasts";
 import { usePlayer } from "../../context/player/PlayerContext";
 import { Spinner } from "@heroui/react";
+import { useGetPodcastsEmAlta } from "../../hooks/podcasts/useGetPodcastsEmAlta";
 
 const Home = () => {
-  const { podcasts, loading } = useGetTodosPodcasts();
+  // const { podcasts, loading } = useGetTodosPodcasts();
+  const { podcasts, loading } = useGetPodcastsEmAlta();
   const { setPlaylist } = usePlayer();
 
   return (
