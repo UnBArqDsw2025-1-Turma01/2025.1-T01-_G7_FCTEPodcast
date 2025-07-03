@@ -44,6 +44,7 @@ const DeletarPodcastModal = ({
 
       refresh_function(); // Atualiza a lista após o modal fechar
       onOpenChange(false); // Fecha o modal
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (error: any) {
       addToast({
         title: error.response?.data?.title || "Erro ao deletar podcast",
