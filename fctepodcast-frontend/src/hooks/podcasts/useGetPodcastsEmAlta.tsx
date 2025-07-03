@@ -12,9 +12,8 @@ export function useGetPodcastsEmAlta() {
     try {
       const response = await AxiosInstace.get("/usuario/podcasts/em-alta");
       setPodcasts(response.data.podcasts);
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
 
-      console.log("Podcasts em alta:", response.data.podcasts);
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (error: any) {
       addToast({
         title: error.response.data.title,

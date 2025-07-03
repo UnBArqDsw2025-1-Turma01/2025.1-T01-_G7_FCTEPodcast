@@ -48,6 +48,15 @@ usuario_router.post("/login", usuario_controller.login);
 usuario_router.post("/logout", usuario_controller.logout);
 usuario_router.post("/refresh", usuario_controller.refresh_session);
 
+// usuarios
+usuario_router.get(
+  "/criadores",
+  authFacade.handleSecureRequest(
+    ["PROFESSOR", "ALUNO"],
+    usuario_controller.getCriadores
+  )
+);
+
 // professor
 usuario_router.post(
   "/podcast/criar",
