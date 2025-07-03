@@ -694,6 +694,20 @@ export class EpisodioController {
       }
     }
 
+    for (const comentarioId of episodio.comentarios) {
+      const comentario = await Comentario.findById(comentarioId);
+
+      if (comentario) {
+        // Deletar todas as respostas de uma vez
+        if (comentario.respostas && comentario.respostas.length > 0) {
+          await Comentario.deleteMany({ _id: { $in: comentario.respostas } });
+        }
+
+        // Deletar o próprio comentário
+        await Comentario.findByIdAndDelete(comentarioId);
+      }
+    }
+
     // Deletar o episódio do banco de dados
     try {
       await Episodio.findByIdAndDelete(episodio_id);
