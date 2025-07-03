@@ -9,6 +9,7 @@ const EditarPerfil = () => {
   const { user, updateProfilePicture } = useAuth();
   const [novaFoto, setNovaFoto] = useState<File | null>(null);
   const [imageBlobUrl, setImageBlobUrl] = useState<string>("");
+  const [loading, setLoading] = useState<boolean>(false);
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -60,7 +61,7 @@ const EditarPerfil = () => {
 
     const formData = new FormData();
     formData.append("profile_picture", novaFoto);
-
+    setLoading(true);
     try {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const response: any = await AxiosInstace.post(
@@ -81,6 +82,8 @@ const EditarPerfil = () => {
       getImage(); // Atualiza a imagem após a mudança
     } catch (error) {
       console.error("Erro ao atualizar foto de perfil:", error);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -129,7 +132,11 @@ const EditarPerfil = () => {
                 exit={{ opacity: 0, y: -5 }}
                 transition={{ duration: 0.3 }}
               >
-                <Button onPress={handleChangeProfilePic} color="primary">
+                <Button
+                  isLoading={loading}
+                  onPress={handleChangeProfilePic}
+                  color="primary"
+                >
                   Atualizar Foto
                 </Button>
               </motion.div>
