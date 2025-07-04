@@ -29,6 +29,7 @@ const CriarPodcastModal = ({
   const [descricao, setDescricao] = useState<string>("");
   const [image, setImage] = useState<File | null>(null);
   const [tags, setTags] = useState<string>("");
+  const [loading, setLoading] = useState<boolean>(false);
 
   const handleCreatePodcast = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -45,6 +46,7 @@ const CriarPodcastModal = ({
     formData.append("autor", user?.id);
     formData.append("tags", tags);
 
+    setLoading(true);
     try {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const response: any = await AxiosInstace.post(
@@ -76,6 +78,8 @@ const CriarPodcastModal = ({
         description: error.response.data.message,
         color: "danger",
       });
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -137,7 +141,7 @@ const CriarPodcastModal = ({
 
                 <Input label="Autor" readOnly disabled value={user?.nome} />
 
-                <Button type="submit" color="primary">
+                <Button isLoading={loading} type="submit" color="primary">
                   Criar Podcast
                 </Button>
               </form>
